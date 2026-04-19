@@ -13,6 +13,12 @@ import java.util.List;
 
 public class ProjectStatusBuilder {
 
+    /**
+     * The new-code period index used in SonarQube 10.x+. There is only one new-code period,
+     * consistently represented with index 1 for backward compatibility with the entity model.
+     */
+    private static final int NEW_CODE_PERIOD_INDEX = 1;
+
     // private static final Logger LOGGER = LoggerFactory.getLogger(ProjectStatusBuilder.class);
 
     private static ProjectStatusBuilder builder;
@@ -70,7 +76,7 @@ public class ProjectStatusBuilder {
         }
         Qualitygates.ProjectStatusResponse.NewCodePeriod period = projectStatus.getPeriod();
         StatusPeriod statusPeriod = new StatusPeriodBuilder()
-                .setIndex(1)
+                .setIndex(NEW_CODE_PERIOD_INDEX)
                 .setMode(period.getMode())
                 .createStatusPeriod();
         if (period.hasDate()) {

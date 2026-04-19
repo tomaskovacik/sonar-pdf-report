@@ -241,6 +241,9 @@
                     <pluginClass>com.cybage.sonar.report.pdf.plugin.PDFReportPlugin</pluginClass>
                     <pluginName>Sonar PDF Report plugin</pluginName>
                     <pluginDescription>Produces PDF Report from your Sonarqube analysis</pluginDescription>
+                    <!-- Minimum plugin API version (10.0.0.695 = SonarQube 10.0) ensures the plugin
+                         works with SonarQube Community Build 26.x which uses plugin API 13.x.
+                         The actual compile-time API used is sonar.plugin.api.version (13.5.0.4319). -->
                     <pluginApiMinVersion>10.0.0.695</pluginApiMinVersion>
                     <pluginUrl>https://github.com/sleroy/sonar-pdf-report</pluginUrl>
                     <pluginIssueTrackerUrl>https://github.com/sleroy/sonar-pdf-report/issues
