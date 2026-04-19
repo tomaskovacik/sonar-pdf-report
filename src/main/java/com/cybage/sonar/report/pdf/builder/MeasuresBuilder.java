@@ -3,16 +3,15 @@ package com.cybage.sonar.report.pdf.builder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.HttpDownloader.HttpException;
 import org.sonarqube.ws.Common.Metric;
 
 import org.sonarqube.ws.Measures;
@@ -25,7 +24,6 @@ import com.cybage.sonar.report.pdf.util.MetricKeys;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
 import static com.cybage.sonar.report.pdf.builder.WSParameters.*;
-import static com.cybage.sonar.report.pdf.builder.WSParameters.PERIODS;
 
 public class MeasuresBuilder {
 
@@ -48,7 +46,7 @@ public class MeasuresBuilder {
     }
 
     public com.cybage.sonar.report.pdf.entity.Measures initMeasuresByProjectKey(final String projectKey, final Set<String> otherMetrics)
-            throws HttpException, IOException, ReportException {
+            throws IOException, ReportException {
 
         com.cybage.sonar.report.pdf.entity.Measures measures = new com.cybage.sonar.report.pdf.entity.Measures();
         if (measuresKeys == null) {
@@ -76,7 +74,7 @@ public class MeasuresBuilder {
      * @throws ReportException
      */
     private void initMeasuresSplittingRequests(final com.cybage.sonar.report.pdf.entity.Measures measures, final String projectKey)
-            throws HttpException, IOException, ReportException {
+            throws IOException, ReportException {
         Iterator<String> it = measuresKeys.iterator();
         // LOGGER.debug("Getting " + measuresKeys.size() + " metric measures from Sonar by splitting requests");
         Set<String> twentyMeasures = new HashSet<String>(20);
@@ -105,11 +103,11 @@ public class MeasuresBuilder {
     private void addMeasures(final com.cybage.sonar.report.pdf.entity.Measures measures,
                              final Set<String> measuresAsString,
                              final String projectKey)
-            throws HttpException, ReportException {
+            throws ReportException {
         LOGGER.info("Adding measures for the metrics {} and project {}", measuresAsString, projectKey);
         ComponentRequest compWsReq = new ComponentRequest();
         compWsReq.setComponent(projectKey);
-        compWsReq.setAdditionalFields(Arrays.asList(METRICS, PERIODS, PERIOD));
+        compWsReq.setAdditionalFields(Arrays.asList(METRICS, PERIOD));
         compWsReq.setMetricKeys(new ArrayList<>(measuresAsString));
 
         org.sonarqube.ws.Measures.ComponentWsResponse compWsRes = wsClient.measures().component(compWsReq);
@@ -125,15 +123,16 @@ public class MeasuresBuilder {
                                             final org.sonarqube.ws.Measures.ComponentWsResponse compWsRes) throws ReportException {
         List<Measures.Measure> allNodes = compWsRes.getComponent().getMeasuresList();
         Measures.Metrics       metrics  = compWsRes.getMetrics();
-        List<Measures.Period>  periods  = compWsRes.getPeriods().getPeriodsList();
 
-        if (periods.size() == 0) {
-            LOGGER.error("No period was returned, we don't have enough data yet.");
-            return;
+        // SonarQube 10.x+ uses a single new-code period instead of a list of periods.
+        List<Period_> periods;
+        if (compWsRes.hasPeriod()) {
+            Measures.Period p = compWsRes.getPeriod();
+            periods = Collections.singletonList(new Period_(p.getIndex(), p.getMode(), p.getDate(), p.getParameter()));
+        } else {
+            periods = Collections.emptyList();
         }
-        measures.setPeriods(periods.stream()
-                                   .map(p -> new Period_(p.getIndex(), p.getMode(), p.getDate(), p.getParameter()))
-                                   .collect(Collectors.toList()));
+        measures.setPeriods(periods);
 
         LOGGER.info("Found {} measures", allNodes.size());
         LOGGER.info("Found {} periods", periods.size());

@@ -12,7 +12,6 @@ import com.cybage.sonar.report.pdf.entity.ComplexityDistribution;
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.HttpDownloader.HttpException;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
@@ -118,7 +117,7 @@ public abstract class PDFReporter {
 
     protected abstract URL getLogo();
 
-    public Project getProject() throws HttpException, IOException, ReportException {
+    public Project getProject() throws IOException, ReportException {
         if (project == null) {
             HttpConnector httpConnector = HttpConnector.newBuilder().url(credentials.getUrl())
                                                        .credentials(credentials.getUsername(), credentials.getPassword()).build();

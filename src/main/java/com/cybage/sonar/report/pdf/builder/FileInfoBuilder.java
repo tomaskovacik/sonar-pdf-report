@@ -147,7 +147,7 @@ public class FileInfoBuilder {
 
     private FileInfo newComplexityFileInfo(final Measures.Component component) {
         FileInfo fileInfo = new FileInfo();
-        fileInfo.setKey(component.getId());
+        fileInfo.setKey(component.getKey());
         fileInfo.setName(component.getName());
         fileInfo.setPath(component.getPath());
         fileInfo.setViolations("0");
@@ -180,7 +180,7 @@ public class FileInfoBuilder {
 
     private FileInfo newDuplicationFileInfo(final Measures.Component component) {
         FileInfo fileInfo = new FileInfo();
-        fileInfo.setKey(component.getId());
+        fileInfo.setKey(component.getKey());
         fileInfo.setName(component.getName());
         fileInfo.setPath(component.getPath());
         fileInfo.setViolations("0");

@@ -95,7 +95,7 @@
 
     <properties>
 
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -103,14 +103,18 @@
 
         <sonar.pluginName>PDF Report</sonar.pluginName>
         <sonar.pluginClass>com.cybage.sonar.report.pdf.plugin.PDFReportPlugin</sonar.pluginClass>
-        <sonar.version>8.0</sonar.version>
+        <!-- sonar-ws version must match the target SonarQube Community Build version -->
+        <sonar.version>26.4.0.121862</sonar.version>
+        <!-- standalone sonar-plugin-api version compatible with SonarQube 26.x -->
+        <sonar.plugin.api.version>13.5.0.4319</sonar.plugin.api.version>
     </properties>
 
     <dependencies>
+        <!-- Standalone sonar-plugin-api compatible with SonarQube Community Build 26.x -->
         <dependency>
-            <groupId>org.sonarsource.sonarqube</groupId>
+            <groupId>org.sonarsource.api.plugin</groupId>
             <artifactId>sonar-plugin-api</artifactId>
-            <version>${sonar.version}</version>
+            <version>${sonar.plugin.api.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -151,13 +155,6 @@
         </dependency>
 
 
-        <!-- This is needed in tests to assert i18n behaviour -->
-        <dependency>
-            <groupId>org.sonarsource.sonarqube</groupId>
-            <artifactId>sonar-core</artifactId>
-            <version>${sonar.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -236,7 +233,7 @@
             <plugin>
                 <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
                 <artifactId>sonar-packaging-maven-plugin</artifactId>
-                <version>1.18.0.372</version>
+                <version>1.25.1.3002</version>
                 <extensions>true</extensions>
                 <configuration>
                     <jarName>sonar-pdf-report-${project.version}</jarName>
@@ -244,7 +241,7 @@
                     <pluginClass>com.cybage.sonar.report.pdf.plugin.PDFReportPlugin</pluginClass>
                     <pluginName>Sonar PDF Report plugin</pluginName>
                     <pluginDescription>Produces PDF Report from your Sonarqube analysis</pluginDescription>
-                    <sonarQubeMinVersion>8.0</sonarQubeMinVersion>
+                    <pluginApiMinVersion>10.0.0.695</pluginApiMinVersion>
                     <pluginUrl>https://github.com/sleroy/sonar-pdf-report</pluginUrl>
                     <pluginIssueTrackerUrl>https://github.com/sleroy/sonar-pdf-report/issues
                     </pluginIssueTrackerUrl>
