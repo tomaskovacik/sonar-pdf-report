@@ -1,9 +1,12 @@
-name: Release
+name: Release JAR to GitHub Releases
 
 on:
   push:
     tags:
       - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   build-and-release:
@@ -20,10 +23,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build with Maven
-        run: mvn -B package -DskipTests
+      - name: Build and test with Maven
+        run: mvn -B verify
 
       - name: Upload JAR to GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
         with:
           files: target/sonar-pdf-report-*.jar
