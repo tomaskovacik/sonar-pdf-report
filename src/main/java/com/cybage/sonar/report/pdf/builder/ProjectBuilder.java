@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.HttpDownloader.HttpException;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.client.WsClient;
@@ -118,7 +117,7 @@ public class ProjectBuilder {
 	}
 
 	private void initMeasures(final Project project, final Set<String> otherMetrics)
-			throws IOException, HttpException, ReportException {
+			throws IOException, ReportException {
 		LOGGER.info("Retrieving measures");
 		MeasuresBuilder measuresBuilder = MeasuresBuilder.getInstance(wsClient);
 		Measures measures = measuresBuilder.initMeasuresByProjectKey(project.getKey(), otherMetrics);

@@ -8,9 +8,16 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ProjectStatusBuilder {
+
+    /**
+     * The new-code period index used in SonarQube 10.x+. There is only one new-code period,
+     * consistently represented with index 1 for backward compatibility with the entity model.
+     */
+    private static final int NEW_CODE_PERIOD_INDEX = 1;
 
     // private static final Logger LOGGER = LoggerFactory.getLogger(ProjectStatusBuilder.class);
 
@@ -52,7 +59,6 @@ public class ProjectStatusBuilder {
                     .setStatus(condition.getStatus().toString())
                     .setMetricKey(condition.getMetricKey())
                     .setComparator(condition.getComparator().toString())
-                    .setPeriodIndex(condition.getPeriodIndex())
                     .setErrorThreshold(condition.getErrorThreshold())
                     .setActualValue(condition.getActualValue())
                     .setWarningThreshold(condition.getWarningThreshold())
@@ -63,21 +69,22 @@ public class ProjectStatusBuilder {
     }
 
     private List<StatusPeriod> initStatusPeriods(final Qualitygates.ProjectStatusResponse projectStatusWsRes) {
-        List<StatusPeriod> statusPeriods = new ArrayList<>();
-        for (Qualitygates.ProjectStatusResponse.Period period : projectStatusWsRes.getProjectStatus().getPeriodsList()) {
-            StatusPeriod statusPeriod = new StatusPeriodBuilder()
-                    .setIndex(period.getIndex())
-                    .setMode(period.getMode())
-                    .createStatusPeriod();
-
-            if (period.getDate() != null) {
-                statusPeriod.setDate(period.getDate());
-            }
-            if (period.getParameter() != null) {
-                statusPeriod.setParameter(period.getParameter());
-            }
-            statusPeriods.add(statusPeriod);
+        // SonarQube 10.x+ replaced the list of periods with a single new-code period.
+        Qualitygates.ProjectStatusResponse.ProjectStatus projectStatus = projectStatusWsRes.getProjectStatus();
+        if (!projectStatus.hasPeriod()) {
+            return Collections.emptyList();
         }
-        return statusPeriods;
+        Qualitygates.ProjectStatusResponse.NewCodePeriod period = projectStatus.getPeriod();
+        StatusPeriod statusPeriod = new StatusPeriodBuilder()
+                .setIndex(NEW_CODE_PERIOD_INDEX)
+                .setMode(period.getMode())
+                .createStatusPeriod();
+        if (period.hasDate()) {
+            statusPeriod.setDate(period.getDate());
+        }
+        if (period.hasParameter()) {
+            statusPeriod.setParameter(period.getParameter());
+        }
+        return Collections.singletonList(statusPeriod);
     }
 }

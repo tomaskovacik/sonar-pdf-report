@@ -393,17 +393,26 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         if (status.equals(ProjectStatusKeys.STATUS_ERROR)) {
             // Get Project Status Periods Information
+            // In SonarQube 10.x+, there is at most one new-code period (index 1).
             Map<Integer, StatusPeriod> mapStatusPeriod = project.getProjectStatus().getStatusPeriods()
                                                                 .stream()
                                                                 .collect(Collectors.toMap(StatusPeriod::getIndex, Function.identity()));
+            // Fallback: first period available (used when condition has no period index)
+            StatusPeriod defaultPeriod = mapStatusPeriod.isEmpty() ? null : mapStatusPeriod.values().iterator().next();
 
             // Get Project Status Conditions Information
             for (Condition condition : project.getProjectStatus().getConditions()) {
                 if (condition.getStatus().equals(ProjectStatusKeys.STATUS_ERROR)) {
-                    CustomCellTitle metricName = new CustomCellTitle(new Phrase(
-                            StringUtils.capitalize(condition.getMetricKey().replace("_", " ")) + " (since "
-                                    + mapStatusPeriod.get(condition.getPeriodIndex()).getMode().replace("_", " ") + ")",
-                            Style.DASHBOARD_TITLE_FONT));
+                    // In SonarQube 10.x+, conditions no longer carry a periodIndex.
+                    // Fall back to the new-code period info when available.
+                    StatusPeriod condPeriod = condition.getPeriodIndex() != null
+                            ? mapStatusPeriod.get(condition.getPeriodIndex())
+                            : defaultPeriod;
+                    String metricLabel = StringUtils.capitalize(condition.getMetricKey().replace("_", " "));
+                    if (condPeriod != null) {
+                        metricLabel += " (since " + condPeriod.getMode().replace("_", " ") + ")";
+                    }
+                    CustomCellTitle metricName = new CustomCellTitle(new Phrase(metricLabel, Style.DASHBOARD_TITLE_FONT));
                     tableQualityGates.addCell(metricName);
 
                     CustomCellTitle metricValue = new CustomCellTitle(new Phrase(condition.getActualValue() + " "

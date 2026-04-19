@@ -7,35 +7,29 @@ import org.apache.commons.lang3.Validate;
 import org.sonarqube.ws.Common.Metric;
 import org.sonarqube.ws.Measures;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class MeasureBuilder {
 
     /**
-     * Init measure from XML node. The root node must be "msr".
+     * Init measure from WS response node.
      *
      * @param measureNode the measure node
-     * @param periods_    the periods
+     * @param periods_    the response-level periods (may be empty in SonarQube 10.x+)
      * @param metric      the metric
      * @return measure
      */
     public static Measure initFromNode(final Measures.Measure measureNode, List<Period_> periods_,
                                        Metric metric) {
-        Validate.isTrue(!periods_.isEmpty(), "Periods should be available.");
-        Measures.PeriodsValue      periodsValue     = measureNode.getPeriods();
-        List<Measures.PeriodValue> periodsValueList = periodsValue.getPeriodsValueList();
-        List<Period> periods = periodsValueList.stream()
-                                               .map(MeasureBuilder::newPeriod)
-                                               .collect(Collectors.toList());
-
+        List<Period> periods = new ArrayList<>();
+        // SonarQube 10.x+ returns a single new-code period value per measure instead of a list.
+        if (measureNode.hasPeriod()) {
+            Measures.PeriodValue pv = measureNode.getPeriod();
+            periods.add(new Period(pv.getIndex(), pv.getValue()));
+        }
         return newMeasure(measureNode, periods, metric);
-
-    }
-
-    private static Period newPeriod(final Measures.PeriodValue p) {
-        return new Period(p.getIndex(), p.getValue());
     }
 
     private static Measure newMeasure(final Measures.Measure measureNode, final List<Period> periods, final Metric metric) {
