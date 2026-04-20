@@ -1,6 +1,7 @@
 package com.cybage.sonar.report.pdf.builder;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -8,9 +9,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.components.ShowRequest;
+import org.sonarqube.ws.client.projects.SearchRequest;
 
 import com.cybage.sonar.report.pdf.entity.FileInfo;
 import com.cybage.sonar.report.pdf.entity.Issue;
@@ -61,27 +65,49 @@ public class ProjectBuilder {
 
 			LOGGER.info("Retrieving project info for " + project.getKey());
 
+			String projectName = null;
+			String projectDescription = "";
+
 			ShowRequest showWsReq = new ShowRequest();
 			showWsReq.setComponent(project.getKey());
-			Components.ShowWsResponse showWsRes = wsClient.components().show(showWsReq);
+			try {
+				Components.ShowWsResponse showWsRes = wsClient.components().show(showWsReq);
+				if (showWsRes != null && showWsRes.hasComponent()) {
+					projectName = showWsRes.getComponent().getName();
+					projectDescription = showWsRes.getComponent().getDescription();
+				}
+			} catch (HttpException e) {
+				if (e.code() == 403) {
+					LOGGER.warn("Insufficient privileges to call api/components/show for " + project.getKey()
+							+ " (HTTP 403). Falling back to api/projects/search.");
+					SearchRequest searchReq = new SearchRequest();
+					searchReq.setProjects(Collections.singletonList(project.getKey()));
+					Projects.SearchWsResponse searchRes = wsClient.projects().search(searchReq);
+					if (searchRes.getComponentsCount() > 0) {
+						projectName = searchRes.getComponents(0).getName();
+					}
+				} else {
+					throw e;
+				}
+			}
+
+			if (projectName == null) {
+				LOGGER.info("Can't retrieve project info. Have you set username/password in Sonar settings?");
+				throw new ReportException("Can't retrieve project info. Parent project node is empty. Authentication?");
+			}
 
 			ProjectStatusRequest projectStatusWsReq = new ProjectStatusRequest();
 			projectStatusWsReq.setProjectKey(key);
 			Qualitygates.ProjectStatusResponse projectStatusWsRes = wsClient.qualitygates().projectStatus(projectStatusWsReq);
 
-			if (showWsRes != null) {
-				initFromNode(project, showWsRes, projectStatusWsRes);
-				initMeasures(project, otherMetrics);
-				initMostViolatedRules(project);
-				initMostViolatedFiles(project);
-				initMostComplexFiles(project);
-				initMostDuplicatedFiles(project);
-				if (typesOfIssue.size() > 0) {
-					initIssueDetails(project, typesOfIssue);
-				}
-			} else {
-				LOGGER.info("Can't retrieve project info. Have you set username/password in Sonar settings?");
-				throw new ReportException("Can't retrieve project info. Parent project node is empty. Authentication?");
+			initFromNode(project, projectName, projectDescription, projectStatusWsRes);
+			initMeasures(project, otherMetrics);
+			initMostViolatedRules(project);
+			initMostViolatedFiles(project);
+			initMostComplexFiles(project);
+			initMostDuplicatedFiles(project);
+			if (typesOfIssue.size() > 0) {
+				initIssueDetails(project, typesOfIssue);
 			}
 		} catch (Exception ex) {
 			LOGGER.error("Exception in initializeProject()");
@@ -95,14 +121,14 @@ public class ProjectBuilder {
 	 * 
 	 * @throws IOException
 	 */
-	private void initFromNode(final Project project, final Components.ShowWsResponse resourceNode,
+	private void initFromNode(final Project project, final String name, final String description,
 			final Qualitygates.ProjectStatusResponse projectStatusWsRes) throws IOException {
 
 		// Set Project Name
-		project.setName(resourceNode.getComponent().getName());
+		project.setName(name);
 
 		// Set Project Description
-		project.setDescription(resourceNode.getComponent().getDescription());
+		project.setDescription(description);
 		// project.setLinks(new LinkedList<String>());
 		project.setSubprojects(new LinkedList<Project>());
 
