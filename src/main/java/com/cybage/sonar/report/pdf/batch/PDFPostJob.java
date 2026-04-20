@@ -21,7 +21,6 @@ public class PDFPostJob implements PostJob {
     public static final  boolean       SKIP_PDF_DEFAULT_VALUE              = false;
     public static final  String        REPORT_TYPE                         = "report.type";
     public static final  String        REPORT_TYPE_DEFAULT_VALUE           = "pdf";
-    public static final  String        SONAR_TOKEN                         = "sonar.token";
     public static final  String        SONAR_USER_TOKEN_ENV                = "SONAR_USER_TOKEN";
     public static final  String        SONAR_HOST_URL                      = "sonar.host.url";
     public static final  String        SONAR_HOST_URL_DEFAULT_VALUE        = "http://localhost:9000";
@@ -65,9 +64,13 @@ public class PDFPostJob implements PostJob {
         // Prefer the SONAR_USER_TOKEN environment variable (User Token required; Analysis Tokens are not supported).
         // Fall back to the sonar.token configuration property for backwards compatibility.
         String envToken = System.getenv(SONAR_USER_TOKEN_ENV);
-        String token = (envToken != null && !envToken.isEmpty())
-                ? envToken
-                : (configuration.hasKey(SONAR_TOKEN) ? configuration.get(SONAR_TOKEN).orElse("") : "");
+        if (envToken == null || envToken.isEmpty()) {
+            LOGGER.warn("SONAR_USER_TOKEN environment variable is not set. Skipping PDF report generation. "
+                    + "Please set the SONAR_USER_TOKEN environment variable with a valid SonarQube user token "
+                    + "(see SonarQube documentation: https://docs.sonarsource.com/sonarqube/latest/user-guide/user-account/generating-and-using-tokens/).");
+            return;
+        }
+        String token = envToken;
         String reportType = configuration.hasKey(REPORT_TYPE)
                 ? configuration.get(REPORT_TYPE).get() : REPORT_TYPE_DEFAULT_VALUE;
         String projectVersion = configuration.hasKey(SONAR_PROJECT_VERSION)
