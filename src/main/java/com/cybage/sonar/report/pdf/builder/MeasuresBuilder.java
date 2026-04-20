@@ -76,7 +76,7 @@ public class MeasuresBuilder {
      */
     private void initMeasuresSplittingRequests(final com.cybage.sonar.report.pdf.entity.Measures measures, final String projectKey)
             throws IOException, ReportException {
-        Iterator<String> it = measuresKeys.iterator();
+        Iterator<String> it = new ArrayList<>(measuresKeys).iterator();
         // LOGGER.debug("Getting " + measuresKeys.size() + " metric measures from Sonar by splitting requests");
         Set<String> twentyMeasures = new HashSet<String>(20);
         int         i              = 0;
