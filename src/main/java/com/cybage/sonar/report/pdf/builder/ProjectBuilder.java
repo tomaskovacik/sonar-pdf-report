@@ -66,7 +66,7 @@ public class ProjectBuilder {
 			LOGGER.info("Retrieving project info for " + project.getKey());
 
 			String projectName = null;
-			String projectDescription = null;
+			String projectDescription = "";
 
 			ShowRequest showWsReq = new ShowRequest();
 			showWsReq.setComponent(project.getKey());
@@ -100,7 +100,7 @@ public class ProjectBuilder {
 			projectStatusWsReq.setProjectKey(key);
 			Qualitygates.ProjectStatusResponse projectStatusWsRes = wsClient.qualitygates().projectStatus(projectStatusWsReq);
 
-			initFromNode(project, projectName, projectDescription != null ? projectDescription : "", projectStatusWsRes);
+			initFromNode(project, projectName, projectDescription, projectStatusWsRes);
 			initMeasures(project, otherMetrics);
 			initMostViolatedRules(project);
 			initMostViolatedFiles(project);
