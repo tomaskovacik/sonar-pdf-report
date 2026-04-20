@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.byoskill.sonar</groupId>
     <artifactId>sonar-pdfreport-plugin</artifactId>
-    <version>1.6.2</version>
+    <version>1.6.3</version>
     <packaging>sonar-plugin</packaging>
 
     <url>https://github.com/dh-46/sonar-pdf-report</url>
