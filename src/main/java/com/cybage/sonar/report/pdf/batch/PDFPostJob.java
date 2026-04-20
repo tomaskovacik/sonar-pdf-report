@@ -22,6 +22,7 @@ public class PDFPostJob implements PostJob {
     public static final  String        REPORT_TYPE                         = "report.type";
     public static final  String        REPORT_TYPE_DEFAULT_VALUE           = "pdf";
     public static final  String        SONAR_TOKEN                         = "sonar.token";
+    public static final  String        SONAR_USER_TOKEN_ENV                = "SONAR_USER_TOKEN";
     public static final  String        SONAR_HOST_URL                      = "sonar.host.url";
     public static final  String        SONAR_HOST_URL_DEFAULT_VALUE        = "http://localhost:9000";
     public static final  String        SONAR_PROJECT_VERSION               = "sonar.projectVersion";
@@ -61,7 +62,12 @@ public class PDFPostJob implements PostJob {
 
         String sonarHostUrl = configuration.hasKey(SONAR_HOST_URL)
                 ? configuration.get(SONAR_HOST_URL).get() : SONAR_HOST_URL_DEFAULT_VALUE;
-        String token = configuration.hasKey(SONAR_TOKEN) ? configuration.get(SONAR_TOKEN).orElse("") : "";
+        // Prefer the SONAR_USER_TOKEN environment variable (User Token required; Analysis Tokens are not supported).
+        // Fall back to the sonar.token configuration property for backwards compatibility.
+        String envToken = System.getenv(SONAR_USER_TOKEN_ENV);
+        String token = (envToken != null && !envToken.isEmpty())
+                ? envToken
+                : (configuration.hasKey(SONAR_TOKEN) ? configuration.get(SONAR_TOKEN).orElse("") : "");
         String reportType = configuration.hasKey(REPORT_TYPE)
                 ? configuration.get(REPORT_TYPE).get() : REPORT_TYPE_DEFAULT_VALUE;
         String projectVersion = configuration.hasKey(SONAR_PROJECT_VERSION)
