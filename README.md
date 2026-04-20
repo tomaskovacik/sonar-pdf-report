@@ -38,9 +38,21 @@ The report contains:
 
 SonarQube PDF works as a post-job task. In this way, a PDF report is generated after each analysis in SonarQube.
 
+### Authentication
+
+The plugin uses the SonarQube Web API to collect project data. These API endpoints require a **User Token** — Analysis Tokens (both global and project-scoped) are **not** supported and will result in authentication errors.
+
+Set your User Token via the `SONAR_USER_TOKEN` environment variable before running the analysis:
+
+```
+export SONAR_USER_TOKEN=<your_sonarqube_user_token>
+```
+
+Alternatively, you can pass the token through the `sonar.token` scanner property (e.g. `-Dsonar.token=<token>`). When both are present, `SONAR_USER_TOKEN` takes precedence.
+
 ### Configuration
 
-You can skip report generation or select report type (executive or workbook) globally or at the project level. You can also provide an username/password if your project is secured by SonarQube user management:
+You can skip report generation or select report type (executive or workbook) globally or at the project level.
 
 In the previous version, you  Sonar Scanner configuration should contains the following property :
 
