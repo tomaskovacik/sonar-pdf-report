@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.sonarqube.ws.Common.Metric;
 
 import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 
 import com.cybage.sonar.report.pdf.entity.Measure;
@@ -110,13 +111,59 @@ public class MeasuresBuilder {
         compWsReq.setAdditionalFields(Arrays.asList(METRICS, PERIOD));
         compWsReq.setMetricKeys(new ArrayList<>(measuresAsString));
 
-        org.sonarqube.ws.Measures.ComponentWsResponse compWsRes = wsClient.measures().component(compWsReq);
+        try {
+            org.sonarqube.ws.Measures.ComponentWsResponse compWsRes = wsClient.measures().component(compWsReq);
 
-        if (compWsRes.getComponent().getMeasuresCount() != 0) {
-            this.addAllMeasuresFromDocument(measures, compWsRes);
-        } else {
-            LOGGER.debug("Empty response when looking for measures: " + measuresAsString.toString());
+            if (compWsRes.getComponent().getMeasuresCount() != 0) {
+                this.addAllMeasuresFromDocument(measures, compWsRes);
+            } else {
+                LOGGER.debug("Empty response when looking for measures: " + measuresAsString.toString());
+            }
+        } catch (HttpException e) {
+            if (e.code() == 404) {
+                Set<String> unsupportedKeys = parseUnsupportedMetricKeys(e.content());
+                if (!unsupportedKeys.isEmpty()) {
+                    LOGGER.warn("Removing unsupported metric keys from server: {}", unsupportedKeys);
+                    measuresAsString.removeAll(unsupportedKeys);
+                    if (measuresKeys != null) {
+                        measuresKeys.removeAll(unsupportedKeys);
+                    }
+                    if (!measuresAsString.isEmpty()) {
+                        addMeasures(measures, measuresAsString, projectKey);
+                    }
+                } else {
+                    throw e;
+                }
+            } else {
+                throw e;
+            }
         }
+    }
+
+    /**
+     * Parses metric keys that the server reported as not found from a 404 error response body.
+     * Expected format: {"errors":[{"msg":"The following metric keys are not found: key1, key2"}]}
+     */
+    private Set<String> parseUnsupportedMetricKeys(final String errorContent) {
+        Set<String> keys = new HashSet<>();
+        if (errorContent != null) {
+            String prefix = "The following metric keys are not found: ";
+            int idx = errorContent.indexOf(prefix);
+            if (idx >= 0) {
+                String keysPart = errorContent.substring(idx + prefix.length());
+                int end = keysPart.indexOf('"');
+                if (end >= 0) {
+                    keysPart = keysPart.substring(0, end);
+                }
+                for (String k : keysPart.split(",")) {
+                    String trimmed = k.trim();
+                    if (!trimmed.isEmpty()) {
+                        keys.add(trimmed);
+                    }
+                }
+            }
+        }
+        return keys;
     }
 
     private void addAllMeasuresFromDocument(final com.cybage.sonar.report.pdf.entity.Measures measures,
