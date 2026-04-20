@@ -1,15 +1,12 @@
-name: Release JAR to GitHub Releases
+name: Verify
 
 on:
   push:
-    tags:
-      - 'v*'
-
-permissions:
-  contents: write
+    branches:
+      - '**'
 
 jobs:
-  release:
+  verify:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,8 +22,3 @@ jobs:
 
       - name: Build and test with Maven
         run: mvn -B verify
-
-      - name: Upload JAR to GitHub Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
-        with:
-          files: target/sonar-pdf-report-*.jar
