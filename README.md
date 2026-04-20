@@ -3,7 +3,7 @@ Sonar PDF Report Plugin
 
 This is a fork of the open-source SonarQube PDF Report plugin, maintained for compatibility with modern SonarQube releases.
 
-The plugin has been tested on SonarQube 8.0 through 26.x (Community Build) on Linux 64-bit.
+The plugin has been tested on SonarQube 26.4 Community Edition on Linux 64-bit.
 
 If you find a bug, please open an issue on [GitHub](https://github.com/tomaskovacik/sonar-pdf-report/issues).
 
