@@ -119,8 +119,13 @@ public abstract class PDFReporter {
 
     public Project getProject() throws IOException, ReportException {
         if (project == null) {
-            HttpConnector httpConnector = HttpConnector.newBuilder().url(credentials.getUrl())
-                                                       .credentials(credentials.getUsername(), credentials.getPassword()).build();
+            HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder().url(credentials.getUrl());
+            if (credentials.getPassword() == null || credentials.getPassword().isEmpty()) {
+                connectorBuilder.token(credentials.getUsername());
+            } else {
+                connectorBuilder.credentials(credentials.getUsername(), credentials.getPassword());
+            }
+            HttpConnector httpConnector = connectorBuilder.build();
             WsClient       wsClient       = WsClientFactories.getDefault().newClient(httpConnector);
             ProjectBuilder projectBuilder = ProjectBuilder.getInstance(wsClient);
             project = projectBuilder.initializeProject(getProjectKey(), getProjectVersion(), getSonarLanguage(),
