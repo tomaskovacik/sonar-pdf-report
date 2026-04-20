@@ -49,7 +49,7 @@ public class Project {
 	}
 
 	public Measure getMeasure(final String measureKey) {
-		if (measures.containsMeasure(measureKey)) {
+		if (measures != null && measures.containsMeasure(measureKey)) {
 			return measures.getMeasure(measureKey);
 		} else {
 			return new Measure();
