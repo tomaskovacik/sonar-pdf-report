@@ -51,7 +51,7 @@ public class PDFPostJob implements PostJob {
     public void execute(PostJobContext postJobContext) {
         Configuration configuration = postJobContext.config();
         if (configuration.hasKey(SKIP_PDF_KEY) && configuration.getBoolean(SKIP_PDF_KEY).get() == true) {
-            LOGGER.info("Skipping generation of PDF Report..");
+            LOGGER.info("Skipping generation of report (sonar.pdf.skip=true)..");
             return;
         }
 
@@ -116,7 +116,7 @@ public class PDFPostJob implements PostJob {
         try {
             generator.execute();
         } catch (Exception ex) {
-            LOGGER.error("Error in generating PDF report.");
+            LOGGER.error("Error in generating report.");
         }
     }
 
