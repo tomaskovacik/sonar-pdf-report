@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Generate CHANGELOG
-        uses: orhun/git-cliff-action@4f421a0b7a7a7e5ffe959a87b6e5b1ff26f2d06d
+        uses: orhun/git-cliff-action@v4.7.1
         with:
           config: cliff.toml
           args: --verbose
