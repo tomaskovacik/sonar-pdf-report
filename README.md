@@ -26,7 +26,7 @@ The report contains:
 
 | Plugin version | SonarQube version |
 |---|---|
-| 1.7.1 | 8.0 – 26.x (Community Build) |
+| 1.7.1 | 26.4 (Community Edition) |
 
 ## Installation
 
