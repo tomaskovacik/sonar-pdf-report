@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SonarQube Report – sonar-pdf-report</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f5f5f5;color:#333}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+h1{background:#4b9fd5;color:#fff;padding:20px 30px;margin:0}
+h2{color:#4b9fd5;border-bottom:2px solid #4b9fd5;padding-bottom:6px;margin-top:30px}
+h3{color:#555;margin-top:20px}
+.front-page{background:#fff;padding:30px;margin-bottom:20px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.front-page .project-name{font-size:2em;font-weight:bold;color:#4b9fd5}
+.front-page .meta{color:#777;margin-top:8px}
+.section{background:#fff;padding:20px 30px;margin-bottom:20px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+table{border-collapse:collapse;width:100%;margin-top:10px}
+th{background:#4b9fd5;color:#fff;padding:8px 12px;text-align:left}
+td{padding:7px 12px;border-bottom:1px solid #ddd}
+tr:nth-child(even) td{background:#f9f9f9}
+.badge{display:inline-block;padding:4px 10px;border-radius:3px;font-weight:bold;color:#fff}
+.badge-ok{background:#4caf50}.badge-error{background:#f44336}.badge-none{background:#9e9e9e}
+.rating-a{color:#4caf50;font-weight:bold}.rating-b{color:#8bc34a;font-weight:bold}
+.rating-c{color:#ff9800;font-weight:bold}.rating-d{color:#ff5722;font-weight:bold}
+.rating-e{color:#f44336;font-weight:bold}
+.highlight{background:#fff9c4}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px}
+.metric-card{background:#f9f9f9;border:1px solid #ddd;border-radius:4px;padding:14px;text-align:center}
+.metric-card .value{font-size:1.8em;font-weight:bold;color:#4b9fd5}
+.metric-card .label{font-size:.82em;color:#777;margin-top:4px}
+.metric-card.new-code{background:#fff9c4;border-color:#f0e68c}
+</style>
+</head>
+<body>
+<h1>SonarQube Report</h1>
+<div class="container">
+<div class="front-page">
+<div class="project-name">sonar-pdf-report</div>
+<div class="meta">Version: 1.6.8</div>
+<div class="meta">SonarQube plugin for PDF reporting</div>
+<div class="meta">Generated: 2026-04-20</div>
+</div>
+<div class="section">
+<h2>Quality Profiles</h2>
+<table>
+<thead><tr><th>Profile name</th><th>Language</th><th>Number of active rules</th></tr></thead>
+<tbody>
+<tr><td>Sonar way</td><td>Azure Resource Manager</td><td>31</td></tr>
+<tr><td>Sonar way</td><td>CloudFormation</td><td>26</td></tr>
+<tr><td>Sonar way</td><td>C#</td><td>324</td></tr>
+<tr><td>Sonar way</td><td>CSS</td><td>27</td></tr>
+<tr><td>Sonar way</td><td>Docker</td><td>25</td></tr>
+<tr><td>Sonar way</td><td>Flex</td><td>47</td></tr>
+<tr><td>Sonar way</td><td>Go</td><td>22</td></tr>
+<tr><td>Sonar way</td><td>IPython Notebooks</td><td>323</td></tr>
+<tr><td>Sonar way</td><td>Java</td><td>549</td></tr>
+<tr><td>Sonar way</td><td>JavaScript</td><td>384</td></tr>
+<tr><td>Sonar way</td><td>JSON</td><td>0</td></tr>
+<tr><td>Sonar way</td><td>JSP</td><td>0</td></tr>
+<tr><td>Sonar way</td><td>Kotlin</td><td>130</td></tr>
+<tr><td>Sonar way</td><td>Kubernetes</td><td>23</td></tr>
+<tr><td>Sonar way</td><td>PHP</td><td>178</td></tr>
+<tr><td>Sonar way</td><td>PL/SQL (ZPA)</td><td>49</td></tr>
+<tr><td>Postgres SQL Rules</td><td>PostgreSQL</td><td>24</td></tr>
+<tr><td>Sonar way</td><td>Python</td><td>327</td></tr>
+<tr><td>Sonar way</td><td>Ruby</td><td>29</td></tr>
+<tr><td>Sonar way</td><td>Rust</td><td>78</td></tr>
+<tr><td>Sonar way</td><td>Scala</td><td>30</td></tr>
+<tr><td>Sonar way</td><td>Secrets</td><td>30</td></tr>
+<tr><td>Sonar way</td><td>Terraform</td><td>48</td></tr>
+<tr><td>Sonar way</td><td>Text</td><td>3</td></tr>
+<tr><td>Sonar way</td><td>TypeScript</td><td>397</td></tr>
+<tr><td>Sonar way</td><td>VB.NET</td><td>142</td></tr>
+<tr><td>Sonar way</td><td>HTML</td><td>53</td></tr>
+<tr><td>Sonar way</td><td>XML</td><td>25</td></tr>
+<tr><td>Sonar way</td><td>YAML</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2>Quality gate</h2>
+<p><span class="badge badge-error">Failed</span></p>
+<table>
+<thead><tr><th>Metric</th><th>Actual / Threshold</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>New reliability rating (since PREVIOUS VERSION)</td><td>3 &gt; 1</td><td><span class="badge badge-error">Failed</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2>Metric dashboard</h2>
+<p><strong>Leak Period:</strong> Comparison with the previous version</p>
+<h3>Reliability</h3>
+<div class="metric-grid">
+<div class="metric-card">
+<div class="value">36</div>
+<div class="label">Number of bugs</div>
+</div>
+<div class="metric-card new-code">
+<div class="value">1</div>
+<div class="label">New bugs</div>
+</div>
+<div class="metric-card">
+<div class="value rating-c">C</div>
+<div class="label">Reliability rating</div>
+</div>
+</div>
+<table>
+<tbody>
+<tr><td>Total remediation effort</td><td>4h 55min</td></tr>
+<tr><td>New remediation effort</td><td>15min</td></tr>
+</tbody>
+</table>
+<h3>Security</h3>
+<div class="metric-grid">
+<div class="metric-card">
+<div class="value">0</div>
+<div class="label">Vulnerabilities</div>
+</div>
+<div class="metric-card new-code">
+<div class="value">0</div>
+<div class="label">New vulnerabilities</div>
+</div>
+<div class="metric-card">
+<div class="value rating-a">A</div>
+<div class="label">Security rating</div>
+</div>
+</div>
+<table>
+<tbody>
+<tr><td>Total remediation effort</td><td>0min</td></tr>
+<tr><td>New remediation effort</td><td>0min</td></tr>
+</tbody>
+</table>
+<h3>Maintainability</h3>
+<div class="metric-grid">
+<div class="metric-card">
+<div class="value">193</div>
+<div class="label"></div>
+</div>
+<div class="metric-card new-code">
+<div class="value">2</div>
+<div class="label"></div>
+</div>
+<div class="metric-card">
+<div class="value rating-a">A</div>
+<div class="label"></div>
+</div>
+</div>
+<table>
+<tbody>
+<tr><td></td><td>3d 2h 9min</td></tr>
+<tr><td></td><td>1.0%</td></tr>
+<tr><td></td><td>25min</td></tr>
+<tr><td></td><td>0min</td></tr>
+</tbody>
+</table>
+<h3>Code Coverage</h3>
+<div class="metric-grid">
+<div class="metric-card">
+<div class="value">0.0%</div>
+<div class="label">Code Coverage</div>
+</div>
+</div>
+<table>
+<tbody>
+<tr><td>Line coverage</td><td>0.0%</td></tr>
+<tr><td>Branch coverage</td><td>null%</td></tr>
+<tr><td>Uncovered lines</td><td>3033</td></tr>
+<tr><td>Uncovered conditions</td><td>–</td></tr>
+<tr><td>Lines to cover</td><td>3033</td></tr>
+</tbody>
+</table>
+<h3>Code Duplication</h3>
+<div class="metric-grid">
+<div class="metric-card">
+<div class="value">2.3%</div>
+<div class="label">Duplicated lines density</div>
+</div>
+</div>
+<table>
+<tbody>
+<tr><td>Duplicated lines</td><td>158</td></tr>
+<tr><td>Duplicated blocks</td><td>6</td></tr>
+<tr><td>Duplicated files</td><td>4</td></tr>
+</tbody>
+</table>
+<h3>Size</h3>
+<table>
+<tbody>
+<tr><td>Number of lines of code</td><td>5192</td></tr>
+<tr><td>Lines</td><td>6908</td></tr>
+<tr><td>Statements</td><td>2211</td></tr>
+<tr><td>Functions</td><td>440</td></tr>
+<tr><td>Classes</td><td>52</td></tr>
+<tr><td>Files</td><td>53</td></tr>
+<tr><td>Directories</td><td>–</td></tr>
+</tbody>
+</table>
+<h3>Code complexity</h3>
+<table>
+<tbody>
+<tr><td>Class complexity</td><td>–</td></tr>
+<tr><td>Function complexity</td><td>–</td></tr>
+<tr><td>File complexity</td><td>–</td></tr>
+</tbody>
+</table>
+<h3>Documentation</h3>
+<table>
+<tbody>
+<tr><td>Number of comment lines</td><td>398</td></tr>
+<tr><td>Comment lines density</td><td>7.1%</td></tr>
+</tbody>
+</table>
+<h3>Issues</h3>
+<div class="metric-grid">
+<div class="metric-card">
+<div class="value">229</div>
+<div class="label">Violations</div>
+</div>
+<div class="metric-card new-code">
+<div class="value">3</div>
+<div class="label">New violations</div>
+</div>
+</div>
+<table>
+<tbody>
+<tr><td>Open issues</td><td>229</td></tr>
+<tr><td>Reopened issues</td><td>0</td></tr>
+<tr><td>Confirmed issues</td><td>0</td></tr>
+<tr><td>False positive issues</td><td>0</td></tr>
+<tr><td>Won't fix issues</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2>Issues Analysis</h2>
+<h3>Most violated rules</h3>
+<p><strong>Severity: ALL</strong></p>
+<table>
+<thead><tr><th>Rule name</th><th>Language</th><th>Rule count</th></tr></thead>
+<tbody>
+<tr><td>Sections of code should not be commented out</td><td>Java</td><td>29</td></tr>
+<tr><td>String literals should not be duplicated</td><td>Java</td><td>22</td></tr>
+<tr><td>Optional value should only be accessed after calling isPresent()</td><td>Java</td><td>19</td></tr>
+<tr><td>Strings and Boxed types should be compared using &quot;equals()&quot;</td><td>Java</td><td>15</td></tr>
+<tr><td>Exceptions in &quot;throws&quot; clauses should not be superfluous</td><td>Java</td><td>14</td></tr>
+<tr><td>&quot;Stream.toList()&quot; method should be used instead of &quot;collectors&quot; when unmodifiable list needed</td><td>Java</td><td>13</td></tr>
+<tr><td>Utility classes should not have public constructors</td><td>Java</td><td>11</td></tr>
+<tr><td>Methods should not have too many parameters</td><td>Java</td><td>8</td></tr>
+<tr><td>&quot;Preconditions&quot; and logging arguments should not require evaluation</td><td>Java</td><td>8</td></tr>
+<tr><td>Format strings should be used correctly</td><td>Java</td><td>8</td></tr>
+</tbody>
+</table>
+<p><strong>Severity: INFO</strong></p>
+<table>
+<thead><tr><th>Rule name</th><th>Language</th><th>Rule count</th></tr></thead>
+<tbody>
+<tr><td>Track uses of &quot;TODO&quot; tags</td><td>Java</td><td>2</td></tr>
+</tbody>
+</table>
+<p><strong>Severity: MINOR</strong></p>
+<table>
+<thead><tr><th>Rule name</th><th>Language</th><th>Rule count</th></tr></thead>
+<tbody>
+<tr><td>Exceptions in &quot;throws&quot; clauses should not be superfluous</td><td>Java</td><td>14</td></tr>
+<tr><td>The diamond operator (&quot;&lt;&gt;&quot;) should be used</td><td>Java</td><td>6</td></tr>
+<tr><td>&quot;Collection.isEmpty()&quot; should be used to test for emptiness</td><td>Java</td><td>6</td></tr>
+<tr><td>Unnecessary imports should be removed</td><td>Java</td><td>5</td></tr>
+<tr><td>Local variable and method parameter names should comply with a naming convention</td><td>Java</td><td>4</td></tr>
+<tr><td>Strings should not be concatenated using '+' in a loop</td><td>Java</td><td>4</td></tr>
+<tr><td>Catches should be combined</td><td>Java</td><td>3</td></tr>
+<tr><td>Loggers should be named for their enclosing classes</td><td>Java</td><td>3</td></tr>
+<tr><td>&quot;@Deprecated&quot; code should not be used</td><td>Java</td><td>3</td></tr>
+<tr><td>Local variables should not be declared and then immediately returned or thrown</td><td>Java</td><td>2</td></tr>
+</tbody>
+</table>
+<p><strong>Severity: MAJOR</strong></p>
+<table>
+<thead><tr><th>Rule name</th><th>Language</th><th>Rule count</th></tr></thead>
+<tbody>
+<tr><td>Sections of code should not be commented out</td><td>Java</td><td>29</td></tr>
+<tr><td>Optional value should only be accessed after calling isPresent()</td><td>Java</td><td>19</td></tr>
+<tr><td>Strings and Boxed types should be compared using &quot;equals()&quot;</td><td>Java</td><td>15</td></tr>
+<tr><td>&quot;Stream.toList()&quot; method should be used instead of &quot;collectors&quot; when unmodifiable list needed</td><td>Java</td><td>13</td></tr>
+<tr><td>Utility classes should not have public constructors</td><td>Java</td><td>11</td></tr>
+<tr><td>Methods should not have too many parameters</td><td>Java</td><td>8</td></tr>
+<tr><td>&quot;Preconditions&quot; and logging arguments should not require evaluation</td><td>Java</td><td>8</td></tr>
+<tr><td>Format strings should be used correctly</td><td>Java</td><td>8</td></tr>
+<tr><td>Local variables should not shadow class fields</td><td>Java</td><td>7</td></tr>
+<tr><td>&quot;@Deprecated&quot; code marked for removal should never be used</td><td>Java</td><td>4</td></tr>
+</tbody>
+</table>
+<p><strong>Severity: CRITICAL</strong></p>
+<table>
+<thead><tr><th>Rule name</th><th>Language</th><th>Rule count</th></tr></thead>
+<tbody>
+<tr><td>String literals should not be duplicated</td><td>Java</td><td>22</td></tr>
+<tr><td>&quot;static&quot; base class members should not be accessed via derived types</td><td>Java</td><td>6</td></tr>
+<tr><td>Cognitive Complexity of methods should not be too high</td><td>Java</td><td>3</td></tr>
+<tr><td>Methods should not be empty</td><td>Java</td><td>2</td></tr>
+<tr><td>Instance methods should not write to &quot;static&quot; fields</td><td>Java</td><td>1</td></tr>
+<tr><td>&quot;String#replace&quot; should be preferred to &quot;String#replaceAll&quot;</td><td>Java</td><td>1</td></tr>
+</tbody>
+</table>
+<p><strong>Severity: BLOCKER</strong></p>
+<p><em>No violated rules  of Severity BLOCKER</em></p>
+<h3>Most violated files</h3>
+<table>
+<thead><tr><th>Filename</th><th>File path</th><th>Number of violations</th></tr></thead>
+<tbody>
+<tr><td>ExecutivePDFReporter.java</td><td>src/main/java/com/cybage/sonar/report/pdf/ExecutivePDFReporter.java</td><td>55</td></tr>
+</tbody>
+</table>
+<h3>Most complex files</h3>
+<table>
+<thead><tr><th>Filename</th><th>File path</th><th>File complexity</th></tr></thead>
+<tbody>
+<tr><td>ExecutivePDFReporter.java</td><td>src/main/java/com/cybage/sonar/report/pdf/ExecutivePDFReporter.java</td><td>126</td></tr>
+<tr><td>HTMLReporter.java</td><td>src/main/java/com/cybage/sonar/report/pdf/HTMLReporter.java</td><td>115</td></tr>
+<tr><td>Project.java</td><td>src/main/java/com/cybage/sonar/report/pdf/entity/Project.java</td><td>43</td></tr>
+<tr><td>MeasuresBuilder.java</td><td>src/main/java/com/cybage/sonar/report/pdf/builder/MeasuresBuilder.java</td><td>29</td></tr>
+<tr><td>FileInfoBuilder.java</td><td>src/main/java/com/cybage/sonar/report/pdf/builder/FileInfoBuilder.java</td><td>21</td></tr>
+<tr><td>QualityProfile.java</td><td>src/main/java/com/cybage/sonar/report/pdf/entity/QualityProfile.java</td><td>20</td></tr>
+<tr><td>ProjectBuilder.java</td><td>src/main/java/com/cybage/sonar/report/pdf/builder/ProjectBuilder.java</td><td>19</td></tr>
+<tr><td>PDFReporter.java</td><td>src/main/java/com/cybage/sonar/report/pdf/PDFReporter.java</td><td>19</td></tr>
+<tr><td>PDFGenerator.java</td><td>src/main/java/com/cybage/sonar/report/pdf/batch/PDFGenerator.java</td><td>18</td></tr>
+<tr><td>Issue.java</td><td>src/main/java/com/cybage/sonar/report/pdf/entity/Issue.java</td><td>18</td></tr>
+</tbody>
+</table>
+<h3>Most duplicated files</h3>
+<table>
+<thead><tr><th>Filename</th><th>File path</th><th>Duplicated lines</th></tr></thead>
+<tbody>
+<tr><td>HTMLReporter.java</td><td>src/main/java/com/cybage/sonar/report/pdf/HTMLReporter.java</td><td>44</td></tr>
+<tr><td>ExecutivePDFReporter.java</td><td>src/main/java/com/cybage/sonar/report/pdf/ExecutivePDFReporter.java</td><td>44</td></tr>
+<tr><td>StatusPeriod.java</td><td>src/main/java/com/cybage/sonar/report/pdf/entity/StatusPeriod.java</td><td>35</td></tr>
+<tr><td>Period_.java</td><td>src/main/java/com/cybage/sonar/report/pdf/entity/Period_.java</td><td>35</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>
