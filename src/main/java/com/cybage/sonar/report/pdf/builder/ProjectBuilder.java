@@ -92,7 +92,7 @@ public class ProjectBuilder {
 			}
 
 			if (projectName == null) {
-				LOGGER.info("Can't retrieve project info. Have you set username/password in Sonar settings?");
+				LOGGER.info("Can't retrieve project info. Have you set sonar.token in Sonar settings?");
 				throw new ReportException("Can't retrieve project info. Parent project node is empty. Authentication?");
 			}
 

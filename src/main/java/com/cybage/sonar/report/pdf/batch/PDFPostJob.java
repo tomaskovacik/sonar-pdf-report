@@ -21,10 +21,6 @@ public class PDFPostJob implements PostJob {
     public static final  boolean       SKIP_PDF_DEFAULT_VALUE              = false;
     public static final  String        REPORT_TYPE                         = "report.type";
     public static final  String        REPORT_TYPE_DEFAULT_VALUE           = "pdf";
-    public static final  String        USERNAME                            = "sonar.login";
-    public static final  String        USERNAME_DEFAULT_VALUE              = "";
-    public static final  String        PASSWORD                            = "sonar.password";
-    public static final  String        PASSWORD_DEFAULT_VALUE              = "";
     public static final  String        SONAR_TOKEN                         = "sonar.token";
     public static final  String        SONAR_HOST_URL                      = "sonar.host.url";
     public static final  String        SONAR_HOST_URL_DEFAULT_VALUE        = "http://localhost:9000";
@@ -65,17 +61,7 @@ public class PDFPostJob implements PostJob {
 
         String sonarHostUrl = configuration.hasKey(SONAR_HOST_URL)
                 ? configuration.get(SONAR_HOST_URL).get() : SONAR_HOST_URL_DEFAULT_VALUE;
-        String username = configuration.hasKey(USERNAME) ? configuration.get(USERNAME).get()
-                : USERNAME_DEFAULT_VALUE;
-        String password = configuration.hasKey(PASSWORD) ? configuration.get(PASSWORD).get()
-                : PASSWORD_DEFAULT_VALUE;
-        // sonar.token is the preferred property since SonarQube 10; SONAR_TOKEN env
-        // variable is mapped to it by the scanner. Fall back to it when sonar.login
-        // is not provided so that token-only authentication works.
-        if (username.isEmpty() && configuration.hasKey(SONAR_TOKEN)) {
-            username = configuration.get(SONAR_TOKEN).orElse("");
-            password = "";
-        }
+        String token = configuration.hasKey(SONAR_TOKEN) ? configuration.get(SONAR_TOKEN).orElse("") : "";
         String reportType = configuration.hasKey(REPORT_TYPE)
                 ? configuration.get(REPORT_TYPE).get() : REPORT_TYPE_DEFAULT_VALUE;
         String projectVersion = configuration.hasKey(SONAR_PROJECT_VERSION)
@@ -98,7 +84,7 @@ public class PDFPostJob implements PostJob {
         }
 
 
-        generatePdfs(projectKey, sonarHostUrl, username, password, reportType, projectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriodConfiguration);
+        generatePdfs(projectKey, sonarHostUrl, token, reportType, projectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriodConfiguration);
     }
 
     private void waitBeforeReporting() {
@@ -111,8 +97,7 @@ public class PDFPostJob implements PostJob {
 
     private void generatePdfs(String projectKey,
                               String sonarHostUrl,
-                              String username,
-                              String password,
+                              String token,
                               String reportType,
                               String projectVersion,
                               List<String> sonarLanguage,
@@ -120,7 +105,7 @@ public class PDFPostJob implements PostJob {
                               Set<String> typesOfIssue,
                               LeakPeriodConfiguration leakPeriodConfiguration) {
         PDFGenerator generator = new PDFGenerator(projectKey, projectVersion, sonarLanguage, otherMetrics,
-                typesOfIssue, leakPeriodConfiguration, fs, sonarHostUrl, username, password, reportType);
+                typesOfIssue, leakPeriodConfiguration, fs, sonarHostUrl, token, reportType);
 
         try {
             generator.execute();
