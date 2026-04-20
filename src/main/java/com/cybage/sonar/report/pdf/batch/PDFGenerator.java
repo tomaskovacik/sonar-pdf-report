@@ -32,8 +32,7 @@ public class PDFGenerator {
     public static final String DATE_PATTERN    = "yyyy.MM.dd.HH.mm.ss";
 
     private static final Logger                  LOGGER = LoggerFactory.getLogger(PDFGenerator.class);
-    private final        String                  username;
-    private final        String                  password;
+    private final        String                  token;
     private final        String                  reportType;
     private final        String                  projectKey;
     private final        String                  projectVersion;
@@ -52,8 +51,7 @@ public class PDFGenerator {
                         final LeakPeriodConfiguration leakPeriod,
                         final FileSystem fs,
                         final String sonarHostUrl,
-                        final String username,
-                        final String password,
+                        final String token,
                         final String reportType) {
         this.projectKey     = projectKey;
         this.projectVersion = projectVersion;
@@ -63,8 +61,7 @@ public class PDFGenerator {
         this.leakPeriod     = leakPeriod;
         this.fs             = fs;
         this.sonarHostUrl   = sonarHostUrl;
-        this.username       = username;
-        this.password       = password;
+        this.token          = token;
         this.reportType     = reportType;
     }
 
@@ -99,7 +96,7 @@ public class PDFGenerator {
         }
         configLang.load(this.getClass().getResourceAsStream("/report-texts-en.properties"));
 
-        Credentials credentials = new Credentials(config.getProperty(SONAR_BASE_URL), username, password);
+        Credentials credentials = new Credentials(config.getProperty(SONAR_BASE_URL), token);
 
         final String                  sonarProjectId      = projectKey;
         String                        sonarProjectVersion = projectVersion;

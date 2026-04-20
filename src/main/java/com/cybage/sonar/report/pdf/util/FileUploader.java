@@ -2,11 +2,8 @@ package com.cybage.sonar.report.pdf.util;
 
 import java.io.File;
 
-import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
@@ -39,13 +36,10 @@ public class FileUploader {
 
             filePost.setRequestEntity(new MultipartRequestEntity(parts, filePost.getParams()));
 
-            HttpClient   client   = new HttpClient();
-            final String username = credentials.getUsername();
-            final String password = credentials.getPassword();
-            if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
-                client.getParams().setAuthenticationPreemptive(true);
-                Credentials credentials = new UsernamePasswordCredentials(username, password);
-                client.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT), credentials);
+            HttpClient client = new HttpClient();
+            final String token = credentials.getToken();
+            if (token != null && !token.isEmpty()) {
+                filePost.setRequestHeader("Authorization", "Bearer " + token);
             }
             client.getHttpConnectionManager().getParams().setConnectionTimeout(10000);
 
