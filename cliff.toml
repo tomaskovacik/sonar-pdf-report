@@ -48,7 +48,6 @@ commit_preprocessors = [
   { pattern = "^Merge pull request.*", replace = "" },
   { pattern = "^Bump version.*", replace = "" },
   { pattern = "^bump version.*", replace = "" },
-  { pattern = "^bump versiom.*", replace = "" },
   { pattern = "^ver \\d.*", replace = "" },
   { pattern = "^v\\d\\.\\d.*", replace = "" },
   { pattern = "^update url.*", replace = "" },
