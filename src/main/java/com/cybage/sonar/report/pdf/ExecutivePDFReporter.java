@@ -76,6 +76,7 @@ import com.cybage.sonar.report.pdf.util.MetricKeys;
 import com.cybage.sonar.report.pdf.util.ProjectStatusKeys;
 import com.cybage.sonar.report.pdf.util.Rating;
 import com.cybage.sonar.report.pdf.util.SonarUtil;
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.ChapterAutoNumber;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -241,34 +242,64 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printFrontPage(final Document frontPageDocument, final PdfWriter frontPageWriter)
             throws ReportException {
         try {
+            Rectangle pageSize = frontPageDocument.getPageSize();
+
+            // ---- Dark banner spanning the upper third of the page ----
+            float bannerHeight = pageSize.getHeight() * 0.42f;
+            PdfPTable banner = new PdfPTable(1);
+            banner.setTotalWidth(pageSize.getWidth());
+            PdfPCell bannerCell = new PdfPCell();
+            bannerCell.setBackgroundColor(Style.COLOR_DARK_NAVY);
+            bannerCell.setBorder(Rectangle.NO_BORDER);
+            bannerCell.setFixedHeight(bannerHeight);
+            banner.addCell(bannerCell);
+            banner.writeSelectedRows(0, -1, 0, pageSize.getHeight(), frontPageWriter.getDirectContent());
+
+            // ---- Accent stripe below the banner ----
+            PdfPTable stripe = new PdfPTable(1);
+            stripe.setTotalWidth(pageSize.getWidth());
+            PdfPCell stripeCell = new PdfPCell();
+            stripeCell.setBackgroundColor(Style.COLOR_ACCENT_BLUE);
+            stripeCell.setBorder(Rectangle.NO_BORDER);
+            stripeCell.setFixedHeight(6f);
+            stripe.addCell(stripeCell);
+            stripe.writeSelectedRows(0, -1, 0, pageSize.getHeight() - bannerHeight,
+                    frontPageWriter.getDirectContent());
+
+            // ---- Logo inside the banner ----
             URL   largeLogo = loadLargeLogo();
             Image logoImage = Image.getInstance(largeLogo);
-            logoImage.scaleAbsolute(360, 200);
-            Rectangle pageSize = frontPageDocument.getPageSize();
-            logoImage.setAbsolutePosition(Style.FRONTPAGE_LOGO_POSITION_X, Style.FRONTPAGE_LOGO_POSITION_Y);
+            logoImage.scaleToFit(220, 110);
+            logoImage.setAbsolutePosition(
+                    (pageSize.getWidth() - logoImage.getScaledWidth()) / 2f,
+                    pageSize.getHeight() - bannerHeight * 0.45f);
             frontPageDocument.add(logoImage);
+
+            // ---- Text block inside the banner ----
+            String projectRow    = super.getProject().getName();
+            String versionRow    = "Version " + super.getProject().getVersion();
+            String descriptionRow = super.getProject().getDescription();
+            String profileRow    = super.getProject().getMeasure(PROFILE).getValue();
+            SimpleDateFormat df  = new SimpleDateFormat("yyyy-MM-dd");
+            String dateRow       = df.format(new Date());
 
             PdfPTable title = new PdfPTable(1);
             title.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
             title.getDefaultCell().setBorder(Rectangle.NO_BORDER);
-
-            String projectRow = super.getProject().getName();
-            // String versionRow =
-            // super.getProject().getMeasures().getVersion();
-            String           versionRow = "Version " + super.getProject().getVersion();
-            SimpleDateFormat df         = new SimpleDateFormat("yyyy-MM-dd");
-            // String dateRow =
-            // df.format(super.getProject().getMeasures().getDate());
-            String dateRow        = df.format(new Date());
-            String descriptionRow = super.getProject().getDescription();
+            title.getDefaultCell().setBackgroundColor(Style.COLOR_DARK_NAVY);
+            title.getDefaultCell().setPaddingBottom(6f);
 
             title.addCell(new Phrase(projectRow, Style.FRONTPAGE_FONT_1));
             title.addCell(new Phrase(versionRow, Style.FRONTPAGE_FONT_2));
-            title.addCell(new Phrase(descriptionRow, Style.FRONTPAGE_FONT_2));
-            title.addCell(new Phrase(super.getProject().getMeasure(PROFILE).getValue(), Style.FRONTPAGE_FONT_3));
+            if (descriptionRow != null && !descriptionRow.isEmpty()) {
+                title.addCell(new Phrase(descriptionRow, Style.FRONTPAGE_FONT_2));
+            }
+            title.addCell(new Phrase(profileRow, Style.FRONTPAGE_FONT_3));
             title.addCell(new Phrase(dateRow, Style.FRONTPAGE_FONT_3));
+
             title.setTotalWidth(pageSize.getWidth() - frontPageDocument.leftMargin() - frontPageDocument.rightMargin());
-            title.writeSelectedRows(0, -1, frontPageDocument.leftMargin(), Style.FRONTPAGE_LOGO_POSITION_Y - 150,
+            title.writeSelectedRows(0, -1, frontPageDocument.leftMargin(),
+                    pageSize.getHeight() - bannerHeight + 160f,
                     frontPageWriter.getDirectContent());
 
         } catch (IOException | DocumentException e) {
@@ -301,6 +332,16 @@ public class ExecutivePDFReporter extends PDFReporter {
         return REPORT_TYPE_PDF;
     }
 
+    /**
+     * Creates a table column-header cell with dark background and white bold text.
+     */
+    private CustomCellTitle tableHeader(final String text) {
+        CustomCellTitle cell = new CustomCellTitle(new Phrase(text, Style.TABLE_HEADER_FONT));
+        cell.setBackgroundColor(Style.TABLE_HEADER_BACKGROUND_COLOR);
+        cell.setBorderColor(Style.TABLE_HEADER_BACKGROUND_COLOR);
+        return cell;
+    }
+
     protected void printQualityProfileInfo(final Project project, final Section section) throws DocumentException {
 
         // Quality Profile Information
@@ -311,17 +352,9 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableQualityProfiles.setWidths(new int[]{5, 3, 3});
 
         // Quality Profiles Table Header
-        CustomCellTitle profileNameHeader = new CustomCellTitle(
-                new Phrase(getTextProperty("general.profile_name"), Style.DASHBOARD_TITLE_FONT));
-        tableQualityProfiles.addCell(profileNameHeader);
-
-        CustomCellTitle languageNameHeader = new CustomCellTitle(
-                new Phrase(getTextProperty("general.language"), Style.DASHBOARD_TITLE_FONT));
-        tableQualityProfiles.addCell(languageNameHeader);
-
-        CustomCellTitle rulesCountHeader = new CustomCellTitle(
-                new Phrase(getTextProperty("general.active_rules_count"), Style.DASHBOARD_TITLE_FONT));
-        tableQualityProfiles.addCell(rulesCountHeader);
+        tableQualityProfiles.addCell(tableHeader(getTextProperty("general.profile_name")));
+        tableQualityProfiles.addCell(tableHeader(getTextProperty("general.language")));
+        tableQualityProfiles.addCell(tableHeader(getTextProperty("general.active_rules_count")));
 
         // Quality Profiles List
         if (project.getLanguages() != null) {
@@ -372,6 +405,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         CustomCellTitle projectStatusTitle = new CustomCellTitle(
                 new Phrase(getTextProperty("general.project_status"), Style.QUALITY_GATE_TITLE_FONT));
+        projectStatusTitle.setBackgroundColor(Style.COLOR_ROW_ALT);
         tableQualityGatesStatus.addCell(projectStatusTitle);
 
         final String status = project.getProjectStatus().getStatus();
@@ -490,31 +524,30 @@ public class ExecutivePDFReporter extends PDFReporter {
                 tableMostViolatesRules.setWidths(new int[]{30, 4, 3});
 
                 // Most Violated Rules Header
-                CustomCellTitle ruleNameHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("genaral.rule_name"), Style.DASHBOARD_TITLE_FONT));
-                tableMostViolatesRules.addCell(ruleNameHeader);
-
-                CustomCellTitle languageNameHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("general.language_name"), Style.DASHBOARD_TITLE_FONT));
-                tableMostViolatesRules.addCell(languageNameHeader);
-
-                CustomCellTitle ruleCountHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("general.rule_count"), Style.DASHBOARD_TITLE_FONT));
-                tableMostViolatesRules.addCell(ruleCountHeader);
+                tableMostViolatesRules.addCell(tableHeader(getTextProperty("genaral.rule_name")));
+                tableMostViolatesRules.addCell(tableHeader(getTextProperty("general.language_name")));
+                tableMostViolatesRules.addCell(tableHeader(getTextProperty("general.rule_count")));
 
                 // Most Violated Rules Values
+                int rowIndex = 0;
                 for (Rule rule : filterViolationsPerPriority(mostViolatedRules, priority)) {
+                    BaseColor rowBg = (rowIndex % 2 == 0) ? BaseColor.WHITE : Style.TABLE_ROW_ALT_BACKGROUND_COLOR;
+
                     CustomCellTitle ruleNameValue = new CustomCellTitle(
                             new Phrase(rule.getName(), Style.DASHBOARD_DATA_FONT_2));
+                    ruleNameValue.setBackgroundColor(rowBg);
                     tableMostViolatesRules.addCell(ruleNameValue);
 
                     CustomCellTitle languageNameValue = new CustomCellTitle(
                             new Phrase(rule.getLanguageName(), Style.DASHBOARD_DATA_FONT_2));
+                    languageNameValue.setBackgroundColor(rowBg);
                     tableMostViolatesRules.addCell(languageNameValue);
 
                     CustomCellValue ruleCountValue = new CustomCellValue(
                             new Phrase(rule.getCount().toString(), Style.DASHBOARD_DATA_FONT_2));
+                    ruleCountValue.setBackgroundColor(rowBg);
                     tableMostViolatesRules.addCell(ruleCountValue);
+                    rowIndex++;
                 }
 
                 section.add(new Paragraph(" "));

@@ -44,12 +44,16 @@ public class Toc extends PdfPageEventHelper {
 	@Override
 	public void onChapter(final PdfWriter writer, final Document document, final float position,
 			final Paragraph title) {
-		content.getDefaultCell().setBorderColorBottom(BaseColor.LIGHT_GRAY);
+		content.getDefaultCell().setBorderColorBottom(Style.COLOR_ACCENT_BLUE);
 		content.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
 		content.getDefaultCell().setUseBorderPadding(true);
-		content.addCell(new Phrase(title.getContent(), new Font(Font.FontFamily.HELVETICA, 11)));
+		content.getDefaultCell().setPaddingTop(6f);
+		content.getDefaultCell().setPaddingBottom(6f);
+		content.addCell(new Phrase(title.getContent(), new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD,
+				Style.COLOR_DARK_NAVY)));
 		content.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
-		content.addCell(new Phrase("Page " + document.getPageNumber(), new Font(Font.FontFamily.HELVETICA, 11)));
+		content.addCell(new Phrase("Page " + document.getPageNumber(), new Font(Font.FontFamily.HELVETICA, 11,
+				Font.NORMAL, Style.COLOR_LABEL_GRAY)));
 		content.getDefaultCell().setBorderColorBottom(BaseColor.WHITE);
 		content.getDefaultCell().setUseBorderPadding(false);
 	}
@@ -66,14 +70,16 @@ public class Toc extends PdfPageEventHelper {
 		content.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
 		switch (depth) {
 		case 2:
-			content.getDefaultCell().setIndent(10);
-			content.addCell(new Phrase(title.getContent(), new Font(Font.FontFamily.HELVETICA, 10)));
+			content.getDefaultCell().setIndent(12);
+			content.addCell(new Phrase(title.getContent(), new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL,
+					Style.COLOR_BODY_TEXT)));
 			content.getDefaultCell().setIndent(0);
 			content.addCell("");
 			break;
 		default:
-			content.getDefaultCell().setIndent(20);
-			content.addCell(new Phrase(title.getContent(), new Font(Font.FontFamily.HELVETICA, 9)));
+			content.getDefaultCell().setIndent(22);
+			content.addCell(new Phrase(title.getContent(), new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL,
+					Style.COLOR_LABEL_GRAY)));
 			content.getDefaultCell().setIndent(0);
 			content.addCell("");
 		}
