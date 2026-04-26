@@ -117,13 +117,13 @@ public class PDFGenerator {
             return;
         }
         writeReport(sonarProjectId, sdf, path, reporter);
-        //uploadPDF(path, credentials);
+        uploadReport(path, credentials, sonarProjectId, reporter.getReportType());
     }
 
-    private void uploadPDF(final String path, final Credentials credentials) {
+    private void uploadReport(final String path, final Credentials credentials, final String projectKey, final String reportType) {
         final FileUploader fileUploader = new FileUploader(credentials);
-        fileUploader.upload(new File(path));
-
+        String contentType = (reportType != null && reportType.equalsIgnoreCase("html")) ? "html" : "pdf";
+        fileUploader.upload(new File(path), projectKey, contentType);
     }
 
     private String computeReportPath(String sonarProjectId, SimpleDateFormat sdf) {
