@@ -149,6 +149,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Explicit slf4j-api 2.x to override the transitive 1.x pulled in by
+             older dependencies (e.g. sonar-ws). Without this, Maven's nearest-
+             definition rule selects slf4j-api 1.x, which emits the
+             "Failed to load StaticLoggerBinder" warning because logback-classic
+             1.5.x is a SLF4J 2.x backend. -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
