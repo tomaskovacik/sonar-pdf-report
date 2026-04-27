@@ -22,13 +22,19 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
     return base + "/api/pdfreport/get?project=" + encodeURIComponent(projectKey) + "&content_type=" + type;
   }
 
-  function triggerDownload(url) {
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = "";
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function () { document.body.removeChild(a); }, 100);
+  function triggerDownload(url, filename) {
+    fetch(url)
+      .then(function (r) { return r.blob(); })
+      .then(function (blob) {
+        var blobUrl = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      });
   }
 
   function render(info) {
@@ -56,14 +62,14 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
         var pdfBtn = document.createElement("button");
         pdfBtn.style.cssText = btnStyle;
         pdfBtn.textContent = "Download PDF Report";
-        pdfBtn.addEventListener("click", function () { triggerDownload(downloadUrl("pdf")); });
+        pdfBtn.addEventListener("click", function () { triggerDownload(downloadUrl("pdf"), projectKey + ".pdf"); });
         btnRow.appendChild(pdfBtn);
       }
       if (info.html) {
         var htmlBtn = document.createElement("button");
         htmlBtn.style.cssText = btnStyle;
         htmlBtn.textContent = "Download HTML Report";
-        htmlBtn.addEventListener("click", function () { triggerDownload(downloadUrl("html")); });
+        htmlBtn.addEventListener("click", function () { triggerDownload(downloadUrl("html"), projectKey + ".html"); });
         btnRow.appendChild(htmlBtn);
       }
       containerEl.appendChild(btnRow);
