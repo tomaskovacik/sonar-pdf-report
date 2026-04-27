@@ -598,12 +598,12 @@ public class HTMLReporterTest {
         p.setProperty("general.no_duplicated_files", "No duplicated files");
         p.setProperty("general.no_violations", "No violations");
         p.setProperty("general.file_path", "File Path");
-        p.setProperty("genaral.file_name", "File Name");
+        p.setProperty("general.file_name", "File Name");
         p.setProperty("general.file_violations", "Violations");
         p.setProperty("general.file_complexity", "Complexity");
         p.setProperty("general.file_duplicated_lines", "Duplicated Lines");
         p.setProperty("general.rule_count", "Rule Count");
-        p.setProperty("genaral.rule_name", "Rule Name");
+        p.setProperty("general.rule_name", "Rule Name");
         p.setProperty("general.period.previous_version", "Previous version");
         // Metric keys
         for (String key : MetricKeys.getAllMetricKeys()) {

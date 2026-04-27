@@ -70,7 +70,7 @@ public class HTMLReporter extends PDFReporter {
     private static final String H3_CLOSE_TABLE_TBODY   = "</h3>\n<table>\n<tbody>\n";
     private static final String P_EM_OPEN              = "<p><em>";
     private static final String P_EM_CLOSE             = "</em></p>\n";
-    private static final String LANG_FILE_NAME         = "genaral.file_name";
+    private static final String LANG_FILE_NAME         = "general.file_name";
     private static final String LANG_FILE_PATH         = "general.file_path";
 
 
@@ -552,7 +552,7 @@ public class HTMLReporter extends PDFReporter {
                     .append(" of Severity ").append(escape(Priority.getPriority(priority))).append(P_EM_CLOSE);
             } else {
                 html.append(TABLE_THEAD_TR_OPEN)
-                    .append(TH_OPEN).append(escape(getTextProperty("genaral.rule_name"))).append(TH_CLOSE)
+                    .append(TH_OPEN).append(escape(getTextProperty("general.rule_name"))).append(TH_CLOSE)
                     .append(TH_OPEN).append(escape(getTextProperty("general.language_name"))).append(TH_CLOSE)
                     .append(TH_OPEN).append(escape(getTextProperty("general.rule_count"))).append(TH_CLOSE)
                     .append(THEAD_TR_CLOSE_TBODY);

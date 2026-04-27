@@ -99,7 +99,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     private static final Logger                  LOGGER          = LoggerFactory.getLogger(ExecutivePDFReporter.class);
     private static final String                  REPORT_TYPE_PDF = "pdf";
     private static final String METRICS_PREFIX = "metrics.";
-    private static final String LANG_FILE_NAME = "genaral.file_name";
+    private static final String LANG_FILE_NAME = "general.file_name";
     private static final String LANG_FILE_PATH = "general.file_path";
 
     private final        URL                     logo;
@@ -539,7 +539,7 @@ public class ExecutivePDFReporter extends PDFReporter {
                 tableMostViolatesRules.setWidths(new int[]{30, 4, 3});
 
                 // Most Violated Rules Header
-                tableMostViolatesRules.addCell(tableHeader(getTextProperty("genaral.rule_name")));
+                tableMostViolatesRules.addCell(tableHeader(getTextProperty("general.rule_name")));
                 tableMostViolatesRules.addCell(tableHeader(getTextProperty("general.language_name")));
                 tableMostViolatesRules.addCell(tableHeader(getTextProperty("general.rule_count")));
 
