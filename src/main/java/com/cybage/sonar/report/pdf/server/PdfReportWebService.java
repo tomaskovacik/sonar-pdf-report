@@ -29,7 +29,8 @@ public class PdfReportWebService implements WebService {
     private final File reportsDir;
 
     public PdfReportWebService(ServerFileSystem serverFileSystem) {
-        this.reportsDir = new File(serverFileSystem.getHomeDir(), "pdf-reports");
+        // data/ is a writable volume in the SonarQube Docker image; home/ is read-only
+        this.reportsDir = new File(serverFileSystem.getHomeDir(), "data/pdf-reports");
         this.reportsDir.mkdirs();
     }
 
