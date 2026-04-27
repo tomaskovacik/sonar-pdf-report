@@ -54,14 +54,15 @@ public class PDFPostJob implements PostJob {
     }
 
     @Override
-    public void describe(PostJobDescriptor arg0) {
+    public void describe(PostJobDescriptor descriptor) {
         // No descriptor configuration required for this post-job.
+        descriptor.name("PDF Report Generator");
     }
 
     @Override
     public void execute(PostJobContext postJobContext) {
         Configuration configuration = postJobContext.config();
-        if (configuration.hasKey(SKIP_PDF_KEY) && configuration.getBoolean(SKIP_PDF_KEY).get() == true) {
+        if (configuration.hasKey(SKIP_PDF_KEY) && Boolean.TRUE.equals(configuration.getBoolean(SKIP_PDF_KEY).get())) {
             LOGGER.info("Skipping generation of report (sonar.pdf.skip=true)..");
             return;
         }

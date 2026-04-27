@@ -51,6 +51,10 @@ import java.util.Set;
 
 public class MetricDomains {
 
+    private MetricDomains() {
+        // utility class
+    }
+
     public static final String RELIABILITY     = "Reliability";
     public static final String SECURITY        = "Security";
     public static final String MAINTAINABILITY = "Maintainability";

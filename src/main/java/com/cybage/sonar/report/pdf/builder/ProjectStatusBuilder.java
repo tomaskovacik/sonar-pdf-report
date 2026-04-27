@@ -19,8 +19,6 @@ public class ProjectStatusBuilder {
      */
     private static final int NEW_CODE_PERIOD_INDEX = 1;
 
-    // private static final Logger LOGGER = LoggerFactory.getLogger(ProjectStatusBuilder.class);
-
     private static ProjectStatusBuilder builder;
 
     private final WsClient wsClient;
@@ -38,8 +36,6 @@ public class ProjectStatusBuilder {
     }
 
     public ProjectStatus initProjectStatusByProjectKey(final String key) {
-
-        // LOGGER.info("Retrieving project status info for " + key);
 
         ProjectStatusRequest projectStatusWsReq = new ProjectStatusRequest();
         projectStatusWsReq.setProjectKey(key);

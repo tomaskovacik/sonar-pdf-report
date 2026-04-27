@@ -20,7 +20,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 public class Toc extends PdfPageEventHelper {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Events.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Toc.class);
 
 	private Document toc;
 	private ByteArrayOutputStream tocOutputStream;

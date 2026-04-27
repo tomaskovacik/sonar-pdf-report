@@ -9,6 +9,10 @@ import com.google.common.base.Joiner;
 
 public class MetricKeys {
 
+    private MetricKeys() {
+        // utility class
+    }
+
     // Reliability Metric Keys
     public static final String BUGS                               = "bugs";
     public static final String NEW_BUGS                           = "new_bugs";

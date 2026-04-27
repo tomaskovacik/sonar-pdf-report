@@ -38,15 +38,15 @@ public class Violation {
 
 	public static String getViolationLevelByKey(final String level) {
 		String violationLevel = null;
-		if (level.equals(Priority.INFO)) {
+		if (Priority.INFO.equals(level)) {
 			violationLevel = "info_violations";
-		} else if (level.equals(Priority.MINOR)) {
+		} else if (Priority.MINOR.equals(level)) {
 			violationLevel = "minor_violations";
-		} else if (level.equals(Priority.MAJOR)) {
+		} else if (Priority.MAJOR.equals(level)) {
 			violationLevel = "major_violations";
-		} else if (level.equals(Priority.CRITICAL)) {
+		} else if (Priority.CRITICAL.equals(level)) {
 			violationLevel = "critical_violations";
-		} else if (level.equals(Priority.BLOCKER)) {
+		} else if (Priority.BLOCKER.equals(level)) {
 			violationLevel = "blocker_violations";
 		}
 		return violationLevel;

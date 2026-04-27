@@ -95,25 +95,18 @@ public class PDFGenerator {
 
         Credentials credentials = new Credentials(config.getProperty(SONAR_BASE_URL), token);
 
-        final String                  sonarProjectId      = projectKey;
-        String                        sonarProjectVersion = projectVersion;
-        final List<String>            sonarLanguage       = this.sonarLanguage;
-        final Set<String>             otherMetrics        = this.otherMetrics;
-        final Set<String>             typesOfIssue        = this.typesOfIssue;
-        final LeakPeriodConfiguration leakPeriod          = this.leakPeriod;
-
         final SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
 
-        final String path = computeReportPath(sonarProjectId, sdf);
+        final String path = computeReportPath(projectKey, sdf);
 
-        PDFReporter reporter = initializeReporter(config, configLang, credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod);
+        PDFReporter reporter = initializeReporter(config, configLang, credentials, projectKey, projectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod);
 
         if (reporter == null) {
             LOGGER.warn("Could not initialize the reporting plugin");
             return;
         }
-        writeReport(sonarProjectId, sdf, path, reporter);
-        uploadReport(path, credentials, sonarProjectId, reporter.getReportType());
+        writeReport(projectKey, sdf, path, reporter);
+        uploadReport(path, credentials, projectKey, reporter.getReportType());
     }
 
     private void uploadReport(final String path, final Credentials credentials, final String projectKey, final String reportType) {
@@ -122,9 +115,9 @@ public class PDFGenerator {
         fileUploader.upload(new File(path), projectKey, contentType);
     }
 
-    private String computeReportPath(String sonarProjectId, SimpleDateFormat sdf) {
+    private String computeReportPath(String projectId, SimpleDateFormat sdf) {
         String ext = isHtmlReport() ? ".html" : ".pdf";
-        return fs.workDir().getAbsolutePath() + "/" + sonarProjectId.replace(':', '-') + "-"
+        return fs.workDir().getAbsolutePath() + "/" + projectId.replace(':', '-') + "-"
                 + sdf.format(new Timestamp(System.currentTimeMillis())) + ext;
     }
 

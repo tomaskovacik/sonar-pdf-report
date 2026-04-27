@@ -31,7 +31,7 @@ public class Measures {
 	}
 
 	public Optional<Period_> getPeriod_(Integer index) {
-		return periods.stream().filter(p -> p.getIndex() == index).findFirst();
+		return periods.stream().filter(p -> p.getIndex().equals(index)).findFirst();
 	}
 
 	public Optional<Period_> getPeriod_(String mode) {

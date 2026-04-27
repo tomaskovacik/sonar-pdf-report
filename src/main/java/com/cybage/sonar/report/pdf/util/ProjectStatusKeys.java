@@ -14,32 +14,36 @@ public class ProjectStatusKeys {
     public static final String LT = "<";
     public static final String GT = ">";
 
-    public static final String getComparatorAsString(String comparator) {
-        if (comparator.equals("EQ")) {
+    private ProjectStatusKeys() {
+        // utility class
+    }
+
+    public static String getComparatorAsString(String comparator) {
+        if ("EQ".equals(comparator)) {
             return EQ;
-        } else if (comparator.equals("NE")) {
+        } else if ("NE".equals(comparator)) {
             return NE;
-        } else if (comparator.equals("LT")) {
+        } else if ("LT".equals(comparator)) {
             return LT;
-        } else if (comparator.equals("GT")) {
+        } else if ("GT".equals(comparator)) {
             return GT;
         }
         return null;
     }
 
-    public static final String getStatusAsString(String status) {
-        if (status.equals(STATUS_OK)) {
+    public static String getStatusAsString(String status) {
+        if (STATUS_OK.equals(status)) {
             return "Passed";
-        } else if (status.equals(STATUS_ERROR)) {
+        } else if (STATUS_ERROR.equals(status)) {
             return "Failed";
         }
         return "Undefined!" + status;
     }
 
-    public static final BaseColor getStatusBaseColor(String status) {
-        if (status.equals(STATUS_OK)) {
+    public static BaseColor getStatusBaseColor(String status) {
+        if (STATUS_OK.equals(status)) {
             return Style.QUALITY_GATE_PASSED_COLOR;
-        } else if (status.equals(STATUS_ERROR)) {
+        } else if (STATUS_ERROR.equals(status)) {
             return Style.QUALITY_GATE_FAILED_COLOR;
         }
         return null;

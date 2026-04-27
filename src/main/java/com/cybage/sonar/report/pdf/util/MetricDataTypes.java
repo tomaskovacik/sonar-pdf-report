@@ -1,6 +1,11 @@
 package com.cybage.sonar.report.pdf.util;
 
 public class MetricDataTypes {
+
+	private MetricDataTypes() {
+		// utility class
+	}
+
 	public static final String INT = "INT";
 	public static final String FLOAT = "FLOAT";
 	public static final String PERCENT = "PERCENT";

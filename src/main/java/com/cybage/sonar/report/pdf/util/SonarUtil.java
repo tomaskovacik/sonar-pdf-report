@@ -2,6 +2,10 @@ package com.cybage.sonar.report.pdf.util;
 
 public class SonarUtil {
 
+	private SonarUtil() {
+		// utility class
+	}
+
 	public static final int EIGHT_HOURS = 480;
 	private static final Integer MINUTES_PER_HOUR = 60;
 

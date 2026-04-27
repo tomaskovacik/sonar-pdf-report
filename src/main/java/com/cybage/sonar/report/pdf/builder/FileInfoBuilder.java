@@ -15,12 +15,9 @@ import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentTreeRequest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import static java.util.Collections.singletonList;
 
 public class FileInfoBuilder {
@@ -35,7 +32,7 @@ public class FileInfoBuilder {
     public static final  String          S_QUALIFIER                      = "qualifier";
     public static final  String          S_METRIC_SORT_WITH_MEASURES_ONLY = "withMeasuresOnly";
     public static final  String          S_QUALIFIER_FIL                  = "FIL";
-    private static final Logger          LOGGER                           = LoggerFactory.getLogger(ProjectStatusBuilder.class);
+    private static final Logger          LOGGER                           = LoggerFactory.getLogger(FileInfoBuilder.class);
     private static       FileInfoBuilder builder;
 
     private final WsClient wsClient;
@@ -54,11 +51,10 @@ public class FileInfoBuilder {
 
     public List<FileInfo> initProjectMostViolatedFilesByProjectKey(final String key) {
 
-        LOGGER.info("Retrieving most violated files info for " + key);
+        LOGGER.info("Retrieving most violated files info for {}", key);
         List<FileInfo> files = new ArrayList<>();
 
         SearchWsResponse searchWsRes = searchForIssues(key);
-        //LOGGER.info("Response :{}", new ReflectionToStringBuilder(searchWsRes).toString());
         // Facets is the list of components or resources.
         final Common.Facet projectResourceFacets = searchWsRes.getFacets().getFacets(0);
         if (projectResourceFacets != null) {
@@ -72,7 +68,7 @@ public class FileInfoBuilder {
                                     .filter(retrievingFileComponent(facetValue))
                                     .limit(limit)
                                     .map(newFileInfo(facetValue))
-                                    .collect(Collectors.toList());
+                                    .toList();
             files.addAll(topFileInfo);
         } else {
             LOGGER.debug("There are no violated files");
@@ -111,8 +107,6 @@ public class FileInfoBuilder {
     }
 
     public List<FileInfo> initProjectMostComplexFilesByProjectKey(final String key) {
-
-        // LOGGER.info("Retrieving most complex files info for " + key);
 
         List<FileInfo> files = new ArrayList<>();
 
@@ -158,15 +152,12 @@ public class FileInfoBuilder {
 
     public List<FileInfo> initProjectMostDuplicatedFilesByProjectKey(final String key) {
 
-        // LOGGER.info("Retrieving most duplicated files info for " + key);
-
         List<FileInfo> files = new ArrayList<>();
 
-        Measures.ComponentTreeWsResponse componentTreeWsRes = searchForMeasures(key, MetricKeys.DUPLICATED_LINES, Arrays.asList(S_METRIC));
+        Measures.ComponentTreeWsResponse componentTreeWsRes = searchForMeasures(key, MetricKeys.DUPLICATED_LINES, singletonList(S_METRIC));
 
         if (componentTreeWsRes.getComponentsList() != null) {
             int limit = getLowerBound(LIMIT, componentTreeWsRes.getComponentsCount());
-            //LOGGER.info("Found {} components with duplication metrics", componentTreeWsRes.getComponentsList());
             for (int j = componentTreeWsRes.getComponentsCount() - 1; j >= componentTreeWsRes.getComponentsCount() - limit; j--) {
                 Measures.Component component = componentTreeWsRes.getComponents(j);
                 files.add(newDuplicationFileInfo(component));

@@ -24,7 +24,6 @@ import com.cybage.sonar.report.pdf.entity.ProjectStatus;
 import com.cybage.sonar.report.pdf.entity.QualityProfile;
 import com.cybage.sonar.report.pdf.entity.Rule;
 import com.cybage.sonar.report.pdf.entity.exception.ReportException;
-import com.itextpdf.text.DocumentException;
 import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
 
 public class ProjectBuilder {
@@ -52,9 +51,7 @@ public class ProjectBuilder {
 	 * violations - Project most violated rules - Project most violated files -
 	 * Project most duplicated files
 	 *
-	 * @throws HttpException
 	 * @throws IOException
-	 * @throws DocumentException
 	 * @throws ReportException
 	 */
 	public Project initializeProject(final String key, final String version, final List<String> sonarLanguage,
@@ -63,7 +60,7 @@ public class ProjectBuilder {
 
 		try {
 
-			LOGGER.info("Retrieving project info for " + project.getKey());
+			LOGGER.info("Retrieving project info for {}", project.getKey());
 
 			String projectName = null;
 			String projectDescription = "";
@@ -78,8 +75,7 @@ public class ProjectBuilder {
 				}
 			} catch (HttpException e) {
 				if (e.code() == 403) {
-					LOGGER.warn("Insufficient privileges to call api/components/show for " + project.getKey()
-							+ " (HTTP 403). Falling back to api/projects/search.");
+					LOGGER.warn("Insufficient privileges to call api/components/show for {} (HTTP 403). Falling back to api/projects/search.", project.getKey());
 					SearchRequest searchReq = new SearchRequest();
 					searchReq.setProjects(Collections.singletonList(project.getKey()));
 					Projects.SearchWsResponse searchRes = wsClient.projects().search(searchReq);
@@ -106,7 +102,7 @@ public class ProjectBuilder {
 			initMostViolatedFiles(project);
 			initMostComplexFiles(project);
 			initMostDuplicatedFiles(project);
-			if (typesOfIssue.size() > 0) {
+			if (!typesOfIssue.isEmpty()) {
 				initIssueDetails(project, typesOfIssue);
 			}
 		} catch (Exception ex) {
@@ -128,17 +124,16 @@ public class ProjectBuilder {
 
 		// Set Project Description
 		project.setDescription(description);
-		// project.setLinks(new LinkedList<String>());
-		project.setSubprojects(new LinkedList<Project>());
+		project.setSubprojects(new LinkedList<>());
 
 		// Set Project Status
 		initProjectStatus(project);
 		initQualityProfiles(project);
 
-		project.setMostViolatedRules(new LinkedList<Rule>());
-		project.setMostComplexFiles(new LinkedList<FileInfo>());
-		project.setMostDuplicatedFiles(new LinkedList<FileInfo>());
-		project.setMostViolatedFiles(new LinkedList<FileInfo>());
+		project.setMostViolatedRules(new LinkedList<>());
+		project.setMostComplexFiles(new LinkedList<>());
+		project.setMostDuplicatedFiles(new LinkedList<>());
+		project.setMostViolatedFiles(new LinkedList<>());
 	}
 
 	private void initMeasures(final Project project, final Set<String> otherMetrics)

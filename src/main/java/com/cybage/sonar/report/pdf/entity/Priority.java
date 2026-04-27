@@ -17,7 +17,7 @@ public class Priority {
 	}
 
 	public static String getPriority(String priority) {
-		if (priority.equals(Priority.ALL)) {
+		if (Priority.ALL.equals(priority)) {
 			return "ALL";
 		} else {
 			return priority;

@@ -77,21 +77,18 @@ public class MeasuresBuilder {
     private void initMeasuresSplittingRequests(final com.cybage.sonar.report.pdf.entity.Measures measures, final String projectKey)
             throws IOException, ReportException {
         Iterator<String> it = new ArrayList<>(measuresKeys).iterator();
-        // LOGGER.debug("Getting " + measuresKeys.size() + " metric measures from Sonar by splitting requests");
-        Set<String> twentyMeasures = new HashSet<String>(20);
+        Set<String> twentyMeasures = new HashSet<>(20);
         int         i              = 0;
         while (it.hasNext()) {
             twentyMeasures.add(it.next());
             i++;
             if (i % DEFAULT_SPLIT_LIMIT == 0) {
-                // LOGGER.debug("Split request for: " + twentyMeasures);
                 addMeasures(measures, twentyMeasures, projectKey);
                 i = 0;
                 twentyMeasures.clear();
             }
         }
         if (i != 0) {
-            // LOGGER.debug("Split request for remain metric measures: " + twentyMeasures);
             addMeasures(measures, twentyMeasures, projectKey);
         }
     }
@@ -119,7 +116,7 @@ public class MeasuresBuilder {
             if (compWsRes.getComponent().getMeasuresCount() != 0) {
                 this.addAllMeasuresFromDocument(measures, compWsRes);
             } else {
-                LOGGER.debug("Empty response when looking for measures: " + measuresAsString.toString());
+                LOGGER.debug("Empty response when looking for measures: {}", measuresAsString);
             }
         } catch (HttpException e) {
             retryAfterRemovingUnsupportedKeys(measures, measuresAsString, projectKey, e);

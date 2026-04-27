@@ -50,12 +50,15 @@ public class RuleBuilder {
                 for (int j = 0; j < limit; j++) {
                     FacetValue            facetValue   = projectResources.getValues(j);
                     Optional<Common.Rule> optionalRule = findRuleResult(searchWsRes, facetValue);
+                    if (!optionalRule.isPresent()) {
+                        continue;
+                    }
                     final Common.Rule     rule         = optionalRule.get();
                     final String          priority     = Priority.getPriority(priorities[i]);
                     rules.add(newRule(facetValue, rule, priority));
                 }
             } else {
-                LOGGER.debug("There are no violations with level " + priorities[i]);
+                LOGGER.debug("There are no violations with level {}", priorities[i]);
             }
         }
 

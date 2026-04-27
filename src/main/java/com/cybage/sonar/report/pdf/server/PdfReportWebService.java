@@ -151,6 +151,7 @@ public class PdfReportWebService implements WebService {
     }
 
     private static String sanitize(String projectKey) {
+        // replaceAll kept here intentionally — the pattern is a regex character class
         return projectKey.replace(':', '-').replaceAll("[^a-zA-Z0-9._\\-]", "_");
     }
 

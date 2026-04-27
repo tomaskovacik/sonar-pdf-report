@@ -2,7 +2,6 @@ package com.cybage.sonar.report.pdf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
@@ -66,8 +65,6 @@ public abstract class PDFReporter {
             Events events = new Events(tocDocument, new Header(this.getLogo(), this.getProject()));
             mainDocumentWriter.setPageEvent(events);
 
-            // tocDocument.setHeader(new Header(this.getLogo(),
-            // this.getProject()));
             mainDocument.open();
             tocDocument.getTocDocument().open();
             frontPageDocument.open();
@@ -125,7 +122,6 @@ public abstract class PDFReporter {
             ProjectBuilder projectBuilder = ProjectBuilder.getInstance(wsClient);
             project = projectBuilder.initializeProject(getProjectKey(), getProjectVersion(), getSonarLanguage(),
                     getOtherMetrics(), getTypesOfIssue());
-            //LOGGER.info("Project Information : " + project.toString());
         }
         return project;
     }
@@ -203,11 +199,7 @@ public abstract class PDFReporter {
         Image tendencyImage = null;
         try {
             tendencyImage = Image.getInstance(this.getClass().getResource("/tendency/" + iconName));
-        } catch (BadElementException e) {
-            LOGGER.error(CAN_NOT_GENERATE_TENDENCY_IMAGE, e);
-        } catch (MalformedURLException e) {
-            LOGGER.error(CAN_NOT_GENERATE_TENDENCY_IMAGE, e);
-        } catch (IOException e) {
+        } catch (BadElementException | IOException e) {
             LOGGER.error(CAN_NOT_GENERATE_TENDENCY_IMAGE, e);
         }
         return tendencyImage;

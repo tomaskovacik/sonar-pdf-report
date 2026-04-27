@@ -22,27 +22,27 @@ public class ComplexityDistribution {
 	}
 
 	public String formatYValues() {
-		String formatValues = "";
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < yValues.length; i++) {
 			if (i != yValues.length - 1) {
-				formatValues += yValues[i] + ",";
+				sb.append(yValues[i]).append(",");
 			} else {
-				formatValues += yValues[i];
+				sb.append(yValues[i]);
 			}
 		}
-		return formatValues;
+		return sb.toString();
 	}
 
 	public String formatXValues() {
-		String formatValues = "";
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < xValues.length; i++) {
 			if (i != xValues.length - 1) {
-				formatValues += xValues[i] + "%2b,";
+				sb.append(xValues[i]).append("%2b,");
 			} else {
-				formatValues += xValues[i] + "%2b";
+				sb.append(xValues[i]).append("%2b");
 			}
 		}
-		return formatValues;
+		return sb.toString();
 	}
 
 	public String[] getxValues() {
