@@ -18,23 +18,32 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
     "cursor:pointer",
   ].join(";");
 
-  function downloadUrl(type) {
-    return base + "/api/pdfreport/get?project=" + encodeURIComponent(projectKey) + "&content_type=" + type;
-  }
+  function makeDownloadForm(type) {
+    var form = document.createElement("form");
+    form.method = "get";
+    form.action = base + "/api/pdfreport/get";
+    form.target = "_blank";
+    form.style.display = "inline";
 
-  function triggerDownload(url, filename) {
-    fetch(url)
-      .then(function (r) { return r.blob(); })
-      .then(function (blob) {
-        var blobUrl = URL.createObjectURL(blob);
-        var a = document.createElement("a");
-        a.href = blobUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
-      });
+    var pInput = document.createElement("input");
+    pInput.type = "hidden";
+    pInput.name = "project";
+    pInput.value = projectKey;
+    form.appendChild(pInput);
+
+    var ctInput = document.createElement("input");
+    ctInput.type = "hidden";
+    ctInput.name = "content_type";
+    ctInput.value = type;
+    form.appendChild(ctInput);
+
+    var btn = document.createElement("button");
+    btn.type = "submit";
+    btn.style.cssText = btnStyle;
+    btn.textContent = "Download " + type.toUpperCase() + " Report";
+    form.appendChild(btn);
+
+    return form;
   }
 
   function render(info) {
@@ -58,20 +67,8 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
       containerEl.appendChild(msg);
     } else {
       var btnRow = document.createElement("div");
-      if (info.pdf) {
-        var pdfBtn = document.createElement("button");
-        pdfBtn.style.cssText = btnStyle;
-        pdfBtn.textContent = "Download PDF Report";
-        pdfBtn.addEventListener("click", function () { triggerDownload(downloadUrl("pdf"), projectKey + ".pdf"); });
-        btnRow.appendChild(pdfBtn);
-      }
-      if (info.html) {
-        var htmlBtn = document.createElement("button");
-        htmlBtn.style.cssText = btnStyle;
-        htmlBtn.textContent = "Download HTML Report";
-        htmlBtn.addEventListener("click", function () { triggerDownload(downloadUrl("html"), projectKey + ".html"); });
-        btnRow.appendChild(htmlBtn);
-      }
+      if (info.pdf)  { btnRow.appendChild(makeDownloadForm("pdf")); }
+      if (info.html) { btnRow.appendChild(makeDownloadForm("html")); }
       containerEl.appendChild(btnRow);
     }
   }
