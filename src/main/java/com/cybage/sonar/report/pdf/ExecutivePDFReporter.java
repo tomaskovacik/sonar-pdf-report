@@ -98,6 +98,10 @@ public class ExecutivePDFReporter extends PDFReporter {
     public static final  String                  LOGO_PROPS      = "front.page.logo";
     private static final Logger                  LOGGER          = LoggerFactory.getLogger(ExecutivePDFReporter.class);
     private static final String                  REPORT_TYPE_PDF = "pdf";
+    private static final String METRICS_PREFIX = "metrics.";
+    private static final String LANG_FILE_NAME = "genaral.file_name";
+    private static final String LANG_FILE_PATH = "general.file_path";
+
     private final        URL                     logo;
     private final        String                  projectKey;
     private final        String                  projectVersion;
@@ -602,7 +606,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
                 // File Name Header
                 CustomCellTitle fileNameHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("genaral.file_name"), Style.DASHBOARD_TITLE_FONT));
+                        new Phrase(getTextProperty(LANG_FILE_NAME), Style.DASHBOARD_TITLE_FONT));
                 tableMostViolatesFiles.addCell(fileNameHeader);
 
                 // File Name Value
@@ -612,7 +616,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
                 // File Path Header
                 CustomCellTitle filePathHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("general.file_path"), Style.DASHBOARD_TITLE_FONT));
+                        new Phrase(getTextProperty(LANG_FILE_PATH), Style.DASHBOARD_TITLE_FONT));
                 tableMostViolatesFiles.addCell(filePathHeader);
 
                 // File Path Value
@@ -665,7 +669,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
                 // File Name Header
                 CustomCellTitle fileNameHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("genaral.file_name"), Style.DASHBOARD_TITLE_FONT));
+                        new Phrase(getTextProperty(LANG_FILE_NAME), Style.DASHBOARD_TITLE_FONT));
                 tableMostComplexFiles.addCell(fileNameHeader);
 
                 // File Name Value
@@ -675,7 +679,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
                 // File Path Header
                 CustomCellTitle filePathHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("general.file_path"), Style.DASHBOARD_TITLE_FONT));
+                        new Phrase(getTextProperty(LANG_FILE_PATH), Style.DASHBOARD_TITLE_FONT));
                 tableMostComplexFiles.addCell(filePathHeader);
 
                 // File Path Value
@@ -731,7 +735,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
                 // File Name Header
                 CustomCellTitle fileNameHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("genaral.file_name"), Style.DASHBOARD_TITLE_FONT));
+                        new Phrase(getTextProperty(LANG_FILE_NAME), Style.DASHBOARD_TITLE_FONT));
                 tableMostDuplicatedFiles.addCell(fileNameHeader);
 
                 // File Name Value
@@ -741,7 +745,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
                 // File Path Header
                 CustomCellTitle filePathHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("general.file_path"), Style.DASHBOARD_TITLE_FONT));
+                        new Phrase(getTextProperty(LANG_FILE_PATH), Style.DASHBOARD_TITLE_FONT));
                 tableMostDuplicatedFiles.addCell(filePathHeader);
 
                 // File Path Value
@@ -801,7 +805,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
                 // File Name Header
                 CustomCellTitle fileNameHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("genaral.file_name"), Style.DASHBOARD_TITLE_FONT));
+                        new Phrase(getTextProperty(LANG_FILE_NAME), Style.DASHBOARD_TITLE_FONT));
                 tableIssueDetails.addCell(fileNameHeader);
 
                 // File Name Value
@@ -811,7 +815,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
                 // File Path Header
                 CustomCellTitle filePathHeader = new CustomCellTitle(
-                        new Phrase(getTextProperty("general.file_path"), Style.DASHBOARD_TITLE_FONT));
+                        new Phrase(getTextProperty(LANG_FILE_PATH), Style.DASHBOARD_TITLE_FONT));
                 tableIssueDetails.addCell(filePathHeader);
 
                 // File Path Value
@@ -877,7 +881,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printReliabilityBoard(final Project project, final Section section) throws DocumentException {
 
         // Reliability Title
-        Paragraph reliabilityTitle = new Paragraph(getTextProperty("metrics." + RELIABILITY.toLowerCase()),
+        Paragraph reliabilityTitle = new Paragraph(getTextProperty(METRICS_PREFIX + RELIABILITY.toLowerCase()),
                 Style.UNDERLINED_FONT);
 
         // Reliability Main Table
@@ -927,21 +931,21 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Bugs Title
         CustomCellTitle bugs = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + BUGS), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + BUGS), Style.DASHBOARD_TITLE_FONT));
         bugs.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableReliability.addCell(bugs);
 
         // New Bugs Title
         if (project.getMeasures().containsMeasure(NEW_BUGS)) {
             CustomCellTitle newBugs = new CustomCellTitle(
-                    new Phrase(getTextProperty("metrics." + NEW_BUGS), Style.DASHBOARD_TITLE_FONT));
+                    new Phrase(getTextProperty(METRICS_PREFIX + NEW_BUGS), Style.DASHBOARD_TITLE_FONT));
             newBugs.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableReliability.addCell(newBugs);
         }
 
         // Reliability Rating Title
         CustomCellTitle reliabilityRating = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + RELIABILITY_RATING), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + RELIABILITY_RATING), Style.DASHBOARD_TITLE_FONT));
         reliabilityRating.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableReliability.addCell(reliabilityRating);
 
@@ -953,7 +957,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Reliability Remediation Effort Title
         CustomCellTitle reliabilityRemediationEffort = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + RELIABILITY_REMEDIATION_EFFORT), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + RELIABILITY_REMEDIATION_EFFORT), Style.DASHBOARD_TITLE_FONT));
         tableReliabilityOther.addCell(reliabilityRemediationEffort);
 
         // Reliability Remediation Effort Value
@@ -967,7 +971,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         if (project.getMeasures().containsMeasure(NEW_RELIABILITY_REMEDIATION_EFFORT)) {
             // Reliability Remediation Effort On New Code Title
             CustomCellTitle reliabilityRemediationEffortNew = new CustomCellTitle(new Phrase(
-                    getTextProperty("metrics." + NEW_RELIABILITY_REMEDIATION_EFFORT), Style.DASHBOARD_TITLE_FONT));
+                    getTextProperty(METRICS_PREFIX + NEW_RELIABILITY_REMEDIATION_EFFORT), Style.DASHBOARD_TITLE_FONT));
             tableReliabilityOther.addCell(reliabilityRemediationEffortNew);
 
             // Reliability Remediation Effort On New Code Value
@@ -1005,7 +1009,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printSecurityBoard(final Project project, final Section section) throws DocumentException {
 
         // Security Title
-        Paragraph securityTitle = new Paragraph(getTextProperty("metrics." + SECURITY.toLowerCase()),
+        Paragraph securityTitle = new Paragraph(getTextProperty(METRICS_PREFIX + SECURITY.toLowerCase()),
                 Style.UNDERLINED_FONT);
 
         // Security Main Table
@@ -1050,21 +1054,21 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Vulnerabilities Title
         CustomCellTitle vulnerabilities = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + VULNERABILITIES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + VULNERABILITIES), Style.DASHBOARD_TITLE_FONT));
         vulnerabilities.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableSecurity.addCell(vulnerabilities);
 
         // New Vulnerabilities Title
         if (project.getMeasures().containsMeasure(NEW_VULNERABILITIES)) {
             CustomCellTitle newVulnerabilities = new CustomCellTitle(
-                    new Phrase(getTextProperty("metrics." + NEW_VULNERABILITIES), Style.DASHBOARD_TITLE_FONT));
+                    new Phrase(getTextProperty(METRICS_PREFIX + NEW_VULNERABILITIES), Style.DASHBOARD_TITLE_FONT));
             newVulnerabilities.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableSecurity.addCell(newVulnerabilities);
         }
 
         // Security Rating Title
         CustomCellTitle securityRating = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + SECURITY_RATING), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + SECURITY_RATING), Style.DASHBOARD_TITLE_FONT));
         securityRating.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableSecurity.addCell(securityRating);
 
@@ -1076,7 +1080,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Security Remediation Effort Title
         CustomCellTitle securityRemediationEffort = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + SECURITY_REMEDIATION_EFFORT), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + SECURITY_REMEDIATION_EFFORT), Style.DASHBOARD_TITLE_FONT));
         tableSecurityOther.addCell(securityRemediationEffort);
 
         // Security Remediation Effort Value
@@ -1090,7 +1094,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         if (project.getMeasures().containsMeasure(NEW_SECURITY_REMEDIATION_EFFORT)) {
             // Security Remediation Effort on New Code Title
             CustomCellTitle securityRemediationEffortNew = new CustomCellTitle(new Phrase(
-                    getTextProperty("metrics." + NEW_SECURITY_REMEDIATION_EFFORT), Style.DASHBOARD_TITLE_FONT));
+                    getTextProperty(METRICS_PREFIX + NEW_SECURITY_REMEDIATION_EFFORT), Style.DASHBOARD_TITLE_FONT));
             tableSecurityOther.addCell(securityRemediationEffortNew);
 
             // Security Remediation Effort on New Code Value
@@ -1123,7 +1127,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         }
 
         // Coverage Title
-        Paragraph coverageTitle = new Paragraph(getTextProperty("metrics." +
+        Paragraph coverageTitle = new Paragraph(getTextProperty(METRICS_PREFIX +
                 MetricDomains.COVERAGE.toLowerCase()), Style.UNDERLINED_FONT);
 
         //Coverage Main Table
@@ -1150,7 +1154,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableCoverage.addCell(coverageDensityValue);
 
         // Coverage Density Title
-        CustomCellTitle coverageDensity = new CustomCellTitle(new Phrase(getTextProperty("metrics." +
+        CustomCellTitle coverageDensity = new CustomCellTitle(new Phrase(getTextProperty(METRICS_PREFIX +
                 MetricKeys.COVERAGE), Style.DASHBOARD_TITLE_FONT));
         coverageDensity.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableCoverage.addCell(coverageDensity);
@@ -1162,7 +1166,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableCoverageOther.setWidths(new int[]{8, 2});
 
         // Line Coverage Title
-        CustomCellTitle lineCoverage = new CustomCellTitle(new Phrase(getTextProperty("metrics." + MetricKeys.LINE_COVERAGE),
+        CustomCellTitle lineCoverage = new CustomCellTitle(new Phrase(getTextProperty(METRICS_PREFIX + MetricKeys.LINE_COVERAGE),
                 Style.DASHBOARD_TITLE_FONT));
         tableCoverageOther.addCell(lineCoverage);
 
@@ -1172,7 +1176,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableCoverageOther.addCell(lineCoverageValue);
 
         // Branch Coverage Title
-        CustomCellTitle branchCoverage = new CustomCellTitle(new Phrase(getTextProperty("metrics." +
+        CustomCellTitle branchCoverage = new CustomCellTitle(new Phrase(getTextProperty(METRICS_PREFIX +
                 MetricKeys.BRANCH_COVERAGE), Style.DASHBOARD_TITLE_FONT));
         tableCoverageOther.addCell(branchCoverage);
 
@@ -1183,7 +1187,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableCoverageOther.addCell(branchCoverageValue);
 
         // Uncovered Lines Title
-        CustomCellTitle uncoveredLines = new CustomCellTitle(new Phrase(getTextProperty("metrics." +
+        CustomCellTitle uncoveredLines = new CustomCellTitle(new Phrase(getTextProperty(METRICS_PREFIX +
                 MetricKeys.UNCOVERED_LINES), Style.DASHBOARD_TITLE_FONT));
         tableCoverageOther.addCell(uncoveredLines);
 
@@ -1194,7 +1198,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableCoverageOther.addCell(uncoveredLinesValue);
         // Uncovered Conditions Title
         //
-        CustomCellTitle uncoveredConditions = new CustomCellTitle(new Phrase(getTextProperty("metrics." +
+        CustomCellTitle uncoveredConditions = new CustomCellTitle(new Phrase(getTextProperty(METRICS_PREFIX +
                 MetricKeys.UNCOVERED_CONDITIONS), Style.DASHBOARD_TITLE_FONT));
         tableCoverageOther.addCell(uncoveredConditions);
 
@@ -1206,7 +1210,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableCoverageOther.addCell(uncoveredConditionsValue);
 
         // Lines To Cover Title
-        CustomCellTitle linesToCover = new CustomCellTitle(new Phrase(getTextProperty("metrics." + MetricKeys.LINES_TO_COVER),
+        CustomCellTitle linesToCover = new CustomCellTitle(new Phrase(getTextProperty(METRICS_PREFIX + MetricKeys.LINES_TO_COVER),
                 Style.DASHBOARD_TITLE_FONT));
         tableCoverageOther.addCell(linesToCover);
 
@@ -1236,7 +1240,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printMaintainabilityBoard(final Project project, final Section section) throws DocumentException {
 
         // Maintainability Title
-        Paragraph maintainabilityTitle = new Paragraph(getTextProperty("metrics." + MAINTAINABILITY.toLowerCase()),
+        Paragraph maintainabilityTitle = new Paragraph(getTextProperty(METRICS_PREFIX + MAINTAINABILITY.toLowerCase()),
                 Style.UNDERLINED_FONT);
 
         // Maintainability Main Table
@@ -1281,21 +1285,21 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Code Smells Title
         CustomCellTitle codeSmells = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + CODE_SMELLS), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + CODE_SMELLS), Style.DASHBOARD_TITLE_FONT));
         codeSmells.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableMaintainability.addCell(codeSmells);
 
         // New Code Smells Title
         if (project.getMeasures().containsMeasure(NEW_CODE_SMELLS)) {
             CustomCellTitle newCodeSmells = new CustomCellTitle(
-                    new Phrase(getTextProperty("metrics." + NEW_CODE_SMELLS), Style.DASHBOARD_TITLE_FONT));
+                    new Phrase(getTextProperty(METRICS_PREFIX + NEW_CODE_SMELLS), Style.DASHBOARD_TITLE_FONT));
             newCodeSmells.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableMaintainability.addCell(newCodeSmells);
         }
 
         // Maintainability Rating Title
         CustomCellTitle maintainabilityRating = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + SQALE_RATING), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + SQALE_RATING), Style.DASHBOARD_TITLE_FONT));
         maintainabilityRating.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableMaintainability.addCell(maintainabilityRating);
 
@@ -1307,7 +1311,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Technical Debt Title
         CustomCellTitle technicalDebt = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + SQALE_INDEX), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + SQALE_INDEX), Style.DASHBOARD_TITLE_FONT));
         technicalDebt.setExtraParagraphSpace(5);
         tableMaintainabilityOther.addCell(technicalDebt);
 
@@ -1321,7 +1325,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         if (project.getMeasures().containsMeasure(NEW_TECHNICAL_DEBT)) {
             // Added Technical Debt Title
             CustomCellTitle technicalDebtNew = new CustomCellTitle(
-                    new Phrase(getTextProperty("metrics." + NEW_TECHNICAL_DEBT), Style.DASHBOARD_TITLE_FONT));
+                    new Phrase(getTextProperty(METRICS_PREFIX + NEW_TECHNICAL_DEBT), Style.DASHBOARD_TITLE_FONT));
             tableMaintainabilityOther.addCell(technicalDebtNew);
 
             // Added Technical Debt Value
@@ -1338,7 +1342,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Technical Debt Ratio Title
         CustomCellTitle technicalDebtRatio = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + SQALE_DEBT_RATIO), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + SQALE_DEBT_RATIO), Style.DASHBOARD_TITLE_FONT));
         tableMaintainabilityOther.addCell(technicalDebtRatio);
 
         // Technical Debt Ratio Value
@@ -1350,7 +1354,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         if (project.getMeasures().containsMeasure(NEW_SQALE_DEBT_RATIO)) {
             // Technical Debt Ratio on New Code Title
             CustomCellTitle technicalDebtRatioNew = new CustomCellTitle(
-                    new Phrase(getTextProperty("metrics." + NEW_SQALE_DEBT_RATIO), Style.DASHBOARD_TITLE_FONT));
+                    new Phrase(getTextProperty(METRICS_PREFIX + NEW_SQALE_DEBT_RATIO), Style.DASHBOARD_TITLE_FONT));
             tableMaintainabilityOther.addCell(technicalDebtRatioNew);
 
             // Technical Debt Ratio on New Code Value
@@ -1363,7 +1367,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Effort To Reach Maintainability Rating A Title
         CustomCellTitle effortToReachMaintainabilityRatingA = new CustomCellTitle(new Phrase(
-                getTextProperty("metrics." + EFFORT_TO_REACH_MAINTAINABILITY_RATING_A), Style.DASHBOARD_TITLE_FONT));
+                getTextProperty(METRICS_PREFIX + EFFORT_TO_REACH_MAINTAINABILITY_RATING_A), Style.DASHBOARD_TITLE_FONT));
         tableMaintainabilityOther.addCell(effortToReachMaintainabilityRatingA);
 
         // Effort To Reach Maintainability Rating A Value
@@ -1389,7 +1393,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printDuplicationsBoard(final Project project, final Section section) throws DocumentException {
 
         // Duplications Title
-        Paragraph duplicationsTitle = new Paragraph(getTextProperty("metrics." + DUPLICATIONS.toLowerCase()),
+        Paragraph duplicationsTitle = new Paragraph(getTextProperty(METRICS_PREFIX + DUPLICATIONS.toLowerCase()),
                 Style.UNDERLINED_FONT);
 
         // Duplications Main Table
@@ -1406,7 +1410,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Duplicated Lines Density Title
         CustomCellTitle duplicatedLinesDensity = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + DUPLICATED_LINES_DENSITY), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + DUPLICATED_LINES_DENSITY), Style.DASHBOARD_TITLE_FONT));
         duplicatedLinesDensity.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableDuplications.addCell(duplicatedLinesDensity);
 
@@ -1418,7 +1422,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Duplicated Blocks Title
         CustomCellTitle duplicatedBlocks = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + DUPLICATED_BLOCKS), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + DUPLICATED_BLOCKS), Style.DASHBOARD_TITLE_FONT));
         tableDuplicationsOther.addCell(duplicatedBlocks);
 
         // Duplicated Blocks Value
@@ -1428,7 +1432,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Duplicated Lines Title
         CustomCellTitle duplicatedLines = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + DUPLICATED_LINES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + DUPLICATED_LINES), Style.DASHBOARD_TITLE_FONT));
         tableDuplicationsOther.addCell(duplicatedLines);
 
         // Duplicated Lines Value
@@ -1438,7 +1442,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Duplicated Files Title
         CustomCellTitle duplicatedFiles = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + DUPLICATED_FILES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + DUPLICATED_FILES), Style.DASHBOARD_TITLE_FONT));
         tableDuplicationsOther.addCell(duplicatedFiles);
 
         // Duplicated Files Value
@@ -1461,7 +1465,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printSizeBoard(final Project project, final Section section) throws DocumentException {
 
         // Size Title
-        Paragraph sizeTitle = new Paragraph(getTextProperty("metrics." + SIZE.toLowerCase()), Style.UNDERLINED_FONT);
+        Paragraph sizeTitle = new Paragraph(getTextProperty(METRICS_PREFIX + SIZE.toLowerCase()), Style.UNDERLINED_FONT);
 
         // Size Main Table
         CustomMainTable mainTable = new CustomMainTable(1);
@@ -1477,7 +1481,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Lines of Code Title
         CustomCellTitle linesOfCode = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + NCLOC), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + NCLOC), Style.DASHBOARD_TITLE_FONT));
         linesOfCode.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableSize.addCell(linesOfCode);
 
@@ -1489,7 +1493,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Lines Title
         CustomCellTitle lines = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + LINES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + LINES), Style.DASHBOARD_TITLE_FONT));
         tableSizeOther.addCell(lines);
 
         // Lines Value
@@ -1499,7 +1503,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Statements Title
         CustomCellTitle statements = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + STATEMENTS), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + STATEMENTS), Style.DASHBOARD_TITLE_FONT));
         tableSizeOther.addCell(statements);
 
         // Statements Value
@@ -1509,7 +1513,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Functions Title
         CustomCellTitle functions = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + FUNCTIONS), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + FUNCTIONS), Style.DASHBOARD_TITLE_FONT));
         tableSizeOther.addCell(functions);
 
         // Functions Value
@@ -1519,7 +1523,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Classes Title
         CustomCellTitle classes = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + CLASSES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + CLASSES), Style.DASHBOARD_TITLE_FONT));
         tableSizeOther.addCell(classes);
 
         // Classes Value
@@ -1529,7 +1533,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Files Title
         CustomCellTitle files = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + FILES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + FILES), Style.DASHBOARD_TITLE_FONT));
         tableSizeOther.addCell(files);
 
         // Files Value
@@ -1539,7 +1543,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Directories Title
         CustomCellTitle directories = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + DIRECTORIES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + DIRECTORIES), Style.DASHBOARD_TITLE_FONT));
         tableSizeOther.addCell(directories);
 
         // Directories Value
@@ -1562,7 +1566,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printComplexityBoard(final Project project, final Section section) throws DocumentException {
 
         // Complexity Title
-        Paragraph complexityTitle = new Paragraph(getTextProperty("metrics." + MetricDomains.COMPLEXITY.toLowerCase()),
+        Paragraph complexityTitle = new Paragraph(getTextProperty(METRICS_PREFIX + MetricDomains.COMPLEXITY.toLowerCase()),
                 Style.UNDERLINED_FONT);
 
         // Complexity Main Table
@@ -1579,7 +1583,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Total Complexity Title
         CustomCellTitle complexityTotal = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + MetricKeys.COMPLEXITY), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + MetricKeys.COMPLEXITY), Style.DASHBOARD_TITLE_FONT));
         complexityTotal.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableComplexity.addCell(complexityTotal);
 
@@ -1591,7 +1595,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Function Complexity Title
         CustomCellTitle functionComplexity = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + FUNCTION_COMPLEXITY), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + FUNCTION_COMPLEXITY), Style.DASHBOARD_TITLE_FONT));
         tableComplexityOther.addCell(functionComplexity);
 
         // Function Complexity Value
@@ -1601,7 +1605,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // File Complexity Title
         CustomCellTitle fileComplexity = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + FILE_COMPLEXITY), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + FILE_COMPLEXITY), Style.DASHBOARD_TITLE_FONT));
         tableComplexityOther.addCell(fileComplexity);
 
         // File Complexity Value
@@ -1611,7 +1615,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Class Complexity Title
         CustomCellTitle classComplexity = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + CLASS_COMPLEXITY), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + CLASS_COMPLEXITY), Style.DASHBOARD_TITLE_FONT));
         tableComplexityOther.addCell(classComplexity);
 
         // Class Complexity Title
@@ -1634,7 +1638,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printDocumentationBoard(final Project project, final Section section) throws DocumentException {
 
         // Documentations Title
-        Paragraph documentationTitle = new Paragraph(getTextProperty("metrics." + DOCUMENTATION.toLowerCase()),
+        Paragraph documentationTitle = new Paragraph(getTextProperty(METRICS_PREFIX + DOCUMENTATION.toLowerCase()),
                 Style.UNDERLINED_FONT);
 
         // Documentations Main Table
@@ -1651,7 +1655,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Comment Lines Density Title
         CustomCellTitle commentLinesDensity = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + COMMENT_LINES_DENSITY), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + COMMENT_LINES_DENSITY), Style.DASHBOARD_TITLE_FONT));
         commentLinesDensity.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableDocumentation.addCell(commentLinesDensity);
 
@@ -1663,7 +1667,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Comment Lines Title
         CustomCellTitle commentLines = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + COMMENT_LINES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + COMMENT_LINES), Style.DASHBOARD_TITLE_FONT));
         tableDocumentationOther.addCell(commentLines);
 
         // Comment Lines Value
@@ -1686,7 +1690,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printIssuesBoard(final Project project, final Section section) throws DocumentException {
 
         // Issues Title
-        Paragraph issuesTitle = new Paragraph(getTextProperty("metrics." + ISSUES.toLowerCase()),
+        Paragraph issuesTitle = new Paragraph(getTextProperty(METRICS_PREFIX + ISSUES.toLowerCase()),
                 Style.UNDERLINED_FONT);
 
         // Issues Main Table
@@ -1725,14 +1729,14 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Issues Title
         CustomCellTitle violations = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + VIOLATIONS), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + VIOLATIONS), Style.DASHBOARD_TITLE_FONT));
         violations.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableIssues.addCell(violations);
 
         // New Issues Title
         if (project.getMeasures().containsMeasure(NEW_VIOLATIONS)) {
             CustomCellTitle newViolations = new CustomCellTitle(
-                    new Phrase(getTextProperty("metrics." + NEW_VIOLATIONS), Style.DASHBOARD_TITLE_FONT));
+                    new Phrase(getTextProperty(METRICS_PREFIX + NEW_VIOLATIONS), Style.DASHBOARD_TITLE_FONT));
             newViolations.setHorizontalAlignment(Element.ALIGN_CENTER);
             tableIssues.addCell(newViolations);
         }
@@ -1745,7 +1749,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Open Issues Title
         CustomCellTitle openIssues = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + OPEN_ISSUES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + OPEN_ISSUES), Style.DASHBOARD_TITLE_FONT));
         tableIssuesOther.addCell(openIssues);
 
         // Open Issues Value
@@ -1755,7 +1759,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Reopened Issues Title
         CustomCellTitle reopenedIssues = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + REOPENED_ISSUES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + REOPENED_ISSUES), Style.DASHBOARD_TITLE_FONT));
         tableIssuesOther.addCell(reopenedIssues);
 
         // Reopened Issues Value
@@ -1765,7 +1769,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Confirmed Issues Title
         CustomCellTitle confirmedIssues = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + CONFIRMED_ISSUES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + CONFIRMED_ISSUES), Style.DASHBOARD_TITLE_FONT));
         tableIssuesOther.addCell(confirmedIssues);
 
         // Confirmed Issues Value
@@ -1775,7 +1779,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // False Positive Issues Title
         CustomCellTitle falsePositiveIssues = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + FALSE_POSITIVE_ISSUES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + FALSE_POSITIVE_ISSUES), Style.DASHBOARD_TITLE_FONT));
         tableIssuesOther.addCell(falsePositiveIssues);
 
         // False Positive Issues Value
@@ -1785,7 +1789,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
         // Won't Fix Issues Title
         CustomCellTitle wontFixIssues = new CustomCellTitle(
-                new Phrase(getTextProperty("metrics." + WONT_FIX_ISSUES), Style.DASHBOARD_TITLE_FONT));
+                new Phrase(getTextProperty(METRICS_PREFIX + WONT_FIX_ISSUES), Style.DASHBOARD_TITLE_FONT));
         tableIssuesOther.addCell(wontFixIssues);
 
         // Won't Fix Issues Value
