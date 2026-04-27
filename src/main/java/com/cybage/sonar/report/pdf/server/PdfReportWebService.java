@@ -82,6 +82,12 @@ public class PdfReportWebService implements WebService {
         }
 
         File dest = reportFile(projectKey, contentType);
+        if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs()) {
+            LOGGER.error("Failed to create reports directory: {}", dest.getParentFile().getAbsolutePath());
+            response.stream().setStatus(500).setMediaType("text/plain")
+                    .output().write(("Cannot create reports directory: " + dest.getParentFile().getAbsolutePath()).getBytes());
+            return;
+        }
         try (InputStream in = part.getInputStream();
              OutputStream out = new FileOutputStream(dest)) {
             copy(in, out);
