@@ -217,8 +217,11 @@
                     </suiteXmlFiles>
                     <!-- Load Mockito as a javaagent to suppress the self-attach warning
                          on modern JDKs. @{argLine} is resolved at runtime so the JaCoCo
-                         agent (prepended by jacoco:prepare-agent) is included as well. -->
-                    <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
+                         agent (prepended by jacoco:prepare-agent) is included as well.
+                         -Xshare:off suppresses the "Sharing is only supported for boot
+                         loader classes" CDS warning emitted when JaCoCo appends to the
+                         bootstrap classpath. -->
+                    <argLine>@{argLine} -Xshare:off -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
                 </configuration>
             </plugin>
             <plugin>
