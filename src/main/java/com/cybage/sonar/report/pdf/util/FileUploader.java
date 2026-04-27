@@ -30,7 +30,9 @@ public class FileUploader {
         PostMethod post = new PostMethod(uploadUrl);
 
         try {
-            LOGGER.info("Uploading {} report to SonarQube server: {}", contentType.toUpperCase(), uploadUrl);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Uploading {} report to SonarQube server: {}", contentType.toUpperCase(), uploadUrl);
+            }
 
             Part[] parts = {
                     new FilePart(PdfReportWebService.PARAM_REPORT, reportFile),
@@ -50,12 +52,18 @@ public class FileUploader {
 
             int status = client.executeMethod(post);
             if (status == HttpStatus.SC_NO_CONTENT || status == HttpStatus.SC_OK) {
-                LOGGER.info("{} report uploaded successfully for project '{}'.", contentType.toUpperCase(), projectKey);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("{} report uploaded successfully for project '{}'.", contentType.toUpperCase(), projectKey);
+                }
             } else {
-                LOGGER.error("Failed to upload {} report for project '{}'. HTTP status: {}", contentType.toUpperCase(), projectKey, status);
+                if (LOGGER.isErrorEnabled()) {
+                    LOGGER.error("Failed to upload {} report for project '{}'. HTTP status: {}", contentType.toUpperCase(), projectKey, status);
+                }
             }
         } catch (Exception ex) {
-            LOGGER.error("Error uploading {} report to SonarQube server", contentType.toUpperCase(), ex);
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Error uploading {} report to SonarQube server", contentType.toUpperCase(), ex);
+            }
         } finally {
             post.releaseConnection();
         }

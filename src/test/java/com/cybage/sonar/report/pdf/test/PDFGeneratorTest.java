@@ -2,10 +2,10 @@ package com.cybage.sonar.report.pdf.test;
 
 import com.cybage.sonar.report.pdf.batch.PDFGenerator;
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
-import org.mockito.Mockito;
 import org.sonar.api.batch.fs.FileSystem;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -84,21 +84,18 @@ public class PDFGeneratorTest {
         Assert.assertTrue(invokeIsHtmlReport(gen));
     }
 
-    @Test
-    public void testIsHtmlReportReturnsFalseForPdf() throws Exception {
-        PDFGenerator gen = createGenerator("pdf");
-        Assert.assertFalse(invokeIsHtmlReport(gen));
+    @DataProvider(name = "nonHtmlReportTypes")
+    public Object[][] nonHtmlReportTypes() {
+        return new Object[][] {
+            { "pdf" },
+            { null },
+            { "word" }
+        };
     }
 
-    @Test
-    public void testIsHtmlReportReturnsFalseForNull() throws Exception {
-        PDFGenerator gen = createGenerator(null);
-        Assert.assertFalse(invokeIsHtmlReport(gen));
-    }
-
-    @Test
-    public void testIsHtmlReportReturnsFalseForUnknown() throws Exception {
-        PDFGenerator gen = createGenerator("word");
+    @Test(dataProvider = "nonHtmlReportTypes")
+    public void testIsHtmlReportReturnsFalseForNonHtml(String reportType) throws Exception {
+        PDFGenerator gen = createGenerator(reportType);
         Assert.assertFalse(invokeIsHtmlReport(gen));
     }
 
