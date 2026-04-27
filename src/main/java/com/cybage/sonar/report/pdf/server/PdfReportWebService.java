@@ -82,12 +82,12 @@ public class PdfReportWebService implements WebService {
         String projectKey = request.mandatoryParam(PARAM_PROJECT);
         boolean hasPdf    = reportFile(projectKey, "pdf").exists();
         boolean hasHtml   = reportFile(projectKey, "html").exists();
-        response.newJsonWriter()
-                .beginObject()
-                .prop("pdf",  hasPdf)
-                .prop("html", hasHtml)
-                .endObject()
-                .close();
+        try (var writer = response.newJsonWriter()) {
+            writer.beginObject()
+                  .prop("pdf",  hasPdf)
+                  .prop("html", hasHtml)
+                  .endObject();
+        }
     }
 
     private void handleStore(Request request, Response response) throws IOException {
