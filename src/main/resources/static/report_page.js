@@ -1,5 +1,5 @@
 /* global React */
-window.registerExtension("sonar-pdf-report/report_page", function (options) {
+window.registerExtension("sonarpdfreport/report_page", function (options) {
   var projectKey = options.component.key;
   var base = window.location.origin;
 

@@ -8,7 +8,7 @@ public class PdfReportPageDefinition implements PageDefinition {
 
     @Override
     public void define(Context context) {
-        context.addPage(Page.builder("sonar-pdf-report/report_page")
+        context.addPage(Page.builder("sonarpdfreport/report_page")
                 .setName("PDF Report")
                 .setScope(Page.Scope.COMPONENT)
                 .build());
