@@ -73,7 +73,7 @@ public class PDFPostJob implements PostJob {
 
         // Prefer the SONAR_USER_TOKEN environment variable (User Token required; Analysis Tokens are not supported).
         // Fall back to the sonar.token configuration property for backwards compatibility.
-        String envToken = System.getenv(SONAR_USER_TOKEN_ENV);
+        String envToken = getEnvToken();
         if (envToken == null || envToken.isEmpty()) {
             LOGGER.warn("SONAR_USER_TOKEN environment variable is not set. Skipping PDF report generation. "
                     + "Please set the SONAR_USER_TOKEN environment variable with a valid SonarQube user token "
@@ -185,6 +185,10 @@ public class PDFPostJob implements PostJob {
             return null;
         }
         return ceTaskId;
+    }
+
+    public String getEnvToken() {
+        return System.getenv(SONAR_USER_TOKEN_ENV);
     }
 
     private static void sleep(long ms) {

@@ -35,7 +35,9 @@ public class PDFPostJobTest {
         mockFs = mock(FileSystem.class);
         when(mockFs.workDir()).thenReturn(tempWorkDir.toFile());
         mockConfig = mock(Configuration.class);
-        job = new PDFPostJob(mockConfig, mockFs);
+        job = spy(new PDFPostJob(mockConfig, mockFs));
+        // Stub env-variable lookup so tests are independent of the CI/local environment
+        doReturn(null).when(job).getEnvToken();
     }
 
     @AfterMethod
@@ -141,8 +143,8 @@ public class PDFPostJobTest {
         when(cfg.hasKey(PDFPostJob.SONAR_HOST_URL)).thenReturn(false);
         when(cfg.get("sonar.projectKey")).thenReturn(Optional.of("test:project"));
 
-        // SONAR_USER_TOKEN is not set in this env, so execute() returns early after the env check
-        // This still exercises the skip-flag branch returning false
+        // SONAR_USER_TOKEN is stubbed to null, so execute() returns early after the env check.
+        // This still exercises the skip-flag branch returning false.
         job.execute(ctx);
 
         verify(cfg, atLeastOnce()).get("sonar.projectKey");
@@ -157,7 +159,7 @@ public class PDFPostJobTest {
         when(cfg.hasKey(PDFPostJob.SONAR_HOST_URL)).thenReturn(false);
         when(cfg.get("sonar.projectKey")).thenReturn(Optional.of("test:project"));
 
-        // No SONAR_USER_TOKEN in this env → logs warning and returns without throwing
+        // SONAR_USER_TOKEN is stubbed to null → logs warning and returns without throwing.
         job.execute(ctx);
 
         verify(cfg, atLeastOnce()).get("sonar.projectKey");
