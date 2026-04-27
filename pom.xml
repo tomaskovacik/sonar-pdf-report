@@ -107,6 +107,7 @@
         <sonar.version>26.4.0.121862</sonar.version>
         <!-- standalone sonar-plugin-api version compatible with SonarQube 26.x -->
         <sonar.plugin.api.version>13.5.0.4319</sonar.plugin.api.version>
+        <mockito.version>5.14.2</mockito.version>
     </properties>
 
     <dependencies>
@@ -189,7 +190,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.14.2</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -204,6 +205,10 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <!-- Load Mockito as a javaagent to suppress the self-attach warning
+                         on modern JDKs. @{argLine} is resolved at runtime so the JaCoCo
+                         agent (prepended by jacoco:prepare-agent) is included as well. -->
+                    <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
                 </configuration>
             </plugin>
             <plugin>
