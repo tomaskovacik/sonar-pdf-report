@@ -255,4 +255,49 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <!-- Activates automatically when CI env var is absent (i.e. local dev).
+                 GitHub Actions sets CI=true, so this profile is skipped in CI.
+                 exec-maven-plugin sets sonar.branch.name at runtime (initialize phase)
+                 so it is resolved after git runs — unlike <properties> which is
+                 resolved at model-read time before any plugin executes. -->
+            <id>sonar-local</id>
+            <activation>
+                <property>
+                    <name>!env.CI</name>
+                </property>
+            </activation>
+            <properties>
+                <sonar.branch.target>master</sonar.branch.target>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>get-git-branch</id>
+                                <phase>initialize</phase>
+                                <goals><goal>exec</goal></goals>
+                                <configuration>
+                                    <executable>git</executable>
+                                    <arguments>
+                                        <argument>rev-parse</argument>
+                                        <argument>--abbrev-ref</argument>
+                                        <argument>HEAD</argument>
+                                    </arguments>
+                                    <outputProperty>sonar.branch.name</outputProperty>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
