@@ -12,9 +12,10 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
     "background:#236a97",
     "color:#fff",
     "border-radius:4px",
-    "text-decoration:none",
+    "border:none",
     "margin-right:12px",
     "font-size:14px",
+    "cursor:pointer",
   ].join(";");
 
   function downloadUrl(type) {
@@ -43,20 +44,18 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
     } else {
       var btnRow = document.createElement("div");
       if (info.pdf) {
-        var pdfLink = document.createElement("a");
-        pdfLink.href = downloadUrl("pdf");
-        pdfLink.target = "_blank";
-        pdfLink.style.cssText = btnStyle;
-        pdfLink.textContent = "Download PDF Report";
-        btnRow.appendChild(pdfLink);
+        var pdfBtn = document.createElement("button");
+        pdfBtn.style.cssText = btnStyle;
+        pdfBtn.textContent = "Download PDF Report";
+        pdfBtn.addEventListener("click", function () { window.open(downloadUrl("pdf"), "_blank"); });
+        btnRow.appendChild(pdfBtn);
       }
       if (info.html) {
-        var htmlLink = document.createElement("a");
-        htmlLink.href = downloadUrl("html");
-        htmlLink.target = "_blank";
-        htmlLink.style.cssText = btnStyle;
-        htmlLink.textContent = "Download HTML Report";
-        btnRow.appendChild(htmlLink);
+        var htmlBtn = document.createElement("button");
+        htmlBtn.style.cssText = btnStyle;
+        htmlBtn.textContent = "Download HTML Report";
+        htmlBtn.addEventListener("click", function () { window.open(downloadUrl("html"), "_blank"); });
+        btnRow.appendChild(htmlBtn);
       }
       containerEl.appendChild(btnRow);
     }
