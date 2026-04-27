@@ -6,6 +6,7 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 
 import com.cybage.sonar.report.pdf.batch.PDFPostJob;
+import com.cybage.sonar.report.pdf.server.PdfReportPageDefinition;
 import com.cybage.sonar.report.pdf.server.PdfReportWebService;
 
 @Properties({
@@ -22,5 +23,6 @@ public class PDFReportPlugin implements Plugin {
 	public void define(Context context) {
 		context.addExtension(PDFPostJob.class);
 		context.addExtension(PdfReportWebService.class);
+		context.addExtension(PdfReportPageDefinition.class);
 	}
 }
