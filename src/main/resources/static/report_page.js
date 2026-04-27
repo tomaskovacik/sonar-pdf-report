@@ -22,6 +22,15 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
     return base + "/api/pdfreport/get?project=" + encodeURIComponent(projectKey) + "&content_type=" + type;
   }
 
+  function triggerDownload(url) {
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { document.body.removeChild(a); }, 100);
+  }
+
   function render(info) {
     containerEl.innerHTML = "";
 
@@ -47,14 +56,14 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
         var pdfBtn = document.createElement("button");
         pdfBtn.style.cssText = btnStyle;
         pdfBtn.textContent = "Download PDF Report";
-        pdfBtn.addEventListener("click", function () { window.open(downloadUrl("pdf"), "_blank"); });
+        pdfBtn.addEventListener("click", function () { triggerDownload(downloadUrl("pdf")); });
         btnRow.appendChild(pdfBtn);
       }
       if (info.html) {
         var htmlBtn = document.createElement("button");
         htmlBtn.style.cssText = btnStyle;
         htmlBtn.textContent = "Download HTML Report";
-        htmlBtn.addEventListener("click", function () { window.open(downloadUrl("html"), "_blank"); });
+        htmlBtn.addEventListener("click", function () { triggerDownload(downloadUrl("html")); });
         btnRow.appendChild(htmlBtn);
       }
       containerEl.appendChild(btnRow);
