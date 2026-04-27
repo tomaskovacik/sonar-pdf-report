@@ -11,6 +11,7 @@ import com.cybage.sonar.report.pdf.entity.Project;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
@@ -40,8 +41,8 @@ public class Header extends PdfPageEventForwarder {
 
             // Colored background bar across the full page width
             PdfPTable head = new PdfPTable(3);
-            head.getDefaultCell().setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
-            head.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+            head.getDefaultCell().setVerticalAlignment(Element.ALIGN_MIDDLE);
+            head.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
             head.getDefaultCell().setBorder(Rectangle.NO_BORDER);
             head.getDefaultCell().setBackgroundColor(Style.COLOR_DARK_NAVY);
             head.getDefaultCell().setPaddingTop(6f);
@@ -55,8 +56,8 @@ public class Header extends PdfPageEventForwarder {
             PdfPCell logoCell = new PdfPCell(logoImage);
             logoCell.setBorder(Rectangle.NO_BORDER);
             logoCell.setBackgroundColor(Style.COLOR_DARK_NAVY);
-            logoCell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
-            logoCell.setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
+            logoCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            logoCell.setHorizontalAlignment(Element.ALIGN_LEFT);
             logoCell.setPaddingLeft(8f);
             logoCell.setPaddingTop(4f);
             logoCell.setPaddingBottom(4f);
@@ -65,13 +66,13 @@ public class Header extends PdfPageEventForwarder {
             // Centre: report title
             Phrase reportTitle = new Phrase("Sonar PDF Report",
                     FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD, BaseColor.WHITE));
-            head.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+            head.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
             head.addCell(reportTitle);
 
             // Right: project name
             Phrase projectName = new Phrase(project.getName(),
                     FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, new BaseColor(200, 220, 240)));
-            head.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
+            head.getDefaultCell().setHorizontalAlignment(Element.ALIGN_RIGHT);
             head.addCell(projectName);
 
             head.setTotalWidth(page.getWidth());

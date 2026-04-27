@@ -110,8 +110,7 @@ public class ProjectBuilder {
 				initIssueDetails(project, typesOfIssue);
 			}
 		} catch (Exception ex) {
-			LOGGER.error("Exception in initializeProject()");
-			ex.printStackTrace();
+			LOGGER.error("Exception in initializeProject()", ex);
 		}
 		return project;
 	}

@@ -75,13 +75,11 @@ public class PDFGenerator {
 
 
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Problem in generating PDF file.", e);
         } catch (DocumentException e) {
-            LOGGER.error("Problem in generating PDF file.");
-            e.printStackTrace();
+            LOGGER.error("Problem in generating PDF file.", e);
         } catch (ReportException e) {
-            LOGGER.error(e.getMessage());
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

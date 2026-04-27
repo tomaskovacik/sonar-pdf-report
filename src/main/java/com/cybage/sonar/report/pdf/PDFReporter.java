@@ -40,6 +40,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 public abstract class PDFReporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PDFReporter.class);
+    private static final String CAN_NOT_GENERATE_TENDENCY_IMAGE = "Can not generate tendency image";
 
     private final Credentials credentials;
 
@@ -78,8 +79,7 @@ public abstract class PDFReporter {
             try {
                 mainDocument.close();
             } catch (Exception e) {
-                LOGGER.error("Exception in PDFReporter");
-                e.printStackTrace();
+                LOGGER.error("Exception in PDFReporter", e);
             }
 
             tocDocument.getTocDocument().close();
@@ -108,9 +108,7 @@ public abstract class PDFReporter {
             // Return the final document (with TOC)
             return finalBaos;
         } catch (Exception e) {
-            // TODO: handle exception
-            LOGGER.error("Exception in PDFReport");
-            e.printStackTrace();
+            LOGGER.error("Exception in PDFReport", e);
         }
         return null;
     }
@@ -206,11 +204,11 @@ public abstract class PDFReporter {
         try {
             tendencyImage = Image.getInstance(this.getClass().getResource("/tendency/" + iconName));
         } catch (BadElementException e) {
-            LOGGER.error("Can not generate tendency image", e);
+            LOGGER.error(CAN_NOT_GENERATE_TENDENCY_IMAGE, e);
         } catch (MalformedURLException e) {
-            LOGGER.error("Can not generate tendency image", e);
+            LOGGER.error(CAN_NOT_GENERATE_TENDENCY_IMAGE, e);
         } catch (IOException e) {
-            LOGGER.error("Can not generate tendency image", e);
+            LOGGER.error(CAN_NOT_GENERATE_TENDENCY_IMAGE, e);
         }
         return tendencyImage;
     }

@@ -204,8 +204,7 @@ public class HTMLReporter extends PDFReporter {
 
     private void appendQualityGate(StringBuilder html, Project project) {
         String status = project.getProjectStatus().getStatus();
-        String badgeCss = ProjectStatusKeys.STATUS_OK.equals(status) ? "badge-ok"
-                : ProjectStatusKeys.STATUS_ERROR.equals(status) ? "badge-error" : "badge-none";
+        String badgeCss = getStatusBadgeCss(status);
         String statusLabel = ProjectStatusKeys.getStatusAsString(status);
 
         html.append(DIV_SECTION_OPEN)
@@ -214,40 +213,60 @@ public class HTMLReporter extends PDFReporter {
             .append("</span></p>\n");
 
         if (ProjectStatusKeys.STATUS_ERROR.equals(status)) {
-            Map<Integer, StatusPeriod> mapStatusPeriod = project.getProjectStatus().getStatusPeriods()
-                                                                .stream()
-                                                                .collect(Collectors.toMap(StatusPeriod::getIndex, Function.identity()));
-            StatusPeriod defaultPeriod = mapStatusPeriod.isEmpty() ? null : mapStatusPeriod.values().iterator().next();
-
-            List<Condition> failedConditions = project.getProjectStatus().getConditions().stream()
-                                                      .filter(c -> ProjectStatusKeys.STATUS_ERROR.equals(c.getStatus()))
-                                                      .collect(Collectors.toList());
-
-            if (!failedConditions.isEmpty()) {
-                html.append(TABLE_THEAD_TR_OPEN)
-                    .append("<th>Metric</th><th>Actual / Threshold</th><th>Status</th>")
-                    .append(THEAD_TR_CLOSE_TBODY);
-
-                for (Condition cond : failedConditions) {
-                    StatusPeriod condPeriod = cond.getPeriodIndex() != null
-                            ? mapStatusPeriod.get(cond.getPeriodIndex())
-                            : defaultPeriod;
-                    String metricLabel = StringUtils.capitalize(cond.getMetricKey().replace("_", " "));
-                    if (condPeriod != null) {
-                        metricLabel += " (since " + condPeriod.getMode().replace("_", " ") + ")";
-                    }
-                    html.append(TR_OPEN)
-                        .append(TD_OPEN).append(escape(metricLabel)).append(TD_CLOSE)
-                        .append(TD_OPEN).append(escape(cond.getActualValue())).append(" ")
-                        .append(escape(ProjectStatusKeys.getComparatorAsString(cond.getComparator()))).append(" ")
-                        .append(escape(cond.getErrorThreshold())).append(TD_CLOSE)
-                        .append("<td><span class=\"badge badge-error\">Failed</span></td>")
-                        .append(TR_CLOSE);
-                }
-                html.append(TABLE_CLOSE);
-            }
+            appendFailedConditions(html, project);
         }
         html.append(DIV_CLOSE);
+    }
+
+    private String getStatusBadgeCss(String status) {
+        if (ProjectStatusKeys.STATUS_OK.equals(status)) {
+            return "badge-ok";
+        }
+        if (ProjectStatusKeys.STATUS_ERROR.equals(status)) {
+            return "badge-error";
+        }
+        return "badge-none";
+    }
+
+    private void appendFailedConditions(StringBuilder html, Project project) {
+        Map<Integer, StatusPeriod> mapStatusPeriod = project.getProjectStatus().getStatusPeriods()
+                                                            .stream()
+                                                            .collect(Collectors.toMap(StatusPeriod::getIndex, Function.identity()));
+        StatusPeriod defaultPeriod = mapStatusPeriod.isEmpty() ? null : mapStatusPeriod.values().iterator().next();
+
+        List<Condition> failedConditions = project.getProjectStatus().getConditions().stream()
+                                                  .filter(c -> ProjectStatusKeys.STATUS_ERROR.equals(c.getStatus()))
+                                                  .collect(Collectors.toList());
+
+        if (!failedConditions.isEmpty()) {
+            html.append(TABLE_THEAD_TR_OPEN)
+                .append("<th>Metric</th><th>Actual / Threshold</th><th>Status</th>")
+                .append(THEAD_TR_CLOSE_TBODY);
+
+            for (Condition cond : failedConditions) {
+                appendFailedConditionRow(html, cond, mapStatusPeriod, defaultPeriod);
+            }
+            html.append(TABLE_CLOSE);
+        }
+    }
+
+    private void appendFailedConditionRow(StringBuilder html, Condition cond,
+                                          Map<Integer, StatusPeriod> mapStatusPeriod,
+                                          StatusPeriod defaultPeriod) {
+        StatusPeriod condPeriod = cond.getPeriodIndex() != null
+                ? mapStatusPeriod.get(cond.getPeriodIndex())
+                : defaultPeriod;
+        String metricLabel = StringUtils.capitalize(cond.getMetricKey().replace("_", " "));
+        if (condPeriod != null) {
+            metricLabel += " (since " + condPeriod.getMode().replace("_", " ") + ")";
+        }
+        html.append(TR_OPEN)
+            .append(TD_OPEN).append(escape(metricLabel)).append(TD_CLOSE)
+            .append(TD_OPEN).append(escape(cond.getActualValue())).append(" ")
+            .append(escape(ProjectStatusKeys.getComparatorAsString(cond.getComparator()))).append(" ")
+            .append(escape(cond.getErrorThreshold())).append(TD_CLOSE)
+            .append("<td><span class=\"badge badge-error\">Failed</span></td>")
+            .append(TR_CLOSE);
     }
 
     private void appendMetricDashboard(StringBuilder html, Project project) {

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
@@ -45,13 +46,13 @@ public class Toc extends PdfPageEventHelper {
 	public void onChapter(final PdfWriter writer, final Document document, final float position,
 			final Paragraph title) {
 		content.getDefaultCell().setBorderColorBottom(Style.COLOR_ACCENT_BLUE);
-		content.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
+		content.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
 		content.getDefaultCell().setUseBorderPadding(true);
 		content.getDefaultCell().setPaddingTop(6f);
 		content.getDefaultCell().setPaddingBottom(6f);
 		content.addCell(new Phrase(title.getContent(), new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD,
 				Style.COLOR_DARK_NAVY)));
-		content.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
+		content.getDefaultCell().setHorizontalAlignment(Element.ALIGN_RIGHT);
 		content.addCell(new Phrase("Page " + document.getPageNumber(), new Font(Font.FontFamily.HELVETICA, 11,
 				Font.NORMAL, Style.COLOR_LABEL_GRAY)));
 		content.getDefaultCell().setBorderColorBottom(BaseColor.WHITE);
@@ -67,7 +68,7 @@ public class Toc extends PdfPageEventHelper {
 	@Override
 	public void onSection(final PdfWriter writer, final Document document, final float position, final int depth,
 			final Paragraph title) {
-		content.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
+		content.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
 		switch (depth) {
 		case 2:
 			content.getDefaultCell().setIndent(12);

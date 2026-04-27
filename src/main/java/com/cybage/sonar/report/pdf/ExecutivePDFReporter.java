@@ -193,9 +193,7 @@ public class ExecutivePDFReporter extends PDFReporter {
              * document.add(chapterN); }
              */
         } catch (Exception e) {
-            // TODO: handle exception
-            LOGGER.error("Error in printPdfBody..");
-            e.printStackTrace();
+            LOGGER.error("Error in printPdfBody..", e);
         }
     }
 
@@ -288,7 +286,7 @@ public class ExecutivePDFReporter extends PDFReporter {
             String dateRow       = df.format(new Date());
 
             PdfPTable title = new PdfPTable(1);
-            title.getDefaultCell().setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+            title.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
             title.getDefaultCell().setBorder(Rectangle.NO_BORDER);
             title.getDefaultCell().setBackgroundColor(Style.COLOR_DARK_NAVY);
             title.getDefaultCell().setPaddingBottom(6f);
@@ -430,41 +428,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableQualityGates.setWidths(new int[]{15, 3, 2});
 
         if (status.equals(ProjectStatusKeys.STATUS_ERROR)) {
-            // Get Project Status Periods Information
-            // In SonarQube 10.x+, there is at most one new-code period (index 1).
-            Map<Integer, StatusPeriod> mapStatusPeriod = project.getProjectStatus().getStatusPeriods()
-                                                                .stream()
-                                                                .collect(Collectors.toMap(StatusPeriod::getIndex, Function.identity()));
-            // Fallback: first period available (used when condition has no period index)
-            StatusPeriod defaultPeriod = mapStatusPeriod.isEmpty() ? null : mapStatusPeriod.values().iterator().next();
-
-            // Get Project Status Conditions Information
-            for (Condition condition : project.getProjectStatus().getConditions()) {
-                if (condition.getStatus().equals(ProjectStatusKeys.STATUS_ERROR)) {
-                    // In SonarQube 10.x+, conditions no longer carry a periodIndex.
-                    // Fall back to the new-code period info when available.
-                    StatusPeriod condPeriod = condition.getPeriodIndex() != null
-                            ? mapStatusPeriod.get(condition.getPeriodIndex())
-                            : defaultPeriod;
-                    String metricLabel = StringUtils.capitalize(condition.getMetricKey().replace("_", " "));
-                    if (condPeriod != null) {
-                        metricLabel += " (since " + condPeriod.getMode().replace("_", " ") + ")";
-                    }
-                    CustomCellTitle metricName = new CustomCellTitle(new Phrase(metricLabel, Style.DASHBOARD_TITLE_FONT));
-                    tableQualityGates.addCell(metricName);
-
-                    CustomCellTitle metricValue = new CustomCellTitle(new Phrase(condition.getActualValue() + " "
-                            + ProjectStatusKeys.getComparatorAsString(condition.getComparator()) + " "
-                            + condition.getErrorThreshold(), Style.DASHBOARD_DATA_FONT_2));
-                    tableQualityGates.addCell(metricValue);
-
-                    CustomCellValue metricStatus = new CustomCellValue(
-                            new Phrase(ProjectStatusKeys.getStatusAsString(condition.getStatus()),
-                                    Style.QUALITY_GATE_FAILED_FONT_2));
-                    metricStatus.setBackgroundColor(Style.QUALITY_GATE_FAILED_COLOR);
-                    tableQualityGates.addCell(metricStatus);
-                }
-            }
+            addFailedConditionRows(project, tableQualityGates);
         }
 
         section.add(new Paragraph(" ", new Font(FontFamily.COURIER, 6)));
@@ -473,6 +437,53 @@ public class ExecutivePDFReporter extends PDFReporter {
         section.add(tableQualityGatesStatus);
         section.add(new Paragraph(" ", new Font(FontFamily.COURIER, 3)));
         section.add(tableQualityGates);
+    }
+
+    /**
+     * Adds one table row per failed quality-gate condition into {@code table}.
+     * Only called when the overall project status is ERROR.
+     */
+    private void addFailedConditionRows(final Project project, final CustomTable table) {
+        // In SonarQube 10.x+, there is at most one new-code period (index 1).
+        Map<Integer, StatusPeriod> mapStatusPeriod = project.getProjectStatus().getStatusPeriods()
+                                                            .stream()
+                                                            .collect(Collectors.toMap(StatusPeriod::getIndex, Function.identity()));
+        // Fallback: first period available (used when condition has no period index)
+        StatusPeriod defaultPeriod = mapStatusPeriod.isEmpty() ? null : mapStatusPeriod.values().iterator().next();
+
+        for (Condition condition : project.getProjectStatus().getConditions()) {
+            if (condition.getStatus().equals(ProjectStatusKeys.STATUS_ERROR)) {
+                addFailedConditionRow(table, condition, mapStatusPeriod, defaultPeriod);
+            }
+        }
+    }
+
+    private void addFailedConditionRow(final CustomTable table,
+                                       final Condition condition,
+                                       final Map<Integer, StatusPeriod> mapStatusPeriod,
+                                       final StatusPeriod defaultPeriod) {
+        // In SonarQube 10.x+, conditions no longer carry a periodIndex.
+        // Fall back to the new-code period info when available.
+        StatusPeriod condPeriod = condition.getPeriodIndex() != null
+                ? mapStatusPeriod.get(condition.getPeriodIndex())
+                : defaultPeriod;
+        String metricLabel = StringUtils.capitalize(condition.getMetricKey().replace("_", " "));
+        if (condPeriod != null) {
+            metricLabel += " (since " + condPeriod.getMode().replace("_", " ") + ")";
+        }
+        CustomCellTitle metricName = new CustomCellTitle(new Phrase(metricLabel, Style.DASHBOARD_TITLE_FONT));
+        table.addCell(metricName);
+
+        CustomCellTitle metricValue = new CustomCellTitle(new Phrase(condition.getActualValue() + " "
+                + ProjectStatusKeys.getComparatorAsString(condition.getComparator()) + " "
+                + condition.getErrorThreshold(), Style.DASHBOARD_DATA_FONT_2));
+        table.addCell(metricValue);
+
+        CustomCellValue metricStatus = new CustomCellValue(
+                new Phrase(ProjectStatusKeys.getStatusAsString(condition.getStatus()),
+                        Style.QUALITY_GATE_FAILED_FONT_2));
+        metricStatus.setBackgroundColor(Style.QUALITY_GATE_FAILED_COLOR);
+        table.addCell(metricStatus);
     }
 
     protected void printDashboard(final Project project, final Section section) throws DocumentException {
