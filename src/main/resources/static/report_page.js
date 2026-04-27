@@ -6,45 +6,16 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
   containerEl.style.padding = "24px";
   containerEl.style.fontFamily = "sans-serif";
 
-  var btnStyle = [
+  var linkStyle = [
     "display:inline-block",
     "padding:8px 20px",
     "background:#236a97",
     "color:#fff",
     "border-radius:4px",
-    "border:none",
+    "text-decoration:none",
     "margin-right:12px",
     "font-size:14px",
-    "cursor:pointer",
   ].join(";");
-
-  function makeDownloadForm(type) {
-    var form = document.createElement("form");
-    form.method = "get";
-    form.action = base + "/api/pdfreport/get";
-    form.target = "_blank";
-    form.style.display = "inline";
-
-    var pInput = document.createElement("input");
-    pInput.type = "hidden";
-    pInput.name = "project";
-    pInput.value = projectKey;
-    form.appendChild(pInput);
-
-    var ctInput = document.createElement("input");
-    ctInput.type = "hidden";
-    ctInput.name = "content_type";
-    ctInput.value = type;
-    form.appendChild(ctInput);
-
-    var btn = document.createElement("button");
-    btn.type = "submit";
-    btn.style.cssText = btnStyle;
-    btn.textContent = "Download " + type.toUpperCase() + " Report";
-    form.appendChild(btn);
-
-    return form;
-  }
 
   function render(info) {
     containerEl.innerHTML = "";
@@ -66,10 +37,26 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
       msg.textContent = "No reports available yet. Run an analysis to generate a report.";
       containerEl.appendChild(msg);
     } else {
-      var btnRow = document.createElement("div");
-      if (info.pdf)  { btnRow.appendChild(makeDownloadForm("pdf")); }
-      if (info.html) { btnRow.appendChild(makeDownloadForm("html")); }
-      containerEl.appendChild(btnRow);
+      var row = document.createElement("div");
+      if (info.pdf) {
+        var pdfLink = document.createElement("a");
+        pdfLink.href = base + "/api/pdfreport/get?project=" + encodeURIComponent(projectKey) + "&content_type=pdf";
+        pdfLink.target = "_blank";
+        pdfLink.rel = "noopener noreferrer";
+        pdfLink.style.cssText = linkStyle;
+        pdfLink.textContent = "Download PDF Report";
+        row.appendChild(pdfLink);
+      }
+      if (info.html) {
+        var htmlLink = document.createElement("a");
+        htmlLink.href = base + "/api/pdfreport/get?project=" + encodeURIComponent(projectKey) + "&content_type=html";
+        htmlLink.target = "_blank";
+        htmlLink.rel = "noopener noreferrer";
+        htmlLink.style.cssText = linkStyle;
+        htmlLink.textContent = "Download HTML Report";
+        row.appendChild(htmlLink);
+      }
+      containerEl.appendChild(row);
     }
   }
 
