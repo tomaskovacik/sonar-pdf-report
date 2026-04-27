@@ -20,6 +20,7 @@ public class PdfReportWebService implements WebService {
     public static final String CONTROLLER_KEY     = "api/pdfreport";
     public static final String STORE_ACTION       = "store";
     public static final String GET_ACTION         = "get";
+    public static final String INFO_ACTION        = "info";
     public static final String PARAM_PROJECT      = "project";
     public static final String PARAM_REPORT       = "report";
     public static final String PARAM_CONTENT_TYPE = "content_type";
@@ -67,7 +68,26 @@ public class PdfReportWebService implements WebService {
                 .setDefaultValue("pdf")
                 .setPossibleValues("pdf", "html");
 
+        NewAction infoAction = controller.createAction(INFO_ACTION)
+                .setDescription("Returns which report types (pdf, html) exist for a project.")
+                .setHandler(this::handleInfo);
+        infoAction.createParam(PARAM_PROJECT)
+                .setRequired(true)
+                .setDescription("The project key");
+
         controller.done();
+    }
+
+    private void handleInfo(Request request, Response response) throws IOException {
+        String projectKey = request.mandatoryParam(PARAM_PROJECT);
+        boolean hasPdf    = reportFile(projectKey, "pdf").exists();
+        boolean hasHtml   = reportFile(projectKey, "html").exists();
+        response.newJsonWriter()
+                .beginObject()
+                .prop("pdf",  hasPdf)
+                .prop("html", hasHtml)
+                .endObject()
+                .close();
     }
 
     private void handleStore(Request request, Response response) throws IOException {
