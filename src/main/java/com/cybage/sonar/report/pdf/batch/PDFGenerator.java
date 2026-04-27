@@ -74,9 +74,7 @@ public class PDFGenerator {
             configureAndLaunchReports(config, configLang);
 
 
-        } catch (IOException e) {
-            LOGGER.error("Problem in generating PDF file.", e);
-        } catch (DocumentException e) {
+        } catch (IOException | DocumentException e) {
             LOGGER.error("Problem in generating PDF file.", e);
         } catch (ReportException e) {
             LOGGER.error(e.getMessage(), e);

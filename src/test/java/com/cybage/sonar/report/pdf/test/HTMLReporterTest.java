@@ -558,7 +558,7 @@ public class HTMLReporterTest {
         measures.addMeasure(key, m);
     }
 
-    private static void wirePeriod(Measures measures, String key, Period_ leakPeriod_, String value) {
+    private static void wirePeriod(Measures measures, String key, Period_ leakPeriod, String value) {
         Measure m = measures.getMeasure(key);
         if (m == null) {
             m = new Measure();
@@ -566,7 +566,7 @@ public class HTMLReporterTest {
             measures.addMeasure(key, m);
         }
         Period p = new Period();
-        p.setIndex(leakPeriod_.getIndex());
+        p.setIndex(leakPeriod.getIndex());
         p.setValue(value);
         List<Period> periods = m.getPeriods() == null ? new ArrayList<>() : new ArrayList<>(m.getPeriods());
         periods.add(p);
