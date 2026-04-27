@@ -6,6 +6,8 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 
 import com.cybage.sonar.report.pdf.batch.PDFPostJob;
+import com.cybage.sonar.report.pdf.server.PdfReportPageDefinition;
+import com.cybage.sonar.report.pdf.server.PdfReportWebService;
 
 @Properties({
 		@Property(key = PDFPostJob.SKIP_PDF_KEY, name = "Skip", description = "Skip generation of PDF report.", defaultValue = ""
@@ -20,5 +22,7 @@ public class PDFReportPlugin implements Plugin {
 	@Override
 	public void define(Context context) {
 		context.addExtension(PDFPostJob.class);
+		context.addExtension(PdfReportWebService.class);
+		context.addExtension(PdfReportPageDefinition.class);
 	}
 }

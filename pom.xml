@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.byoskill.sonar</groupId>
     <artifactId>sonar-pdfreport-plugin</artifactId>
-    <version>1.7.2</version>
+    <version>1.7.3</version>
     <packaging>sonar-plugin</packaging>
 
     <url>https://github.com/tomaskovacik/sonar-pdf-report</url>
@@ -188,8 +188,9 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>2.0.2-beta</version>
+            <artifactId>mockito-core</artifactId>
+            <version>5.14.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -226,6 +227,25 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>5.6.0.6792</version>
@@ -255,4 +275,50 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <!-- Activates automatically when CI env var is absent (i.e. local dev).
+                 GitHub Actions sets CI=true, so this profile is skipped in CI.
+                 exec-maven-plugin sets sonar.branch.name at runtime (initialize phase)
+                 so it is resolved after git runs — unlike <properties> which is
+                 resolved at model-read time before any plugin executes. -->
+            <id>sonar-local</id>
+            <activation>
+                <property>
+                    <name>!env.CI</name>
+                </property>
+            </activation>
+            <properties>
+                <sonar.branch.target>master</sonar.branch.target>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>get-git-branch</id>
+                                <phase>initialize</phase>
+                                <goals><goal>run</goal></goals>
+                                <configuration>
+                                    <exportAntProperties>true</exportAntProperties>
+                                    <target>
+                                        <exec executable="git" outputproperty="sonar.branch.name">
+                                            <arg value="rev-parse"/>
+                                            <arg value="--abbrev-ref"/>
+                                            <arg value="HEAD"/>
+                                        </exec>
+</target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

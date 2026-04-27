@@ -8,54 +8,56 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.cybage.sonar.report.pdf.batch.PDFPostJob;
+import com.cybage.sonar.report.pdf.server.PdfReportWebService;
 
 public class FileUploader {
 
-    public static final  String                                       UPLOAD_PATH = "/api/ce/submit?projectKey=ALMMaturity_JenkinsService_API_Feature:feature&projectName=ALMMaturity_JenkinsService_API_Feature";
-    private static final Logger                                       LOGGER      = LoggerFactory.getLogger(PDFPostJob.class);
-    private final        com.cybage.sonar.report.pdf.util.Credentials credentials;
+    private static final Logger      LOGGER      = LoggerFactory.getLogger(PDFPostJob.class);
+    private final        Credentials credentials;
 
-    public FileUploader(com.cybage.sonar.report.pdf.util.Credentials credentials) {
+    public FileUploader(Credentials credentials) {
         this.credentials = credentials;
-
     }
 
-    public void upload(final File reportPath) {
-        String     url      = credentials.getUrl();
-        PostMethod filePost = new PostMethod(url + UPLOAD_PATH);
+    public void upload(final File reportFile, final String projectKey, final String contentType) {
+        String uploadUrl = credentials.getUrl() + "/" + PdfReportWebService.CONTROLLER_KEY
+                + "/" + PdfReportWebService.STORE_ACTION;
+        PostMethod post = new PostMethod(uploadUrl);
 
         try {
-            LOGGER.info("Uploading PDF to server...");
-            LOGGER.info("Upload URL : " + url);
+            LOGGER.info("Uploading {} report to SonarQube server: {}", contentType.toUpperCase(), uploadUrl);
 
-            Part[] parts = {new FilePart("upload", reportPath)};
+            Part[] parts = {
+                    new FilePart(PdfReportWebService.PARAM_REPORT, reportFile),
+                    new StringPart(PdfReportWebService.PARAM_PROJECT, projectKey),
+                    new StringPart(PdfReportWebService.PARAM_CONTENT_TYPE, contentType)
+            };
 
-            filePost.setRequestEntity(new MultipartRequestEntity(parts, filePost.getParams()));
+            post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
+
+            String token = credentials.getToken();
+            if (token != null && !token.isEmpty()) {
+                post.setRequestHeader("Authorization", "Bearer " + token);
+            }
 
             HttpClient client = new HttpClient();
-            final String token = credentials.getToken();
-            if (token != null && !token.isEmpty()) {
-                filePost.setRequestHeader("Authorization", "Bearer " + token);
-            }
             client.getHttpConnectionManager().getParams().setConnectionTimeout(10000);
 
-            int status = client.executeMethod(filePost);
-            if (status == HttpStatus.SC_OK) {
-                LOGGER.info("PDF uploaded.");
+            int status = client.executeMethod(post);
+            if (status == HttpStatus.SC_NO_CONTENT || status == HttpStatus.SC_OK) {
+                LOGGER.info("{} report uploaded successfully for project '{}'.", contentType.toUpperCase(), projectKey);
             } else {
-                LOGGER.error("Something went wrong storing the PDF at server side. Status: " + status);
+                LOGGER.error("Failed to upload {} report for project '{}'. HTTP status: {}", contentType.toUpperCase(), projectKey, status);
             }
         } catch (Exception ex) {
-            LOGGER.error("Something went wrong storing the PDF at server side", ex);
-            ex.printStackTrace();
+            LOGGER.error("Error uploading {} report to SonarQube server", contentType.toUpperCase(), ex);
         } finally {
-            filePost.releaseConnection();
+            post.releaseConnection();
         }
-
     }
-
 }
