@@ -8,7 +8,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -27,7 +26,7 @@ public class ExecutivePDFReporterTest {
     private Set<String> typesOfIssue;
 
     @BeforeMethod
-    public void setUp() throws Exception {
+    public void setUp() {
         langProperties = new Properties();
         configProperties = new Properties();
         leakPeriod = new LeakPeriodConfiguration();
@@ -171,7 +170,7 @@ public class ExecutivePDFReporterTest {
     // -------------------------------------------------------------------------
 
     @Test
-    public void testConstructorWithEmptyCollections() throws Exception {
+    public void testConstructorWithEmptyCollections() {
         ExecutivePDFReporter empty = new ExecutivePDFReporter(
                 new Credentials("http://localhost:9000", "token"),
                 null,

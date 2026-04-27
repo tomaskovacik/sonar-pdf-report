@@ -3,22 +3,18 @@ package com.cybage.sonar.report.pdf.test;
 import com.cybage.sonar.report.pdf.HTMLReporter;
 import com.cybage.sonar.report.pdf.Toc;
 import com.cybage.sonar.report.pdf.entity.*;
-import com.cybage.sonar.report.pdf.entity.exception.ReportException;
 import com.cybage.sonar.report.pdf.util.Credentials;
 import com.cybage.sonar.report.pdf.util.MetricKeys;
 import com.cybage.sonar.report.pdf.util.ProjectStatusKeys;
 import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -562,7 +558,7 @@ public class HTMLReporterTest {
         measures.addMeasure(key, m);
     }
 
-    private static void wirePeriod(Measures measures, String key, Period_ period_, String value) {
+    private static void wirePeriod(Measures measures, String key, Period_ leakPeriod_, String value) {
         Measure m = measures.getMeasure(key);
         if (m == null) {
             m = new Measure();
@@ -570,7 +566,7 @@ public class HTMLReporterTest {
             measures.addMeasure(key, m);
         }
         Period p = new Period();
-        p.setIndex(period_.getIndex());
+        p.setIndex(leakPeriod_.getIndex());
         p.setValue(value);
         List<Period> periods = m.getPeriods() == null ? new ArrayList<>() : new ArrayList<>(m.getPeriods());
         periods.add(p);
