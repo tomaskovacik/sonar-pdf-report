@@ -59,13 +59,14 @@ window.registerExtension("sonarpdfreport/report_page", function (options) {
   }
 
   // Fetch available report types then render
+  var root = ReactDOM.createRoot(containerEl);
   fetch(base + "/api/pdfreport/info?project=" + encodeURIComponent(projectKey))
     .then(function (r) { return r.json(); })
     .then(function (info) {
-      ReactDOM.render(render(info), containerEl);
+      root.render(render(info));
     })
     .catch(function () {
-      ReactDOM.render(render({ pdf: false, html: false }), containerEl);
+      root.render(render({ pdf: false, html: false }));
     });
 
   return containerEl;
