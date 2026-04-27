@@ -17,13 +17,15 @@ import org.sonar.api.server.ws.WebService;
 
 public class PdfReportWebService implements WebService {
 
-    public static final String CONTROLLER_KEY     = "api/pdfreport";
-    public static final String STORE_ACTION       = "store";
-    public static final String GET_ACTION         = "get";
-    public static final String INFO_ACTION        = "info";
-    public static final String PARAM_PROJECT      = "project";
-    public static final String PARAM_REPORT       = "report";
-    public static final String PARAM_CONTENT_TYPE = "content_type";
+    public static final String CONTROLLER_KEY          = "api/pdfreport";
+    public static final String STORE_ACTION            = "store";
+    public static final String GET_ACTION              = "get";
+    public static final String INFO_ACTION             = "info";
+    public static final String PARAM_PROJECT           = "project";
+    public static final String PARAM_REPORT            = "report";
+    public static final String PARAM_CONTENT_TYPE      = "content_type";
+    public static final String DESCRIPTION_PROJECT_KEY = "The project key";
+    public static final String MEDIA_TYPE_TEXT_PLAIN   = "text/plain";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfReportWebService.class);
 
@@ -46,7 +48,7 @@ public class PdfReportWebService implements WebService {
                 .setHandler(this::handleStore);
         storeAction.createParam(PARAM_PROJECT)
                 .setRequired(true)
-                .setDescription("The project key");
+                .setDescription(DESCRIPTION_PROJECT_KEY);
         storeAction.createParam(PARAM_CONTENT_TYPE)
                 .setRequired(false)
                 .setDescription("Report format: pdf or html")
@@ -61,7 +63,7 @@ public class PdfReportWebService implements WebService {
                 .setHandler(this::handleGet);
         getAction.createParam(PARAM_PROJECT)
                 .setRequired(true)
-                .setDescription("The project key");
+                .setDescription(DESCRIPTION_PROJECT_KEY);
         getAction.createParam(PARAM_CONTENT_TYPE)
                 .setRequired(false)
                 .setDescription("Report format: pdf or html")
@@ -73,7 +75,7 @@ public class PdfReportWebService implements WebService {
                 .setHandler(this::handleInfo);
         infoAction.createParam(PARAM_PROJECT)
                 .setRequired(true)
-                .setDescription("The project key");
+                .setDescription(DESCRIPTION_PROJECT_KEY);
 
         controller.done();
     }
@@ -97,7 +99,7 @@ public class PdfReportWebService implements WebService {
 
         if (part == null) {
             LOGGER.error("No report file received for project {}", projectKey);
-            response.stream().setStatus(400).setMediaType("text/plain")
+            response.stream().setStatus(400).setMediaType(MEDIA_TYPE_TEXT_PLAIN)
                     .output().write(("Missing report file part '" + PARAM_REPORT + "'").getBytes());
             return;
         }
@@ -105,7 +107,7 @@ public class PdfReportWebService implements WebService {
         File dest = reportFile(projectKey, contentType);
         if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs()) {
             LOGGER.error("Failed to create reports directory: {}", dest.getParentFile().getAbsolutePath());
-            response.stream().setStatus(500).setMediaType("text/plain")
+            response.stream().setStatus(500).setMediaType(MEDIA_TYPE_TEXT_PLAIN)
                     .output().write(("Cannot create reports directory: " + dest.getParentFile().getAbsolutePath()).getBytes());
             return;
         }
@@ -113,7 +115,9 @@ public class PdfReportWebService implements WebService {
              OutputStream out = new FileOutputStream(dest)) {
             copy(in, out);
         }
-        LOGGER.info("Stored {} report for project {} at {}", contentType.toUpperCase(), projectKey, dest.getAbsolutePath());
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Stored {} report for project {} at {}", contentType.toUpperCase(), projectKey, dest.getAbsolutePath());
+        }
         response.noContent();
     }
 
@@ -124,7 +128,7 @@ public class PdfReportWebService implements WebService {
 
         if (!report.exists()) {
             LOGGER.warn("Report not found for project {} ({})", projectKey, contentType);
-            response.stream().setStatus(404).setMediaType("text/plain")
+            response.stream().setStatus(404).setMediaType(MEDIA_TYPE_TEXT_PLAIN)
                     .output().write(("No " + contentType.toUpperCase() + " report found for project: " + projectKey).getBytes());
             return;
         }

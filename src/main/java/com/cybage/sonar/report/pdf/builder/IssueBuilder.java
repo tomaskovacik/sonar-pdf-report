@@ -107,7 +107,7 @@ public class IssueBuilder {
                 componentPath, severityName,
                 issue.getLine(),
                 issue.getStatus(),
-                issue.getMessage().replaceAll("\\\"", "\""),
+                issue.getMessage().replace("\\\"", "\""),
                 typeName,
                 issue.getEffort());
     }

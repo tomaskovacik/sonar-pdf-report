@@ -74,14 +74,10 @@ public class PDFGenerator {
             configureAndLaunchReports(config, configLang);
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DocumentException e) {
-            LOGGER.error("Problem in generating PDF file.");
-            e.printStackTrace();
+        } catch (IOException | DocumentException e) {
+            LOGGER.error("Problem in generating PDF file.", e);
         } catch (ReportException e) {
-            LOGGER.error(e.getMessage());
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

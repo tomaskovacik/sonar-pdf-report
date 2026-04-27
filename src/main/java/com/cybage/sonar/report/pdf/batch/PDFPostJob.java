@@ -55,6 +55,7 @@ public class PDFPostJob implements PostJob {
 
     @Override
     public void describe(PostJobDescriptor arg0) {
+        // No descriptor configuration required for this post-job.
     }
 
     @Override

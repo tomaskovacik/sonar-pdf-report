@@ -31,7 +31,7 @@ public class MeasuresBuilder {
     private static final Logger          LOGGER              = LoggerFactory.getLogger(MeasuresBuilder.class);
     private static final Integer         DEFAULT_SPLIT_LIMIT = 20;
     private static       MeasuresBuilder builder;
-    private static       Set<String>     measuresKeys        = null;
+    private              Set<String>     measuresKeys        = null;
     private final        WsClient        wsClient;
 
     public MeasuresBuilder(final WsClient wsClient) {
@@ -122,24 +122,34 @@ public class MeasuresBuilder {
                 LOGGER.debug("Empty response when looking for measures: " + measuresAsString.toString());
             }
         } catch (HttpException e) {
-            if (e.code() == 404) {
-                Set<String> unsupportedKeys = parseUnsupportedMetricKeys(e.content());
-                if (!unsupportedKeys.isEmpty()) {
-                    LOGGER.warn("Removing unsupported metric keys from server: {}", unsupportedKeys);
-                    measuresAsString.removeAll(unsupportedKeys);
-                    if (measuresKeys != null) {
-                        measuresKeys.removeAll(unsupportedKeys);
-                    }
-                    if (!measuresAsString.isEmpty()) {
-                        addMeasures(measures, measuresAsString, projectKey);
-                    }
-                } else {
-                    LOGGER.warn("Received 404 from server but could not parse unsupported metric keys from: {}", e.content());
-                    throw e;
-                }
-            } else {
-                throw e;
-            }
+            retryAfterRemovingUnsupportedKeys(measures, measuresAsString, projectKey, e);
+        }
+    }
+
+    /**
+     * Handles a 404 HttpException from the measures API by removing unsupported metric keys and
+     * retrying the request. Rethrows the exception if it is not a 404 or if no unsupported keys
+     * can be parsed.
+     */
+    private void retryAfterRemovingUnsupportedKeys(final com.cybage.sonar.report.pdf.entity.Measures measures,
+                                                   final Set<String> measuresAsString,
+                                                   final String projectKey,
+                                                   final HttpException e) throws ReportException {
+        if (e.code() != 404) {
+            throw e;
+        }
+        Set<String> unsupportedKeys = parseUnsupportedMetricKeys(e.content());
+        if (unsupportedKeys.isEmpty()) {
+            LOGGER.warn("Received 404 from server but could not parse unsupported metric keys from: {}", e.content());
+            throw e;
+        }
+        LOGGER.warn("Removing unsupported metric keys from server: {}", unsupportedKeys);
+        measuresAsString.removeAll(unsupportedKeys);
+        if (measuresKeys != null) {
+            measuresKeys.removeAll(unsupportedKeys);
+        }
+        if (!measuresAsString.isEmpty()) {
+            addMeasures(measures, measuresAsString, projectKey);
         }
     }
 

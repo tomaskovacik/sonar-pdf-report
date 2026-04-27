@@ -10,10 +10,6 @@ public class Measures {
 	private Map<String, Measure> measuresTable = new HashMap<>();
 	private List<Period_>        periods;
 
-	public Measures() {
-
-	}
-
 	public int getMeasuresCount() {
 		return measuresTable.size();
 	}

@@ -49,6 +49,30 @@ public class HTMLReporter extends PDFReporter {
 
     private static final Logger LOGGER           = LoggerFactory.getLogger(HTMLReporter.class);
     private static final String REPORT_TYPE_HTML = "html";
+    private static final String METRICS_PREFIX         = "metrics.";
+    private static final String TD_OPEN                = "<td>";
+    private static final String TD_CLOSE               = "</td>";
+    private static final String TH_OPEN                = "<th>";
+    private static final String TH_CLOSE               = "</th>";
+    private static final String TR_OPEN                = "<tr>";
+    private static final String TR_CLOSE               = "</tr>\n";
+    private static final String H2_OPEN                = "<h2>";
+    private static final String H2_CLOSE               = "</h2>\n";
+    private static final String H3_OPEN                = "<h3>";
+    private static final String H3_CLOSE               = "</h3>\n";
+    private static final String DIV_CLOSE              = "</div>\n";
+    private static final String DIV_SECTION_OPEN       = "<div class=\"section\">\n";
+    private static final String TABLE_THEAD_TR_OPEN    = "<table>\n<thead><tr>";
+    private static final String THEAD_TR_CLOSE_TBODY   = "</tr></thead>\n<tbody>\n";
+    private static final String TABLE_TBODY_OPEN       = "<table>\n<tbody>\n";
+    private static final String TABLE_CLOSE            = "</tbody>\n</table>\n";
+    private static final String H3_CLOSE_METRIC_GRID   = "</h3>\n<div class=\"metric-grid\">\n";
+    private static final String H3_CLOSE_TABLE_TBODY   = "</h3>\n<table>\n<tbody>\n";
+    private static final String P_EM_OPEN              = "<p><em>";
+    private static final String P_EM_CLOSE             = "</em></p>\n";
+    private static final String LANG_FILE_NAME         = "general.file_name";
+    private static final String LANG_FILE_PATH         = "general.file_path";
+
 
     private final URL                     logo;
     private final String                  projectKey;
@@ -147,32 +171,32 @@ public class HTMLReporter extends PDFReporter {
     private void appendFrontPage(StringBuilder html, Project project) {
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         html.append("<div class=\"front-page\">\n")
-            .append("<div class=\"project-name\">").append(escape(project.getName())).append("</div>\n")
-            .append("<div class=\"meta\">Version: ").append(escape(project.getVersion())).append("</div>\n");
+            .append("<div class=\"project-name\">").append(escape(project.getName())).append(DIV_CLOSE)
+            .append("<div class=\"meta\">Version: ").append(escape(project.getVersion())).append(DIV_CLOSE);
         if (project.getDescription() != null && !project.getDescription().isEmpty()) {
-            html.append("<div class=\"meta\">").append(escape(project.getDescription())).append("</div>\n");
+            html.append("<div class=\"meta\">").append(escape(project.getDescription())).append(DIV_CLOSE);
         }
-        html.append("<div class=\"meta\">Generated: ").append(date).append("</div>\n")
-            .append("</div>\n");
+        html.append("<div class=\"meta\">Generated: ").append(date).append(DIV_CLOSE)
+            .append(DIV_CLOSE);
     }
 
     private void appendQualityProfiles(StringBuilder html, Project project) {
-        html.append("<div class=\"section\">\n")
-            .append("<h2>").append(escape(getTextProperty("general.quality_profile"))).append("</h2>\n")
-            .append("<table>\n<thead><tr>")
-            .append("<th>").append(escape(getTextProperty("general.profile_name"))).append("</th>")
-            .append("<th>").append(escape(getTextProperty("general.language"))).append("</th>")
-            .append("<th>").append(escape(getTextProperty("general.active_rules_count"))).append("</th>")
-            .append("</tr></thead>\n<tbody>\n");
+        html.append(DIV_SECTION_OPEN)
+            .append(H2_OPEN).append(escape(getTextProperty("general.quality_profile"))).append(H2_CLOSE)
+            .append(TABLE_THEAD_TR_OPEN)
+            .append(TH_OPEN).append(escape(getTextProperty("general.profile_name"))).append(TH_CLOSE)
+            .append(TH_OPEN).append(escape(getTextProperty("general.language"))).append(TH_CLOSE)
+            .append(TH_OPEN).append(escape(getTextProperty("general.active_rules_count"))).append(TH_CLOSE)
+            .append(THEAD_TR_CLOSE_TBODY);
 
         List<QualityProfile> profiles = project.getQualityProfiles();
         if (profiles != null && !profiles.isEmpty()) {
             for (QualityProfile qp : profiles) {
-                html.append("<tr>")
-                    .append("<td>").append(escape(qp.getName())).append("</td>")
-                    .append("<td>").append(escape(qp.getLanguageName())).append("</td>")
-                    .append("<td>").append(qp.getActiveRuleCount()).append("</td>")
-                    .append("</tr>\n");
+                html.append(TR_OPEN)
+                    .append(TD_OPEN).append(escape(qp.getName())).append(TD_CLOSE)
+                    .append(TD_OPEN).append(escape(qp.getLanguageName())).append(TD_CLOSE)
+                    .append(TD_OPEN).append(qp.getActiveRuleCount()).append(TD_CLOSE)
+                    .append(TR_CLOSE);
             }
         }
         html.append("</tbody>\n</table>\n</div>\n");
@@ -180,55 +204,74 @@ public class HTMLReporter extends PDFReporter {
 
     private void appendQualityGate(StringBuilder html, Project project) {
         String status = project.getProjectStatus().getStatus();
-        String badgeCss = ProjectStatusKeys.STATUS_OK.equals(status) ? "badge-ok"
-                : ProjectStatusKeys.STATUS_ERROR.equals(status) ? "badge-error" : "badge-none";
+        String badgeCss = getStatusBadgeCss(status);
         String statusLabel = ProjectStatusKeys.getStatusAsString(status);
 
-        html.append("<div class=\"section\">\n")
-            .append("<h2>").append(escape(getTextProperty("general.quality_gate"))).append("</h2>\n")
+        html.append(DIV_SECTION_OPEN)
+            .append(H2_OPEN).append(escape(getTextProperty("general.quality_gate"))).append(H2_CLOSE)
             .append("<p><span class=\"badge ").append(badgeCss).append("\">").append(escape(statusLabel))
             .append("</span></p>\n");
 
         if (ProjectStatusKeys.STATUS_ERROR.equals(status)) {
-            Map<Integer, StatusPeriod> mapStatusPeriod = project.getProjectStatus().getStatusPeriods()
-                                                                .stream()
-                                                                .collect(Collectors.toMap(StatusPeriod::getIndex, Function.identity()));
-            StatusPeriod defaultPeriod = mapStatusPeriod.isEmpty() ? null : mapStatusPeriod.values().iterator().next();
-
-            List<Condition> failedConditions = project.getProjectStatus().getConditions().stream()
-                                                      .filter(c -> ProjectStatusKeys.STATUS_ERROR.equals(c.getStatus()))
-                                                      .collect(Collectors.toList());
-
-            if (!failedConditions.isEmpty()) {
-                html.append("<table>\n<thead><tr>")
-                    .append("<th>Metric</th><th>Actual / Threshold</th><th>Status</th>")
-                    .append("</tr></thead>\n<tbody>\n");
-
-                for (Condition cond : failedConditions) {
-                    StatusPeriod condPeriod = cond.getPeriodIndex() != null
-                            ? mapStatusPeriod.get(cond.getPeriodIndex())
-                            : defaultPeriod;
-                    String metricLabel = StringUtils.capitalize(cond.getMetricKey().replace("_", " "));
-                    if (condPeriod != null) {
-                        metricLabel += " (since " + condPeriod.getMode().replace("_", " ") + ")";
-                    }
-                    html.append("<tr>")
-                        .append("<td>").append(escape(metricLabel)).append("</td>")
-                        .append("<td>").append(escape(cond.getActualValue())).append(" ")
-                        .append(escape(ProjectStatusKeys.getComparatorAsString(cond.getComparator()))).append(" ")
-                        .append(escape(cond.getErrorThreshold())).append("</td>")
-                        .append("<td><span class=\"badge badge-error\">Failed</span></td>")
-                        .append("</tr>\n");
-                }
-                html.append("</tbody>\n</table>\n");
-            }
+            appendFailedConditions(html, project);
         }
-        html.append("</div>\n");
+        html.append(DIV_CLOSE);
+    }
+
+    private String getStatusBadgeCss(String status) {
+        if (ProjectStatusKeys.STATUS_OK.equals(status)) {
+            return "badge-ok";
+        }
+        if (ProjectStatusKeys.STATUS_ERROR.equals(status)) {
+            return "badge-error";
+        }
+        return "badge-none";
+    }
+
+    private void appendFailedConditions(StringBuilder html, Project project) {
+        Map<Integer, StatusPeriod> mapStatusPeriod = project.getProjectStatus().getStatusPeriods()
+                                                            .stream()
+                                                            .collect(Collectors.toMap(StatusPeriod::getIndex, Function.identity()));
+        StatusPeriod defaultPeriod = mapStatusPeriod.isEmpty() ? null : mapStatusPeriod.values().iterator().next();
+
+        List<Condition> failedConditions = project.getProjectStatus().getConditions().stream()
+                                                  .filter(c -> ProjectStatusKeys.STATUS_ERROR.equals(c.getStatus()))
+                                                  .collect(Collectors.toList());
+
+        if (!failedConditions.isEmpty()) {
+            html.append(TABLE_THEAD_TR_OPEN)
+                .append("<th>Metric</th><th>Actual / Threshold</th><th>Status</th>")
+                .append(THEAD_TR_CLOSE_TBODY);
+
+            for (Condition cond : failedConditions) {
+                appendFailedConditionRow(html, cond, mapStatusPeriod, defaultPeriod);
+            }
+            html.append(TABLE_CLOSE);
+        }
+    }
+
+    private void appendFailedConditionRow(StringBuilder html, Condition cond,
+                                          Map<Integer, StatusPeriod> mapStatusPeriod,
+                                          StatusPeriod defaultPeriod) {
+        StatusPeriod condPeriod = cond.getPeriodIndex() != null
+                ? mapStatusPeriod.get(cond.getPeriodIndex())
+                : defaultPeriod;
+        String metricLabel = StringUtils.capitalize(cond.getMetricKey().replace("_", " "));
+        if (condPeriod != null) {
+            metricLabel += " (since " + condPeriod.getMode().replace("_", " ") + ")";
+        }
+        html.append(TR_OPEN)
+            .append(TD_OPEN).append(escape(metricLabel)).append(TD_CLOSE)
+            .append(TD_OPEN).append(escape(cond.getActualValue())).append(" ")
+            .append(escape(ProjectStatusKeys.getComparatorAsString(cond.getComparator()))).append(" ")
+            .append(escape(cond.getErrorThreshold())).append(TD_CLOSE)
+            .append("<td><span class=\"badge badge-error\">Failed</span></td>")
+            .append(TR_CLOSE);
     }
 
     private void appendMetricDashboard(StringBuilder html, Project project) {
-        html.append("<div class=\"section\">\n")
-            .append("<h2>").append(escape(getTextProperty("general.metric_dashboard"))).append("</h2>\n");
+        html.append(DIV_SECTION_OPEN)
+            .append(H2_OPEN).append(escape(getTextProperty("general.metric_dashboard"))).append(H2_CLOSE);
 
         Period_ period = getCurrentPeriod(project);
         String periodLabel = getTextProperty("general.period." + period.getMode());
@@ -255,219 +298,219 @@ public class HTMLReporter extends PDFReporter {
             }
         }
 
-        html.append("</div>\n");
+        html.append(DIV_CLOSE);
     }
 
     private void appendReliabilitySection(StringBuilder html, Project project, Period_ period) {
-        html.append("<h3>").append(escape(getTextProperty("metrics." + MetricDomains.RELIABILITY.toLowerCase())))
-            .append("</h3>\n<div class=\"metric-grid\">\n");
+        html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.RELIABILITY.toLowerCase())))
+            .append(H3_CLOSE_METRIC_GRID);
 
         appendMetricCard(html, project.getMeasure(BUGS).getValue(),
-                getTextProperty("metrics." + BUGS), false);
+                getTextProperty(METRICS_PREFIX + BUGS), false);
 
         if (project.getMeasures().containsMeasure(NEW_BUGS)) {
             Optional<Period> p = project.getMeasure(NEW_BUGS).getPeriods().stream()
                                         .filter(x -> x.getIndex().equals(period.getIndex())).findFirst();
             if (p.isPresent()) {
-                appendMetricCard(html, p.get().getValue(), getTextProperty("metrics." + NEW_BUGS), true);
+                appendMetricCard(html, p.get().getValue(), getTextProperty(METRICS_PREFIX + NEW_BUGS), true);
             }
         }
 
         String rating = Rating.getRating(project.getMeasure(RELIABILITY_RATING).getValue());
-        appendRatingCard(html, rating, getTextProperty("metrics." + RELIABILITY_RATING));
-        html.append("</div>\n");
+        appendRatingCard(html, rating, getTextProperty(METRICS_PREFIX + RELIABILITY_RATING));
+        html.append(DIV_CLOSE);
 
-        html.append("<table>\n<tbody>\n");
-        appendMetricRow(html, getTextProperty("metrics." + RELIABILITY_REMEDIATION_EFFORT),
+        html.append(TABLE_TBODY_OPEN);
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + RELIABILITY_REMEDIATION_EFFORT),
                 SonarUtil.getWorkDurConversion(
                         Integer.parseInt(project.getMeasure(RELIABILITY_REMEDIATION_EFFORT).getValue())));
         if (project.getMeasures().containsMeasure(NEW_RELIABILITY_REMEDIATION_EFFORT)) {
             Optional<Period> p = project.getMeasure(NEW_RELIABILITY_REMEDIATION_EFFORT).getPeriods().stream()
                                         .filter(x -> x.getIndex() == period.getIndex()).findFirst();
             if (p.isPresent()) {
-                appendMetricRow(html, getTextProperty("metrics." + NEW_RELIABILITY_REMEDIATION_EFFORT),
+                appendMetricRow(html, getTextProperty(METRICS_PREFIX + NEW_RELIABILITY_REMEDIATION_EFFORT),
                         SonarUtil.getWorkDurConversion(Integer.parseInt(p.get().getValue())));
             }
         }
-        html.append("</tbody>\n</table>\n");
+        html.append(TABLE_CLOSE);
     }
 
     private void appendSecuritySection(StringBuilder html, Project project, Period_ period) {
-        html.append("<h3>").append(escape(getTextProperty("metrics." + MetricDomains.SECURITY.toLowerCase())))
-            .append("</h3>\n<div class=\"metric-grid\">\n");
+        html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.SECURITY.toLowerCase())))
+            .append(H3_CLOSE_METRIC_GRID);
 
         appendMetricCard(html, project.getMeasure(VULNERABILITIES).getValue(),
-                getTextProperty("metrics." + VULNERABILITIES), false);
+                getTextProperty(METRICS_PREFIX + VULNERABILITIES), false);
 
         if (project.getMeasures().containsMeasure(NEW_VULNERABILITIES)) {
             Optional<Period> p = project.getMeasure(NEW_VULNERABILITIES).getPeriods().stream()
                                         .filter(x -> x.getIndex() == period.getIndex()).findFirst();
             if (p.isPresent()) {
-                appendMetricCard(html, p.get().getValue(), getTextProperty("metrics." + NEW_VULNERABILITIES), true);
+                appendMetricCard(html, p.get().getValue(), getTextProperty(METRICS_PREFIX + NEW_VULNERABILITIES), true);
             }
         }
 
         String rating = Rating.getRating(project.getMeasure(SECURITY_RATING).getValue());
-        appendRatingCard(html, rating, getTextProperty("metrics." + SECURITY_RATING));
-        html.append("</div>\n");
+        appendRatingCard(html, rating, getTextProperty(METRICS_PREFIX + SECURITY_RATING));
+        html.append(DIV_CLOSE);
 
-        html.append("<table>\n<tbody>\n");
-        appendMetricRow(html, getTextProperty("metrics." + SECURITY_REMEDIATION_EFFORT),
+        html.append(TABLE_TBODY_OPEN);
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + SECURITY_REMEDIATION_EFFORT),
                 SonarUtil.getWorkDurConversion(
                         Integer.parseInt(project.getMeasure(SECURITY_REMEDIATION_EFFORT).getValue())));
         if (project.getMeasures().containsMeasure(NEW_SECURITY_REMEDIATION_EFFORT)) {
             Optional<Period> p = project.getMeasure(NEW_SECURITY_REMEDIATION_EFFORT).getPeriods().stream()
                                         .filter(x -> x.getIndex() == period.getIndex()).findFirst();
             if (p.isPresent()) {
-                appendMetricRow(html, getTextProperty("metrics." + NEW_SECURITY_REMEDIATION_EFFORT),
+                appendMetricRow(html, getTextProperty(METRICS_PREFIX + NEW_SECURITY_REMEDIATION_EFFORT),
                         SonarUtil.getWorkDurConversion(Integer.parseInt(p.get().getValue())));
             }
         }
-        html.append("</tbody>\n</table>\n");
+        html.append(TABLE_CLOSE);
     }
 
     private void appendMaintainabilitySection(StringBuilder html, Project project, Period_ period) {
-        html.append("<h3>").append(escape(getTextProperty("metrics." + MetricDomains.MAINTAINABILITY.toLowerCase())))
-            .append("</h3>\n<div class=\"metric-grid\">\n");
+        html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.MAINTAINABILITY.toLowerCase())))
+            .append(H3_CLOSE_METRIC_GRID);
 
         appendMetricCard(html, project.getMeasure(CODE_SMELLS).getValue(),
-                getTextProperty("metrics." + CODE_SMELLS), false);
+                getTextProperty(METRICS_PREFIX + CODE_SMELLS), false);
 
         if (project.getMeasures().containsMeasure(NEW_CODE_SMELLS)) {
             Optional<Period> p = project.getMeasure(NEW_CODE_SMELLS).getPeriods().stream()
                                         .filter(x -> x.getIndex() == period.getIndex()).findFirst();
             if (p.isPresent()) {
-                appendMetricCard(html, p.get().getValue(), getTextProperty("metrics." + NEW_CODE_SMELLS), true);
+                appendMetricCard(html, p.get().getValue(), getTextProperty(METRICS_PREFIX + NEW_CODE_SMELLS), true);
             }
         }
 
         String rating = Rating.getRating(project.getMeasure(SQALE_RATING).getValue());
-        appendRatingCard(html, rating, getTextProperty("metrics." + SQALE_RATING));
-        html.append("</div>\n");
+        appendRatingCard(html, rating, getTextProperty(METRICS_PREFIX + SQALE_RATING));
+        html.append(DIV_CLOSE);
 
-        html.append("<table>\n<tbody>\n");
-        appendMetricRow(html, getTextProperty("metrics." + SQALE_INDEX),
+        html.append(TABLE_TBODY_OPEN);
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + SQALE_INDEX),
                 SonarUtil.getWorkDurConversion(Integer.parseInt(project.getMeasure(SQALE_INDEX).getValue())));
-        appendMetricRow(html, getTextProperty("metrics." + SQALE_DEBT_RATIO),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + SQALE_DEBT_RATIO),
                 project.getMeasure(SQALE_DEBT_RATIO).getValue() + "%");
         if (project.getMeasures().containsMeasure(NEW_TECHNICAL_DEBT)) {
             Optional<Period> p = project.getMeasure(NEW_TECHNICAL_DEBT).getPeriods().stream()
                                         .filter(x -> x.getIndex() == period.getIndex()).findFirst();
             if (p.isPresent()) {
-                appendMetricRow(html, getTextProperty("metrics." + NEW_TECHNICAL_DEBT),
+                appendMetricRow(html, getTextProperty(METRICS_PREFIX + NEW_TECHNICAL_DEBT),
                         SonarUtil.getWorkDurConversion(Integer.parseInt(p.get().getValue())));
             }
         }
         if (project.getMeasures().containsMeasure(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A)) {
-            appendMetricRow(html, getTextProperty("metrics." + EFFORT_TO_REACH_MAINTAINABILITY_RATING_A),
+            appendMetricRow(html, getTextProperty(METRICS_PREFIX + EFFORT_TO_REACH_MAINTAINABILITY_RATING_A),
                     SonarUtil.getWorkDurConversion(
                             Integer.parseInt(project.getMeasure(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A).getValue())));
         }
-        html.append("</tbody>\n</table>\n");
+        html.append(TABLE_CLOSE);
     }
 
     private void appendCoverageSection(StringBuilder html, Project project) {
         if (!project.getMeasures().containsMeasure(MetricKeys.COVERAGE)) {
             return;
         }
-        html.append("<h3>").append(escape(getTextProperty("metrics." + MetricDomains.COVERAGE.toLowerCase())))
-            .append("</h3>\n<div class=\"metric-grid\">\n");
+        html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.COVERAGE.toLowerCase())))
+            .append(H3_CLOSE_METRIC_GRID);
         appendMetricCard(html, project.getMeasure(MetricKeys.COVERAGE).getValue() + "%",
-                getTextProperty("metrics." + MetricKeys.COVERAGE), false);
-        html.append("</div>\n");
+                getTextProperty(METRICS_PREFIX + MetricKeys.COVERAGE), false);
+        html.append(DIV_CLOSE);
 
-        html.append("<table>\n<tbody>\n");
-        appendMetricRow(html, getTextProperty("metrics." + MetricKeys.LINE_COVERAGE),
+        html.append(TABLE_TBODY_OPEN);
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + MetricKeys.LINE_COVERAGE),
                 project.getMeasure(MetricKeys.LINE_COVERAGE).getValue() + "%");
-        appendMetricRow(html, getTextProperty("metrics." + MetricKeys.BRANCH_COVERAGE),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + MetricKeys.BRANCH_COVERAGE),
                 project.getMeasure(MetricKeys.BRANCH_COVERAGE).getValue() + "%");
-        appendMetricRow(html, getTextProperty("metrics." + MetricKeys.UNCOVERED_LINES),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + MetricKeys.UNCOVERED_LINES),
                 project.getMeasure(MetricKeys.UNCOVERED_LINES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + MetricKeys.UNCOVERED_CONDITIONS),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + MetricKeys.UNCOVERED_CONDITIONS),
                 project.getMeasure(MetricKeys.UNCOVERED_CONDITIONS).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + MetricKeys.LINES_TO_COVER),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + MetricKeys.LINES_TO_COVER),
                 project.getMeasure(MetricKeys.LINES_TO_COVER).getValue());
-        html.append("</tbody>\n</table>\n");
+        html.append(TABLE_CLOSE);
     }
 
     private void appendDuplicationsSection(StringBuilder html, Project project) {
-        html.append("<h3>").append(escape(getTextProperty("metrics." + MetricDomains.DUPLICATIONS.toLowerCase())))
-            .append("</h3>\n<div class=\"metric-grid\">\n");
+        html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.DUPLICATIONS.toLowerCase())))
+            .append(H3_CLOSE_METRIC_GRID);
         appendMetricCard(html, project.getMeasure(DUPLICATED_LINES_DENSITY).getValue() + "%",
-                getTextProperty("metrics." + DUPLICATED_LINES_DENSITY), false);
-        html.append("</div>\n");
+                getTextProperty(METRICS_PREFIX + DUPLICATED_LINES_DENSITY), false);
+        html.append(DIV_CLOSE);
 
-        html.append("<table>\n<tbody>\n");
-        appendMetricRow(html, getTextProperty("metrics." + DUPLICATED_LINES),
+        html.append(TABLE_TBODY_OPEN);
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + DUPLICATED_LINES),
                 project.getMeasure(DUPLICATED_LINES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + DUPLICATED_BLOCKS),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + DUPLICATED_BLOCKS),
                 project.getMeasure(DUPLICATED_BLOCKS).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + DUPLICATED_FILES),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + DUPLICATED_FILES),
                 project.getMeasure(DUPLICATED_FILES).getValue());
-        html.append("</tbody>\n</table>\n");
+        html.append(TABLE_CLOSE);
     }
 
     private void appendSizeSection(StringBuilder html, Project project) {
-        html.append("<h3>").append(escape(getTextProperty("metrics." + MetricDomains.SIZE.toLowerCase())))
-            .append("</h3>\n<table>\n<tbody>\n");
-        appendMetricRow(html, getTextProperty("metrics." + NCLOC), project.getMeasure(NCLOC).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + LINES), project.getMeasure(LINES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + STATEMENTS), project.getMeasure(STATEMENTS).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + FUNCTIONS), project.getMeasure(FUNCTIONS).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + CLASSES), project.getMeasure(CLASSES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + FILES), project.getMeasure(FILES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + DIRECTORIES), project.getMeasure(DIRECTORIES).getValue());
-        html.append("</tbody>\n</table>\n");
+        html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.SIZE.toLowerCase())))
+            .append(H3_CLOSE_TABLE_TBODY);
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + NCLOC), project.getMeasure(NCLOC).getValue());
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + LINES), project.getMeasure(LINES).getValue());
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + STATEMENTS), project.getMeasure(STATEMENTS).getValue());
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + FUNCTIONS), project.getMeasure(FUNCTIONS).getValue());
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + CLASSES), project.getMeasure(CLASSES).getValue());
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + FILES), project.getMeasure(FILES).getValue());
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + DIRECTORIES), project.getMeasure(DIRECTORIES).getValue());
+        html.append(TABLE_CLOSE);
     }
 
     private void appendComplexitySection(StringBuilder html, Project project) {
-        html.append("<h3>").append(escape(getTextProperty("metrics." + MetricDomains.COMPLEXITY.toLowerCase())))
-            .append("</h3>\n<table>\n<tbody>\n");
-        appendMetricRow(html, getTextProperty("metrics." + CLASS_COMPLEXITY),
+        html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.COMPLEXITY.toLowerCase())))
+            .append(H3_CLOSE_TABLE_TBODY);
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + CLASS_COMPLEXITY),
                 project.getMeasure(CLASS_COMPLEXITY).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + FUNCTION_COMPLEXITY),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + FUNCTION_COMPLEXITY),
                 project.getMeasure(FUNCTION_COMPLEXITY).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + FILE_COMPLEXITY),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + FILE_COMPLEXITY),
                 project.getMeasure(FILE_COMPLEXITY).getValue());
-        html.append("</tbody>\n</table>\n");
+        html.append(TABLE_CLOSE);
     }
 
     private void appendDocumentationSection(StringBuilder html, Project project) {
-        html.append("<h3>").append(escape(getTextProperty("metrics." + MetricDomains.DOCUMENTATION.toLowerCase())))
-            .append("</h3>\n<table>\n<tbody>\n");
-        appendMetricRow(html, getTextProperty("metrics." + COMMENT_LINES),
+        html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.DOCUMENTATION.toLowerCase())))
+            .append(H3_CLOSE_TABLE_TBODY);
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + COMMENT_LINES),
                 project.getMeasure(COMMENT_LINES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + COMMENT_LINES_DENSITY),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + COMMENT_LINES_DENSITY),
                 project.getMeasure(COMMENT_LINES_DENSITY).getValue() + "%");
-        html.append("</tbody>\n</table>\n");
+        html.append(TABLE_CLOSE);
     }
 
     private void appendIssuesSection(StringBuilder html, Project project, Period_ period) {
-        html.append("<h3>").append(escape(getTextProperty("metrics." + MetricDomains.ISSUES.toLowerCase())))
-            .append("</h3>\n<div class=\"metric-grid\">\n");
+        html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.ISSUES.toLowerCase())))
+            .append(H3_CLOSE_METRIC_GRID);
         appendMetricCard(html, project.getMeasure(VIOLATIONS).getValue(),
-                getTextProperty("metrics." + VIOLATIONS), false);
+                getTextProperty(METRICS_PREFIX + VIOLATIONS), false);
         if (project.getMeasures().containsMeasure(NEW_VIOLATIONS)) {
             Optional<Period> p = project.getMeasure(NEW_VIOLATIONS).getPeriods().stream()
                                         .filter(x -> x.getIndex() == period.getIndex()).findFirst();
             if (p.isPresent()) {
-                appendMetricCard(html, p.get().getValue(), getTextProperty("metrics." + NEW_VIOLATIONS), true);
+                appendMetricCard(html, p.get().getValue(), getTextProperty(METRICS_PREFIX + NEW_VIOLATIONS), true);
             }
         }
-        html.append("</div>\n");
+        html.append(DIV_CLOSE);
 
-        html.append("<table>\n<tbody>\n");
-        appendMetricRow(html, getTextProperty("metrics." + OPEN_ISSUES),
+        html.append(TABLE_TBODY_OPEN);
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + OPEN_ISSUES),
                 project.getMeasure(OPEN_ISSUES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + REOPENED_ISSUES),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + REOPENED_ISSUES),
                 project.getMeasure(REOPENED_ISSUES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + CONFIRMED_ISSUES),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + CONFIRMED_ISSUES),
                 project.getMeasure(CONFIRMED_ISSUES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + FALSE_POSITIVE_ISSUES),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + FALSE_POSITIVE_ISSUES),
                 project.getMeasure(FALSE_POSITIVE_ISSUES).getValue());
-        appendMetricRow(html, getTextProperty("metrics." + WONT_FIX_ISSUES),
+        appendMetricRow(html, getTextProperty(METRICS_PREFIX + WONT_FIX_ISSUES),
                 project.getMeasure(WONT_FIX_ISSUES).getValue());
-        html.append("</tbody>\n</table>\n");
+        html.append(TABLE_CLOSE);
     }
 
     private void appendOtherMetricsSection(StringBuilder html, Project project, Set<String> extras) {
@@ -480,23 +523,23 @@ public class HTMLReporter extends PDFReporter {
                         SonarUtil.getFormattedValue(value, project.getMeasure(metricName).getDataType()));
             }
         }
-        html.append("</tbody>\n</table>\n");
+        html.append(TABLE_CLOSE);
     }
 
     private void appendViolationsAnalysis(StringBuilder html, Project project) {
-        html.append("<div class=\"section\">\n")
-            .append("<h2>").append(escape(getTextProperty("general.violations_analysis"))).append("</h2>\n");
+        html.append(DIV_SECTION_OPEN)
+            .append(H2_OPEN).append(escape(getTextProperty("general.violations_analysis"))).append(H2_CLOSE);
 
         appendMostViolatedRules(html, project);
         appendMostViolatedFiles(html, project);
         appendMostComplexFiles(html, project);
         appendMostDuplicatedFiles(html, project);
 
-        html.append("</div>\n");
+        html.append(DIV_CLOSE);
     }
 
     private void appendMostViolatedRules(StringBuilder html, Project project) {
-        html.append("<h3>").append(escape(getTextProperty("general.most_violated_rules"))).append("</h3>\n");
+        html.append(H3_OPEN).append(escape(getTextProperty("general.most_violated_rules"))).append(H3_CLOSE);
         List<Rule> rules = project.getMostViolatedRules();
         String[] priorities = Priority.getPrioritiesArray();
         for (String priority : priorities) {
@@ -505,22 +548,22 @@ public class HTMLReporter extends PDFReporter {
                                        .collect(Collectors.toList());
             html.append("<p><strong>Severity: ").append(escape(Priority.getPriority(priority))).append("</strong></p>\n");
             if (filtered.isEmpty()) {
-                html.append("<p><em>").append(escape(getTextProperty("general.no_violated_rules")))
-                    .append(" of Severity ").append(escape(Priority.getPriority(priority))).append("</em></p>\n");
+                html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_violated_rules")))
+                    .append(" of Severity ").append(escape(Priority.getPriority(priority))).append(P_EM_CLOSE);
             } else {
-                html.append("<table>\n<thead><tr>")
-                    .append("<th>").append(escape(getTextProperty("genaral.rule_name"))).append("</th>")
-                    .append("<th>").append(escape(getTextProperty("general.language_name"))).append("</th>")
-                    .append("<th>").append(escape(getTextProperty("general.rule_count"))).append("</th>")
-                    .append("</tr></thead>\n<tbody>\n");
+                html.append(TABLE_THEAD_TR_OPEN)
+                    .append(TH_OPEN).append(escape(getTextProperty("general.rule_name"))).append(TH_CLOSE)
+                    .append(TH_OPEN).append(escape(getTextProperty("general.language_name"))).append(TH_CLOSE)
+                    .append(TH_OPEN).append(escape(getTextProperty("general.rule_count"))).append(TH_CLOSE)
+                    .append(THEAD_TR_CLOSE_TBODY);
                 for (Rule rule : filtered) {
-                    html.append("<tr>")
-                        .append("<td>").append(escape(rule.getName())).append("</td>")
-                        .append("<td>").append(escape(rule.getLanguageName())).append("</td>")
-                        .append("<td>").append(rule.getCount()).append("</td>")
-                        .append("</tr>\n");
+                    html.append(TR_OPEN)
+                        .append(TD_OPEN).append(escape(rule.getName())).append(TD_CLOSE)
+                        .append(TD_OPEN).append(escape(rule.getLanguageName())).append(TD_CLOSE)
+                        .append(TD_OPEN).append(rule.getCount()).append(TD_CLOSE)
+                        .append(TR_CLOSE);
                 }
-                html.append("</tbody>\n</table>\n");
+                html.append(TABLE_CLOSE);
             }
         }
     }
@@ -529,23 +572,23 @@ public class HTMLReporter extends PDFReporter {
         List<FileInfo> files = project.getMostViolatedFiles().stream()
                                       .filter(f -> f.isContentSet(FileInfo.VIOLATIONS_CONTENT))
                                       .collect(Collectors.toList());
-        html.append("<h3>").append(escape(getTextProperty("general.most_violated_files"))).append("</h3>\n");
+        html.append(H3_OPEN).append(escape(getTextProperty("general.most_violated_files"))).append(H3_CLOSE);
         if (files.isEmpty()) {
-            html.append("<p><em>").append(escape(getTextProperty("general.no_violated_files"))).append("</em></p>\n");
+            html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_violated_files"))).append(P_EM_CLOSE);
         } else {
-            html.append("<table>\n<thead><tr>")
-                .append("<th>").append(escape(getTextProperty("genaral.file_name"))).append("</th>")
-                .append("<th>").append(escape(getTextProperty("general.file_path"))).append("</th>")
-                .append("<th>").append(escape(getTextProperty("general.file_violations"))).append("</th>")
-                .append("</tr></thead>\n<tbody>\n");
+            html.append(TABLE_THEAD_TR_OPEN)
+                .append(TH_OPEN).append(escape(getTextProperty(LANG_FILE_NAME))).append(TH_CLOSE)
+                .append(TH_OPEN).append(escape(getTextProperty(LANG_FILE_PATH))).append(TH_CLOSE)
+                .append(TH_OPEN).append(escape(getTextProperty("general.file_violations"))).append(TH_CLOSE)
+                .append(THEAD_TR_CLOSE_TBODY);
             for (FileInfo f : files) {
-                html.append("<tr>")
-                    .append("<td>").append(escape(f.getName())).append("</td>")
-                    .append("<td>").append(escape(f.getPath())).append("</td>")
-                    .append("<td>").append(escape(f.getViolations())).append("</td>")
-                    .append("</tr>\n");
+                html.append(TR_OPEN)
+                    .append(TD_OPEN).append(escape(f.getName())).append(TD_CLOSE)
+                    .append(TD_OPEN).append(escape(f.getPath())).append(TD_CLOSE)
+                    .append(TD_OPEN).append(escape(f.getViolations())).append(TD_CLOSE)
+                    .append(TR_CLOSE);
             }
-            html.append("</tbody>\n</table>\n");
+            html.append(TABLE_CLOSE);
         }
     }
 
@@ -553,23 +596,23 @@ public class HTMLReporter extends PDFReporter {
         List<FileInfo> files = project.getMostComplexFiles().stream()
                                       .filter(f -> f.isContentSet(FileInfo.CCN_CONTENT))
                                       .collect(Collectors.toList());
-        html.append("<h3>").append(escape(getTextProperty("general.most_complex_files"))).append("</h3>\n");
+        html.append(H3_OPEN).append(escape(getTextProperty("general.most_complex_files"))).append(H3_CLOSE);
         if (files.isEmpty()) {
-            html.append("<p><em>").append(escape(getTextProperty("general.no_complex_files"))).append("</em></p>\n");
+            html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_complex_files"))).append(P_EM_CLOSE);
         } else {
-            html.append("<table>\n<thead><tr>")
-                .append("<th>").append(escape(getTextProperty("genaral.file_name"))).append("</th>")
-                .append("<th>").append(escape(getTextProperty("general.file_path"))).append("</th>")
-                .append("<th>").append(escape(getTextProperty("general.file_complexity"))).append("</th>")
-                .append("</tr></thead>\n<tbody>\n");
+            html.append(TABLE_THEAD_TR_OPEN)
+                .append(TH_OPEN).append(escape(getTextProperty(LANG_FILE_NAME))).append(TH_CLOSE)
+                .append(TH_OPEN).append(escape(getTextProperty(LANG_FILE_PATH))).append(TH_CLOSE)
+                .append(TH_OPEN).append(escape(getTextProperty("general.file_complexity"))).append(TH_CLOSE)
+                .append(THEAD_TR_CLOSE_TBODY);
             for (FileInfo f : files) {
-                html.append("<tr>")
-                    .append("<td>").append(escape(f.getName())).append("</td>")
-                    .append("<td>").append(escape(f.getPath())).append("</td>")
-                    .append("<td>").append(escape(f.getComplexity())).append("</td>")
-                    .append("</tr>\n");
+                html.append(TR_OPEN)
+                    .append(TD_OPEN).append(escape(f.getName())).append(TD_CLOSE)
+                    .append(TD_OPEN).append(escape(f.getPath())).append(TD_CLOSE)
+                    .append(TD_OPEN).append(escape(f.getComplexity())).append(TD_CLOSE)
+                    .append(TR_CLOSE);
             }
-            html.append("</tbody>\n</table>\n");
+            html.append(TABLE_CLOSE);
         }
     }
 
@@ -577,59 +620,59 @@ public class HTMLReporter extends PDFReporter {
         List<FileInfo> files = project.getMostDuplicatedFiles().stream()
                                       .filter(f -> f.isContentSet(FileInfo.DUPLICATIONS_CONTENT))
                                       .collect(Collectors.toList());
-        html.append("<h3>").append(escape(getTextProperty("general.most_duplicated_files"))).append("</h3>\n");
+        html.append(H3_OPEN).append(escape(getTextProperty("general.most_duplicated_files"))).append(H3_CLOSE);
         if (files.isEmpty()) {
-            html.append("<p><em>").append(escape(getTextProperty("general.no_duplicated_files"))).append("</em></p>\n");
+            html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_duplicated_files"))).append(P_EM_CLOSE);
         } else {
-            html.append("<table>\n<thead><tr>")
-                .append("<th>").append(escape(getTextProperty("genaral.file_name"))).append("</th>")
-                .append("<th>").append(escape(getTextProperty("general.file_path"))).append("</th>")
-                .append("<th>").append(escape(getTextProperty("general.file_duplicated_lines"))).append("</th>")
-                .append("</tr></thead>\n<tbody>\n");
+            html.append(TABLE_THEAD_TR_OPEN)
+                .append(TH_OPEN).append(escape(getTextProperty(LANG_FILE_NAME))).append(TH_CLOSE)
+                .append(TH_OPEN).append(escape(getTextProperty(LANG_FILE_PATH))).append(TH_CLOSE)
+                .append(TH_OPEN).append(escape(getTextProperty("general.file_duplicated_lines"))).append(TH_CLOSE)
+                .append(THEAD_TR_CLOSE_TBODY);
             for (FileInfo f : files) {
-                html.append("<tr>")
-                    .append("<td>").append(escape(f.getName())).append("</td>")
-                    .append("<td>").append(escape(f.getPath())).append("</td>")
-                    .append("<td>").append(escape(f.getDuplicatedLines())).append("</td>")
-                    .append("</tr>\n");
+                html.append(TR_OPEN)
+                    .append(TD_OPEN).append(escape(f.getName())).append(TD_CLOSE)
+                    .append(TD_OPEN).append(escape(f.getPath())).append(TD_CLOSE)
+                    .append(TD_OPEN).append(escape(f.getDuplicatedLines())).append(TD_CLOSE)
+                    .append(TR_CLOSE);
             }
-            html.append("</tbody>\n</table>\n");
+            html.append(TABLE_CLOSE);
         }
     }
 
     private void appendIssueDetails(StringBuilder html, Project project) {
-        html.append("<div class=\"section\">\n")
-            .append("<h2>").append(escape(getTextProperty("general.violations_details"))).append("</h2>\n");
+        html.append(DIV_SECTION_OPEN)
+            .append(H2_OPEN).append(escape(getTextProperty("general.violations_details"))).append(H2_CLOSE);
         for (String type : typesOfIssue) {
-            html.append("<h3>").append(escape(StringUtils.capitalize(type))).append("</h3>\n");
+            html.append(H3_OPEN).append(escape(StringUtils.capitalize(type))).append(H3_CLOSE);
             List<Issue> issues = project.getIssues().stream()
                                         .filter(i -> i.getType().toUpperCase().replace("_", "").replace(" ", "")
                                                       .contains(type.toUpperCase().replace(" ", "").replace("_", "")))
                                         .collect(Collectors.toList());
             if (issues.isEmpty()) {
-                html.append("<p><em>").append(escape(getTextProperty("general.no_violations"))).append("</em></p>\n");
+                html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_violations"))).append(P_EM_CLOSE);
             } else {
-                html.append("<table>\n<thead><tr>")
-                    .append("<th>").append(escape(getTextProperty("genaral.file_name"))).append("</th>")
-                    .append("<th>").append(escape(getTextProperty("general.file_path"))).append("</th>")
+                html.append(TABLE_THEAD_TR_OPEN)
+                    .append(TH_OPEN).append(escape(getTextProperty(LANG_FILE_NAME))).append(TH_CLOSE)
+                    .append(TH_OPEN).append(escape(getTextProperty(LANG_FILE_PATH))).append(TH_CLOSE)
                     .append("<th>Severity</th>")
                     .append("<th>Line</th>")
                     .append("<th>Message</th>")
-                    .append("</tr></thead>\n<tbody>\n");
+                    .append(THEAD_TR_CLOSE_TBODY);
                 for (Issue issue : issues) {
-                    html.append("<tr>")
-                        .append("<td>").append(escape(issue.getComponent())).append("</td>")
-                        .append("<td>").append(escape(issue.getComponentPath())).append("</td>")
-                        .append("<td>").append(escape(issue.getSeverity())).append("</td>")
-                        .append("<td>").append(issue.getLine() == null || issue.getLine() == 0 ? "N/A"
-                                : issue.getLine().toString()).append("</td>")
-                        .append("<td>").append(escape(issue.getMessage())).append("</td>")
-                        .append("</tr>\n");
+                    html.append(TR_OPEN)
+                        .append(TD_OPEN).append(escape(issue.getComponent())).append(TD_CLOSE)
+                        .append(TD_OPEN).append(escape(issue.getComponentPath())).append(TD_CLOSE)
+                        .append(TD_OPEN).append(escape(issue.getSeverity())).append(TD_CLOSE)
+                        .append(TD_OPEN).append(issue.getLine() == null || issue.getLine() == 0 ? "N/A"
+                                : issue.getLine().toString()).append(TD_CLOSE)
+                        .append(TD_OPEN).append(escape(issue.getMessage())).append(TD_CLOSE)
+                        .append(TR_CLOSE);
                 }
-                html.append("</tbody>\n</table>\n");
+                html.append(TABLE_CLOSE);
             }
         }
-        html.append("</div>\n");
+        html.append(DIV_CLOSE);
     }
 
     private void appendFooter(StringBuilder html) {
@@ -643,23 +686,23 @@ public class HTMLReporter extends PDFReporter {
     private void appendMetricCard(StringBuilder html, String value, String label, boolean newCode) {
         String extra = newCode ? " new-code" : "";
         html.append("<div class=\"metric-card").append(extra).append("\">\n")
-            .append("<div class=\"value\">").append(escape(value != null ? value : "–")).append("</div>\n")
-            .append("<div class=\"label\">").append(escape(label)).append("</div>\n")
-            .append("</div>\n");
+            .append("<div class=\"value\">").append(escape(value != null ? value : "–")).append(DIV_CLOSE)
+            .append("<div class=\"label\">").append(escape(label)).append(DIV_CLOSE)
+            .append(DIV_CLOSE);
     }
 
     private void appendRatingCard(StringBuilder html, String rating, String label) {
         String css = rating == null ? "" : "rating-" + rating.toLowerCase();
         html.append("<div class=\"metric-card\">\n")
             .append("<div class=\"value ").append(css).append("\">").append(escape(rating != null ? rating : "–"))
-            .append("</div>\n")
-            .append("<div class=\"label\">").append(escape(label)).append("</div>\n")
-            .append("</div>\n");
+            .append(DIV_CLOSE)
+            .append("<div class=\"label\">").append(escape(label)).append(DIV_CLOSE)
+            .append(DIV_CLOSE);
     }
 
     private void appendMetricRow(StringBuilder html, String label, String value) {
-        html.append("<tr><td>").append(escape(label != null ? label : "")).append("</td>")
-            .append("<td>").append(escape(value != null ? value : "–")).append("</td></tr>\n");
+        html.append("<tr><td>").append(escape(label != null ? label : "")).append(TD_CLOSE)
+            .append(TD_OPEN).append(escape(value != null ? value : "–")).append("</td></tr>\n");
     }
 
     private String escape(String text) {
