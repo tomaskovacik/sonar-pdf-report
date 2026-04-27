@@ -1,7 +1,6 @@
 package com.cybage.sonar.report.pdf.test;
 
 import com.cybage.sonar.report.pdf.batch.PDFPostJob;
-import org.mockito.Mockito;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.PostJobDescriptor;

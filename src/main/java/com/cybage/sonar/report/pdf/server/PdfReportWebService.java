@@ -80,7 +80,7 @@ public class PdfReportWebService implements WebService {
         controller.done();
     }
 
-    private void handleInfo(Request request, Response response) throws IOException {
+    private void handleInfo(Request request, Response response) {
         String projectKey = request.mandatoryParam(PARAM_PROJECT);
         boolean hasPdf    = reportFile(projectKey, "pdf").exists();
         boolean hasHtml   = reportFile(projectKey, "html").exists();

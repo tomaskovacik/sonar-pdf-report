@@ -1,7 +1,6 @@
 package com.cybage.sonar.report.pdf.test;
 
 import com.cybage.sonar.report.pdf.server.PdfReportWebService;
-import org.mockito.Mockito;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
