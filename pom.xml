@@ -275,22 +275,23 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.3.0</version>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>get-git-branch</id>
                                 <phase>initialize</phase>
-                                <goals><goal>exec</goal></goals>
+                                <goals><goal>run</goal></goals>
                                 <configuration>
-                                    <executable>git</executable>
-                                    <arguments>
-                                        <argument>rev-parse</argument>
-                                        <argument>--abbrev-ref</argument>
-                                        <argument>HEAD</argument>
-                                    </arguments>
-                                    <outputProperty>sonar.branch.name</outputProperty>
+                                    <exportAntProperties>true</exportAntProperties>
+                                    <target>
+                                        <exec executable="git" outputproperty="sonar.branch.name">
+                                            <arg value="rev-parse"/>
+                                            <arg value="--abbrev-ref"/>
+                                            <arg value="HEAD"/>
+                                        </exec>
+</target>
                                 </configuration>
                             </execution>
                         </executions>
