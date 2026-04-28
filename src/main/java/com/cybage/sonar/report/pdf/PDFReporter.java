@@ -117,7 +117,7 @@ public abstract class PDFReporter {
 
     protected abstract URL getLogo();
 
-    public Project getProject() throws IOException, ReportException {
+    public Project getProject() throws ReportException {
         if (project == null) {
             HttpConnector httpConnector = HttpConnector.newBuilder()
                     .url(credentials.getUrl())

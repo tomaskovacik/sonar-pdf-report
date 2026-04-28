@@ -66,7 +66,7 @@ public class PDFGenerator {
         this.fs             = fs;
         this.sonarHostUrl   = sonarHostUrl;
         this.token          = token;
-        this.reportType     = reportType;
+        this.reportType     = reportType != null ? reportType : "pdf";
         this.branchName     = branchName;
     }
 
@@ -130,10 +130,6 @@ public class PDFGenerator {
     }
 
     private PDFReporter initializeReporter(Properties config, Properties configLang, Credentials credentials, String sonarProjectId, String sonarProjectVersion, List<String> sonarLanguage, Set<String> otherMetrics, Set<String> typesOfIssue, LeakPeriodConfiguration leakPeriod) {
-        if (reportType == null) {
-            LOGGER.info("No report type provided. Default report type selected (PDF)");
-            return createPdfReporter(credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod, config, configLang);
-        }
         if (reportType.equalsIgnoreCase("pdf")) {
             return createPdfReporter(credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod, config, configLang);
         }

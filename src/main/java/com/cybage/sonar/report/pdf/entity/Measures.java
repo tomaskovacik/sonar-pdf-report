@@ -30,11 +30,11 @@ public class Measures {
 		return measuresTable.containsKey(measureKey);
 	}
 
-	public Optional<Period_> getPeriod_(Integer index) {
+	public Optional<Period_> getPeriod(Integer index) {
 		return periods.stream().filter(p -> p.getIndex().equals(index)).findFirst();
 	}
 
-	public Optional<Period_> getPeriod_(String mode) {
+	public Optional<Period_> getPeriod(String mode) {
 		return periods.stream().filter(p -> p.getMode().equals(mode)).findFirst();
 	}
 

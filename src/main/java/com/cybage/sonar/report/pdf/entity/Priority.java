@@ -5,6 +5,8 @@ package com.cybage.sonar.report.pdf.entity;
  */
 public class Priority {
 
+	private Priority() {}
+
 	public static final String INFO = "INFO";
 	public static final String MINOR = "MINOR";
 	public static final String MAJOR = "MAJOR";

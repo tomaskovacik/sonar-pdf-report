@@ -55,7 +55,7 @@ public class ProjectBuilder {
 	 * @throws ReportException
 	 */
 	public Project initializeProject(final String key, final String version, final List<String> sonarLanguage,
-			final Set<String> otherMetrics, final Set<String> typesOfIssue, final String branch) throws IOException, ReportException {
+			final Set<String> otherMetrics, final Set<String> typesOfIssue, final String branch) throws ReportException {
 		Project project = new Project(key, version, sonarLanguage);
 
 		try {
@@ -102,7 +102,7 @@ public class ProjectBuilder {
 			}
 			Qualitygates.ProjectStatusResponse projectStatusWsRes = wsClient.qualitygates().projectStatus(projectStatusWsReq);
 
-			initFromNode(project, projectName, projectDescription, projectStatusWsRes, branch);
+			initFromNode(project, projectName, projectDescription, branch);
 			initMeasures(project, otherMetrics, branch);
 			initMostViolatedRules(project, branch);
 			initMostViolatedFiles(project, branch);
@@ -123,7 +123,7 @@ public class ProjectBuilder {
 	 * @throws IOException
 	 */
 	private void initFromNode(final Project project, final String name, final String description,
-			final Qualitygates.ProjectStatusResponse projectStatusWsRes, final String branch) throws IOException {
+			final String branch) {
 
 		// Set Project Name
 		project.setName(name);
@@ -143,21 +143,21 @@ public class ProjectBuilder {
 	}
 
 	private void initMeasures(final Project project, final Set<String> otherMetrics, final String branch)
-			throws IOException, ReportException {
+			throws ReportException {
 		LOGGER.info("Retrieving measures");
 		MeasuresBuilder measuresBuilder = MeasuresBuilder.getInstance(wsClient);
 		Measures measures = measuresBuilder.initMeasuresByProjectKey(project.getKey(), otherMetrics, branch);
 		project.setMeasures(measures);
 	}
 
-	private void initProjectStatus(final Project project, final String branch) throws IOException {
+	private void initProjectStatus(final Project project, final String branch) {
 		LOGGER.info("Retrieving project status");
 		ProjectStatusBuilder projectStatusBuilder = ProjectStatusBuilder.getInstance(wsClient);
 		ProjectStatus projectStatus = projectStatusBuilder.initProjectStatusByProjectKey(project.getKey(), branch);
 		project.setProjectStatus(projectStatus);
 	}
 
-	private void initQualityProfiles(final Project project) throws IOException {
+	private void initQualityProfiles(final Project project) {
 		LOGGER.info("Retrieving quality profile information");
 		QualityProfileBuilder qualityProfileBuilder = QualityProfileBuilder.getInstance(wsClient);
 		List<QualityProfile> qualityProfiles = qualityProfileBuilder
@@ -165,28 +165,28 @@ public class ProjectBuilder {
 		project.setQualityProfiles(qualityProfiles);
 	}
 
-	private void initMostViolatedRules(final Project project, final String branch) throws IOException, ReportException {
+	private void initMostViolatedRules(final Project project, final String branch) throws ReportException {
 		LOGGER.info("Retrieving most violated rules");
 		RuleBuilder ruleBuilder = RuleBuilder.getInstance(wsClient);
 		List<Rule> rules = ruleBuilder.initProjectMostViolatedRulesByProjectKey(project.getKey(), branch);
 		project.setMostViolatedRules(rules);
 	}
 
-	private void initMostViolatedFiles(final Project project, final String branch) throws IOException, ReportException {
+	private void initMostViolatedFiles(final Project project, final String branch) throws ReportException {
 		LOGGER.info("Retrieving most violated files");
 		FileInfoBuilder fileInfoBuilder = FileInfoBuilder.getInstance(wsClient);
 		List<FileInfo> filesInfo = fileInfoBuilder.initProjectMostViolatedFilesByProjectKey(project.getKey(), branch);
 		project.setMostViolatedFiles(filesInfo);
 	}
 
-	private void initMostComplexFiles(final Project project, final String branch) throws IOException, ReportException {
+	private void initMostComplexFiles(final Project project, final String branch) throws ReportException {
 		LOGGER.info("Retrieving most complex files");
 		FileInfoBuilder fileInfoBuilder = FileInfoBuilder.getInstance(wsClient);
 		List<FileInfo> filesInfo = fileInfoBuilder.initProjectMostComplexFilesByProjectKey(project.getKey(), branch);
 		project.setMostComplexFiles(filesInfo);
 	}
 
-	private void initMostDuplicatedFiles(final Project project, final String branch) throws IOException, ReportException {
+	private void initMostDuplicatedFiles(final Project project, final String branch) throws ReportException {
 		LOGGER.info("Retrieving most duplicated files");
 		FileInfoBuilder fileInfoBuilder = FileInfoBuilder.getInstance(wsClient);
 		List<FileInfo> filesInfo = fileInfoBuilder.initProjectMostDuplicatedFilesByProjectKey(project.getKey(), branch);
@@ -194,7 +194,7 @@ public class ProjectBuilder {
 	}
 
 	private void initIssueDetails(final Project project, final Set<String> typesOfIssue, final String branch)
-			throws IOException, ReportException {
+			throws ReportException {
 		LOGGER.info("Retrieving issue details");
 		IssueBuilder issueBuilder = IssueBuilder.getInstance(wsClient);
 		List<Issue> issues = issueBuilder.initIssueDetailsByProjectKey(project.getKey(), typesOfIssue, branch);

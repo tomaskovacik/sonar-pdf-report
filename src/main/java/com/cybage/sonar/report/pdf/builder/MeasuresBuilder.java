@@ -47,7 +47,7 @@ public class MeasuresBuilder {
     }
 
     public com.cybage.sonar.report.pdf.entity.Measures initMeasuresByProjectKey(final String projectKey, final Set<String> otherMetrics, final String branch)
-            throws IOException, ReportException {
+            throws ReportException {
 
         com.cybage.sonar.report.pdf.entity.Measures measures = new com.cybage.sonar.report.pdf.entity.Measures();
         if (measuresKeys == null) {
@@ -75,7 +75,7 @@ public class MeasuresBuilder {
      * @throws ReportException
      */
     private void initMeasuresSplittingRequests(final com.cybage.sonar.report.pdf.entity.Measures measures, final String projectKey, final String branch)
-            throws IOException, ReportException {
+            throws ReportException {
         Iterator<String> it = new ArrayList<>(measuresKeys).iterator();
         Set<String> twentyMeasures = new HashSet<>(20);
         int         i              = 0;
@@ -213,7 +213,7 @@ public class MeasuresBuilder {
 
     private void addMeasureFromNode(final com.cybage.sonar.report.pdf.entity.Measures measures, final Measures.Measure measureNode,
                                     Metric metric) {
-        Measure measure = MeasureBuilder.initFromNode(measureNode, measures.getPeriods(), metric);
+        Measure measure = MeasureBuilder.initFromNode(measureNode, metric);
         measures.addMeasure(measure.getMetric(), measure);
     }
 }

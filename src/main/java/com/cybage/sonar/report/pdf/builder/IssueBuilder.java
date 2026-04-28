@@ -11,7 +11,7 @@ import org.sonarqube.ws.client.WsClient;
 import com.cybage.sonar.report.pdf.entity.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.google.common.collect.ImmutableList.of;
+import static java.util.List.of;
 
 public class IssueBuilder {
 
