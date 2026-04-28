@@ -26,7 +26,7 @@ public class LeakPeriodConfiguration {
      */
     public Optional<Period_> getPeriod(Measures measures) {
         if (configurationValue != null) {
-            return measures.getPeriod_(this.configurationValue);
+            return measures.getPeriod(this.configurationValue);
         } else if (measures != null && measures.getPeriods() != null && !measures.getPeriods().isEmpty()) {
             Period_ period_ = measures.getPeriods().get(0);
             this.configurationValue = period_.getMode();

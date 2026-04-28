@@ -63,9 +63,7 @@ public class Events extends PdfPageEventHelper {
 		float textBase = document.bottom() - 20;
 		try {
 			cb.setFontAndSize(BaseFont.createFont("Helvetica", BaseFont.WINANSI, false), 12);
-		} catch (DocumentException e) {
-			LOG.error("Can not print page number", e);
-		} catch (IOException e) {
+		} catch (DocumentException | IOException e) {
 			LOG.error("Can not print page number", e);
 		}
 		cb.beginText();

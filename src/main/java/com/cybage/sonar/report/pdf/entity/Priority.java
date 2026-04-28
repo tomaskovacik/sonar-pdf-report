@@ -5,6 +5,8 @@ package com.cybage.sonar.report.pdf.entity;
  */
 public class Priority {
 
+	private Priority() {}
+
 	public static final String INFO = "INFO";
 	public static final String MINOR = "MINOR";
 	public static final String MAJOR = "MAJOR";
@@ -17,7 +19,7 @@ public class Priority {
 	}
 
 	public static String getPriority(String priority) {
-		if (priority.equals(Priority.ALL)) {
+		if (Priority.ALL.equals(priority)) {
 			return "ALL";
 		} else {
 			return priority;

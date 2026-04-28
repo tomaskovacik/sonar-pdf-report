@@ -1,7 +1,6 @@
 package com.cybage.sonar.report.pdf.builder;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +11,7 @@ import org.sonarqube.ws.client.WsClient;
 import com.cybage.sonar.report.pdf.entity.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.google.common.collect.ImmutableList.of;
+import static java.util.List.of;
 
 public class IssueBuilder {
 
@@ -34,35 +33,33 @@ public class IssueBuilder {
     }
 
     public List<Issue> initIssueDetailsByProjectKey(final String key, final Set<String> typesOfIssue) {
+        return initIssueDetailsByProjectKey(key, typesOfIssue, null);
+    }
 
-        // LOGGER.info("Retrieving issue details for " + key);
+    public List<Issue> initIssueDetailsByProjectKey(final String key, final Set<String> typesOfIssue, final String branch) {
 
         List<Issue> issues     = new ArrayList<>();
         Integer     pageNumber = 1;
         Integer     pageSize   = 500;
 
-        final List<String> TypeOfIssuesConvertedParam = convertTypes(typesOfIssue);
+        final List<String> typeOfIssuesConvertedParam = convertTypes(typesOfIssue);
 
-        while (true) {
-            SearchWsResponse searchWsRes = searchForPaginatedIssues(key, pageNumber, pageSize, TypeOfIssuesConvertedParam);
-
-            if (searchWsRes.getTotal() > 0) {
+        boolean hasMore = true;
+        while (hasMore) {
+            SearchWsResponse searchWsRes = searchForPaginatedIssues(key, pageNumber, pageSize, typeOfIssuesConvertedParam, branch);
+            int total = searchWsRes.getPaging().getTotal();
+            if (total > 0) {
                 for (int i = 0; i < searchWsRes.getIssuesCount(); i++) {
                     org.sonarqube.ws.Issues.Issue issue = searchWsRes.getIssues(i);
-
                     String component     = findComponent(searchWsRes, issue).orElseThrow(() -> new IllegalArgumentException("Component not found"));
                     String componentPath = findComponentPath(searchWsRes, issue).orElseThrow(() -> new IllegalArgumentException("Component path not found"));
-
                     issues.add(newIssue(issue, component, componentPath));
                 }
-                if (searchWsRes.getTotal() > (pageNumber * pageSize)) {
-                    pageNumber++;
-                } else {
-                    break;
-                }
+                hasMore = total > (pageNumber * pageSize);
+                pageNumber++;
             } else {
-                LOGGER.debug("There are no issues in project : " + key);
-                break;
+                LOGGER.debug("There are no issues in project: {}", key);
+                hasMore = false;
             }
         }
         return issues;
@@ -71,19 +68,20 @@ public class IssueBuilder {
     private List<String> convertTypes(final Set<String> typesOfIssue) {
         return typesOfIssue.stream()
                            .map(String::toUpperCase)
-                           .collect(Collectors.toList());
+                           .toList();
     }
 
-    private SearchWsResponse searchForPaginatedIssues(final String key, final Integer pageNumber, final Integer pageSize, final List<String> typeOfIssuesConvertedParam) {
+    private SearchWsResponse searchForPaginatedIssues(final String key, final Integer pageNumber, final Integer pageSize, final List<String> typeOfIssuesConvertedParam, final String branch) {
         SearchRequest searchWsReq = new SearchRequest();
         searchWsReq.setComponentKeys(of(key));
         searchWsReq.setP(String.valueOf(pageNumber));
         searchWsReq.setPs(String.valueOf(pageSize));
         searchWsReq.setStatuses(of("OPEN"));
-
+        if (branch != null && !branch.isEmpty()) {
+            searchWsReq.setBranch(branch);
+        }
         searchWsReq.setTypes(typeOfIssuesConvertedParam);
-        SearchWsResponse searchWsRes = wsClient.issues().search(searchWsReq);
-        return searchWsRes;
+        return wsClient.issues().search(searchWsReq);
     }
 
     private Optional<String> findComponent(final SearchWsResponse searchWsRes, final org.sonarqube.ws.Issues.Issue issue) {

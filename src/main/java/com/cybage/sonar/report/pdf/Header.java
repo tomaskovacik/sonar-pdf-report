@@ -1,7 +1,6 @@
 package com.cybage.sonar.report.pdf;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.slf4j.Logger;

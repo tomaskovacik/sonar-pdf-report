@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
 import com.cybage.sonar.report.pdf.util.FileUploader;
+import com.cybage.sonar.report.pdf.util.SonarIssuesDumper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
@@ -42,6 +43,7 @@ public class PDFGenerator {
     private final        Set<String>             typesOfIssue;
     private final        LeakPeriodConfiguration leakPeriod;
     private final        FileSystem              fs;
+    private final        String                  branchName;
     private              String                  sonarHostUrl;
 
     public PDFGenerator(final String projectKey,
@@ -53,7 +55,8 @@ public class PDFGenerator {
                         final FileSystem fs,
                         final String sonarHostUrl,
                         final String token,
-                        final String reportType) {
+                        final String reportType,
+                        final String branchName) {
         this.projectKey     = projectKey;
         this.projectVersion = projectVersion;
         this.sonarLanguage  = sonarLanguage;
@@ -63,7 +66,8 @@ public class PDFGenerator {
         this.fs             = fs;
         this.sonarHostUrl   = sonarHostUrl;
         this.token          = token;
-        this.reportType     = reportType;
+        this.reportType     = reportType != null ? reportType : "pdf";
+        this.branchName     = branchName;
     }
 
     public void execute() {
@@ -95,25 +99,18 @@ public class PDFGenerator {
 
         Credentials credentials = new Credentials(config.getProperty(SONAR_BASE_URL), token);
 
-        final String                  sonarProjectId      = projectKey;
-        String                        sonarProjectVersion = projectVersion;
-        final List<String>            sonarLanguage       = this.sonarLanguage;
-        final Set<String>             otherMetrics        = this.otherMetrics;
-        final Set<String>             typesOfIssue        = this.typesOfIssue;
-        final LeakPeriodConfiguration leakPeriod          = this.leakPeriod;
-
         final SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
 
-        final String path = computeReportPath(sonarProjectId, sdf);
+        final String path = computeReportPath(projectKey, sdf);
 
-        PDFReporter reporter = initializeReporter(config, configLang, credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod);
-
-        if (reporter == null) {
-            LOGGER.warn("Could not initialize the reporting plugin");
-            return;
+        PDFReporter reporter = initializeReporter(config, configLang, credentials, projectKey, projectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod);
+        writeReport(projectKey, sdf, path, reporter);
+        try {
+            SonarIssuesDumper.dump(reporter.getProject(), credentials, branchName, fs.workDir());
+        } catch (Exception e) {
+            LOGGER.warn("Could not dump sonar-issues.json: {}", e.getMessage());
         }
-        writeReport(sonarProjectId, sdf, path, reporter);
-        uploadReport(path, credentials, sonarProjectId, reporter.getReportType());
+        uploadReport(path, credentials, projectKey, reporter.getReportType());
     }
 
     private void uploadReport(final String path, final Credentials credentials, final String projectKey, final String reportType) {
@@ -122,9 +119,9 @@ public class PDFGenerator {
         fileUploader.upload(new File(path), projectKey, contentType);
     }
 
-    private String computeReportPath(String sonarProjectId, SimpleDateFormat sdf) {
+    private String computeReportPath(String projectId, SimpleDateFormat sdf) {
         String ext = isHtmlReport() ? ".html" : ".pdf";
-        return fs.workDir().getAbsolutePath() + "/" + sonarProjectId.replace(':', '-') + "-"
+        return fs.workDir().getAbsolutePath() + "/" + projectId.replace(':', '-') + "-"
                 + sdf.format(new Timestamp(System.currentTimeMillis())) + ext;
     }
 
@@ -133,10 +130,6 @@ public class PDFGenerator {
     }
 
     private PDFReporter initializeReporter(Properties config, Properties configLang, Credentials credentials, String sonarProjectId, String sonarProjectVersion, List<String> sonarLanguage, Set<String> otherMetrics, Set<String> typesOfIssue, LeakPeriodConfiguration leakPeriod) {
-        if (reportType == null) {
-            LOGGER.info("No report type provided. Default report type selected (PDF)");
-            return createPdfReporter(credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod, config, configLang);
-        }
         if (reportType.equalsIgnoreCase("pdf")) {
             return createPdfReporter(credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod, config, configLang);
         }
@@ -151,7 +144,8 @@ public class PDFGenerator {
                     typesOfIssue,
                     leakPeriod,
                     config,
-                    configLang);
+                    configLang,
+                    branchName);
         }
         LOGGER.warn("Unknown report type '{}'. Supported values: pdf, html. Defaulting to PDF.", reportType);
         return createPdfReporter(credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod, config, configLang);
@@ -168,7 +162,8 @@ public class PDFGenerator {
                 typesOfIssue,
                 leakPeriod,
                 config,
-                configLang);
+                configLang,
+                branchName);
     }
 
     private static void writeReport(String sonarProjectId, SimpleDateFormat sdf, String path, PDFReporter reporter) throws IOException, ReportException, DocumentException {
@@ -178,8 +173,10 @@ public class PDFGenerator {
             fos.flush();
             String sonarProjectIdConverted = sonarProjectId.replace(':', '-');
             String ext = reporter.getReportType().equalsIgnoreCase("html") ? "html" : "pdf";
-            LOGGER.info("{} report generated (see {}-{}.{} on build output directory)",
-                    ext.toUpperCase(), sonarProjectIdConverted, sdf.format(new Timestamp(System.currentTimeMillis())), ext);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("{} report generated (see {}-{}.{} on build output directory)",
+                        ext.toUpperCase(), sonarProjectIdConverted, sdf.format(new Timestamp(System.currentTimeMillis())), ext);
+            }
         }
     }
 

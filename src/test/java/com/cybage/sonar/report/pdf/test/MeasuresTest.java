@@ -74,7 +74,7 @@ public class MeasuresTest {
         Period_ p1 = new Period_(1, "previous_version", "2024-01-01", "1.0");
         Period_ p2 = new Period_(2, "days", "2024-02-01", "30");
         measures.setPeriods(Arrays.asList(p1, p2));
-        Optional<Period_> found = measures.getPeriod_(1);
+        Optional<Period_> found = measures.getPeriod(1);
         Assert.assertTrue(found.isPresent());
         Assert.assertEquals(found.get().getMode(), "previous_version");
     }
@@ -83,7 +83,7 @@ public class MeasuresTest {
     public void testGetPeriodByIndexNotFound() {
         Period_ p1 = new Period_(1, "previous_version", "2024-01-01", "1.0");
         measures.setPeriods(Arrays.asList(p1));
-        Optional<Period_> found = measures.getPeriod_(99);
+        Optional<Period_> found = measures.getPeriod(99);
         Assert.assertFalse(found.isPresent());
     }
 
@@ -92,7 +92,7 @@ public class MeasuresTest {
         Period_ p1 = new Period_(1, "previous_version", "2024-01-01", "1.0");
         Period_ p2 = new Period_(2, "days", "2024-02-01", "30");
         measures.setPeriods(Arrays.asList(p1, p2));
-        Optional<Period_> found = measures.getPeriod_("days");
+        Optional<Period_> found = measures.getPeriod("days");
         Assert.assertTrue(found.isPresent());
         Assert.assertEquals(found.get().getIndex(), Integer.valueOf(2));
     }
@@ -101,7 +101,7 @@ public class MeasuresTest {
     public void testGetPeriodByModeNotFound() {
         Period_ p1 = new Period_(1, "previous_version", "2024-01-01", "1.0");
         measures.setPeriods(Arrays.asList(p1));
-        Optional<Period_> found = measures.getPeriod_("unknown_mode");
+        Optional<Period_> found = measures.getPeriod("unknown_mode");
         Assert.assertFalse(found.isPresent());
     }
 

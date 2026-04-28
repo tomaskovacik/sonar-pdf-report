@@ -93,8 +93,9 @@ public class HTMLReporter extends PDFReporter {
                         final Set<String> typesOfIssue,
                         final LeakPeriodConfiguration leakPeriod,
                         final Properties configProperties,
-                        final Properties langProperties) {
-        super(credentials);
+                        final Properties langProperties,
+                        final String branchName) {
+        super(credentials, branchName);
         this.logo             = logo;
         this.projectKey       = projectKey;
         this.projectVersion   = projectVersion;
@@ -124,7 +125,7 @@ public class HTMLReporter extends PDFReporter {
         appendFooter(html);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        baos.write(html.toString().getBytes("UTF-8"));
+        baos.write(html.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
         return baos;
     }
 
@@ -236,7 +237,7 @@ public class HTMLReporter extends PDFReporter {
 
         List<Condition> failedConditions = project.getProjectStatus().getConditions().stream()
                                                   .filter(c -> ProjectStatusKeys.STATUS_ERROR.equals(c.getStatus()))
-                                                  .collect(Collectors.toList());
+                                                  .toList();
 
         if (!failedConditions.isEmpty()) {
             html.append(TABLE_THEAD_TR_OPEN)
@@ -326,7 +327,7 @@ public class HTMLReporter extends PDFReporter {
                         Integer.parseInt(project.getMeasure(RELIABILITY_REMEDIATION_EFFORT).getValue())));
         if (project.getMeasures().containsMeasure(NEW_RELIABILITY_REMEDIATION_EFFORT)) {
             Optional<Period> p = project.getMeasure(NEW_RELIABILITY_REMEDIATION_EFFORT).getPeriods().stream()
-                                        .filter(x -> x.getIndex() == period.getIndex()).findFirst();
+                                        .filter(x -> x.getIndex().equals(period.getIndex())).findFirst();
             if (p.isPresent()) {
                 appendMetricRow(html, getTextProperty(METRICS_PREFIX + NEW_RELIABILITY_REMEDIATION_EFFORT),
                         SonarUtil.getWorkDurConversion(Integer.parseInt(p.get().getValue())));
@@ -344,7 +345,7 @@ public class HTMLReporter extends PDFReporter {
 
         if (project.getMeasures().containsMeasure(NEW_VULNERABILITIES)) {
             Optional<Period> p = project.getMeasure(NEW_VULNERABILITIES).getPeriods().stream()
-                                        .filter(x -> x.getIndex() == period.getIndex()).findFirst();
+                                        .filter(x -> x.getIndex().equals(period.getIndex())).findFirst();
             if (p.isPresent()) {
                 appendMetricCard(html, p.get().getValue(), getTextProperty(METRICS_PREFIX + NEW_VULNERABILITIES), true);
             }
@@ -360,7 +361,7 @@ public class HTMLReporter extends PDFReporter {
                         Integer.parseInt(project.getMeasure(SECURITY_REMEDIATION_EFFORT).getValue())));
         if (project.getMeasures().containsMeasure(NEW_SECURITY_REMEDIATION_EFFORT)) {
             Optional<Period> p = project.getMeasure(NEW_SECURITY_REMEDIATION_EFFORT).getPeriods().stream()
-                                        .filter(x -> x.getIndex() == period.getIndex()).findFirst();
+                                        .filter(x -> x.getIndex().equals(period.getIndex())).findFirst();
             if (p.isPresent()) {
                 appendMetricRow(html, getTextProperty(METRICS_PREFIX + NEW_SECURITY_REMEDIATION_EFFORT),
                         SonarUtil.getWorkDurConversion(Integer.parseInt(p.get().getValue())));
@@ -378,7 +379,7 @@ public class HTMLReporter extends PDFReporter {
 
         if (project.getMeasures().containsMeasure(NEW_CODE_SMELLS)) {
             Optional<Period> p = project.getMeasure(NEW_CODE_SMELLS).getPeriods().stream()
-                                        .filter(x -> x.getIndex() == period.getIndex()).findFirst();
+                                        .filter(x -> x.getIndex().equals(period.getIndex())).findFirst();
             if (p.isPresent()) {
                 appendMetricCard(html, p.get().getValue(), getTextProperty(METRICS_PREFIX + NEW_CODE_SMELLS), true);
             }
@@ -395,7 +396,7 @@ public class HTMLReporter extends PDFReporter {
                 project.getMeasure(SQALE_DEBT_RATIO).getValue() + "%");
         if (project.getMeasures().containsMeasure(NEW_TECHNICAL_DEBT)) {
             Optional<Period> p = project.getMeasure(NEW_TECHNICAL_DEBT).getPeriods().stream()
-                                        .filter(x -> x.getIndex() == period.getIndex()).findFirst();
+                                        .filter(x -> x.getIndex().equals(period.getIndex())).findFirst();
             if (p.isPresent()) {
                 appendMetricRow(html, getTextProperty(METRICS_PREFIX + NEW_TECHNICAL_DEBT),
                         SonarUtil.getWorkDurConversion(Integer.parseInt(p.get().getValue())));
@@ -492,7 +493,7 @@ public class HTMLReporter extends PDFReporter {
                 getTextProperty(METRICS_PREFIX + VIOLATIONS), false);
         if (project.getMeasures().containsMeasure(NEW_VIOLATIONS)) {
             Optional<Period> p = project.getMeasure(NEW_VIOLATIONS).getPeriods().stream()
-                                        .filter(x -> x.getIndex() == period.getIndex()).findFirst();
+                                        .filter(x -> x.getIndex().equals(period.getIndex())).findFirst();
             if (p.isPresent()) {
                 appendMetricCard(html, p.get().getValue(), getTextProperty(METRICS_PREFIX + NEW_VIOLATIONS), true);
             }
@@ -545,7 +546,7 @@ public class HTMLReporter extends PDFReporter {
         for (String priority : priorities) {
             List<Rule> filtered = rules.stream()
                                        .filter(r -> r.getSeverity().equals(Priority.getPriority(priority)))
-                                       .collect(Collectors.toList());
+                                       .toList();
             html.append("<p><strong>Severity: ").append(escape(Priority.getPriority(priority))).append("</strong></p>\n");
             if (filtered.isEmpty()) {
                 html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_violated_rules")))
@@ -571,7 +572,7 @@ public class HTMLReporter extends PDFReporter {
     private void appendMostViolatedFiles(StringBuilder html, Project project) {
         List<FileInfo> files = project.getMostViolatedFiles().stream()
                                       .filter(f -> f.isContentSet(FileInfo.VIOLATIONS_CONTENT))
-                                      .collect(Collectors.toList());
+                                      .toList();
         html.append(H3_OPEN).append(escape(getTextProperty("general.most_violated_files"))).append(H3_CLOSE);
         if (files.isEmpty()) {
             html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_violated_files"))).append(P_EM_CLOSE);
@@ -595,7 +596,7 @@ public class HTMLReporter extends PDFReporter {
     private void appendMostComplexFiles(StringBuilder html, Project project) {
         List<FileInfo> files = project.getMostComplexFiles().stream()
                                       .filter(f -> f.isContentSet(FileInfo.CCN_CONTENT))
-                                      .collect(Collectors.toList());
+                                      .toList();
         html.append(H3_OPEN).append(escape(getTextProperty("general.most_complex_files"))).append(H3_CLOSE);
         if (files.isEmpty()) {
             html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_complex_files"))).append(P_EM_CLOSE);
@@ -619,7 +620,7 @@ public class HTMLReporter extends PDFReporter {
     private void appendMostDuplicatedFiles(StringBuilder html, Project project) {
         List<FileInfo> files = project.getMostDuplicatedFiles().stream()
                                       .filter(f -> f.isContentSet(FileInfo.DUPLICATIONS_CONTENT))
-                                      .collect(Collectors.toList());
+                                      .toList();
         html.append(H3_OPEN).append(escape(getTextProperty("general.most_duplicated_files"))).append(H3_CLOSE);
         if (files.isEmpty()) {
             html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_duplicated_files"))).append(P_EM_CLOSE);
@@ -648,7 +649,7 @@ public class HTMLReporter extends PDFReporter {
             List<Issue> issues = project.getIssues().stream()
                                         .filter(i -> i.getType().toUpperCase().replace("_", "").replace(" ", "")
                                                       .contains(type.toUpperCase().replace(" ", "").replace("_", "")))
-                                        .collect(Collectors.toList());
+                                        .toList();
             if (issues.isEmpty()) {
                 html.append(P_EM_OPEN).append(escape(getTextProperty("general.no_violations"))).append(P_EM_CLOSE);
             } else {

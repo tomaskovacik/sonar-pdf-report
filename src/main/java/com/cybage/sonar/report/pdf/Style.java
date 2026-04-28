@@ -11,6 +11,8 @@ import com.itextpdf.text.pdf.PdfPTable;
 
 public class Style {
 
+    private Style() {}
+
     // -------------------------------------------------------------------------
     // Modern color palette
     // -------------------------------------------------------------------------

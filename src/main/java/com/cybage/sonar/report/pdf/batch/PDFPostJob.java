@@ -36,6 +36,7 @@ public class PDFPostJob implements PostJob {
     public static final String  SONAR_LANGUAGE                      = "sonar.language";
     public static final String  OTHER_METRICS                       = "sonar.pdf.other.metrics";
     public static final String  TYPES_OF_ISSUE                      = "sonar.pdf.issue.details";
+    public static final String  SONAR_BRANCH_NAME                   = "sonar.branch.name";
     public static final String  LEAK_PERIOD                         = "sonar.leak.period";
     public static final String  LOGO                                = "report.logo";
 
@@ -44,33 +45,30 @@ public class PDFPostJob implements PostJob {
     // Interval between CE task status polls
     private static final long CE_POLL_INTERVAL_MS = 5_000L;
 
-    private static final Logger       LOGGER = LoggerFactory.getLogger(PDFPostJob.class);
-    private final        FileSystem    fs;
-    private final        Configuration configuration;
+    private static final Logger    LOGGER = LoggerFactory.getLogger(PDFPostJob.class);
+    private final        FileSystem fs;
 
-    public PDFPostJob(Configuration configuration, FileSystem fs) {
-        this.fs            = fs;
-        this.configuration = configuration;
+    public PDFPostJob(FileSystem fs) {
+        this.fs = fs;
     }
 
     @Override
-    public void describe(PostJobDescriptor arg0) {
-        // No descriptor configuration required for this post-job.
+    public void describe(PostJobDescriptor descriptor) { //NOSONAR - intentionally empty, no descriptor config needed
     }
 
     @Override
     public void execute(PostJobContext postJobContext) {
         Configuration configuration = postJobContext.config();
-        if (configuration.hasKey(SKIP_PDF_KEY) && configuration.getBoolean(SKIP_PDF_KEY).get() == true) {
+        if (Boolean.TRUE.equals(configuration.getBoolean(SKIP_PDF_KEY).orElse(false))) {
             LOGGER.info("Skipping generation of report (sonar.pdf.skip=true)..");
             return;
         }
 
-        String projectKey = configuration.get("sonar.projectKey").get();
+        String projectKey = configuration.get("sonar.projectKey")
+                .orElseThrow(() -> new IllegalStateException("sonar.projectKey is not set"));
         LOGGER.info("Executing decorator: PDF Report");
 
-        String sonarHostUrl = configuration.hasKey(SONAR_HOST_URL)
-                ? configuration.get(SONAR_HOST_URL).get() : SONAR_HOST_URL_DEFAULT_VALUE;
+        String sonarHostUrl = configuration.get(SONAR_HOST_URL).orElse(SONAR_HOST_URL_DEFAULT_VALUE);
 
         // Prefer the SONAR_USER_TOKEN environment variable (User Token required; Analysis Tokens are not supported).
         // Fall back to the sonar.token configuration property for backwards compatibility.
@@ -85,10 +83,8 @@ public class PDFPostJob implements PostJob {
 
         waitForCeTask(sonarHostUrl, token);
 
-        String reportType = configuration.hasKey(REPORT_TYPE)
-                ? configuration.get(REPORT_TYPE).get() : REPORT_TYPE_DEFAULT_VALUE;
-        String projectVersion = configuration.hasKey(SONAR_PROJECT_VERSION)
-                ? configuration.get(SONAR_PROJECT_VERSION).get() : SONAR_PROJECT_VERSION_DEFAULT_VALUE;
+        String reportType = configuration.get(REPORT_TYPE).orElse(REPORT_TYPE_DEFAULT_VALUE);
+        String projectVersion = configuration.get(SONAR_PROJECT_VERSION).orElse(SONAR_PROJECT_VERSION_DEFAULT_VALUE);
         List<String> sonarLanguage = configuration.hasKey(SONAR_LANGUAGE)
                 ? Arrays.asList(configuration.getStringArray(SONAR_LANGUAGE)) : null;
         Set<String> otherMetrics = configuration.hasKey(OTHER_METRICS)
@@ -99,15 +95,22 @@ public class PDFPostJob implements PostJob {
 
         LeakPeriodConfiguration leakPeriodConfiguration = new LeakPeriodConfiguration();
         if (configuration.hasKey(LEAK_PERIOD)) {
-            String configurationValue = configuration.get(LEAK_PERIOD).get();
+            String configurationValue = configuration.get(LEAK_PERIOD)
+                    .orElseThrow(() -> new IllegalStateException(LEAK_PERIOD + " key is set but has no value"));
             LOGGER.info("Plugin will use the following leak period MODE={}", configurationValue);
             leakPeriodConfiguration.update(configurationValue);
         } else {
             LOGGER.info("Plugin will try to guess the default LEAK Period");
         }
 
+        String branchName = configuration.get(SONAR_BRANCH_NAME).orElse(null);
+        if (branchName == null) {
+            branchName = readBranchFromReportTask();
+        }
+        LOGGER.info("Analysing branch: {}", branchName != null ? branchName : "(default/main)");
+
         generatePdfs(projectKey, sonarHostUrl, token, reportType, projectVersion, sonarLanguage, otherMetrics,
-                typesOfIssue, leakPeriodConfiguration);
+                typesOfIssue, leakPeriodConfiguration, branchName);
     }
 
     /**
@@ -165,27 +168,35 @@ public class PDFPostJob implements PostJob {
     }
 
     /**
-     * Reads ceTaskId from the report-task.txt file the scanner writes to the work directory.
+     * Loads report-task.txt written by the scanner, or returns empty Properties on any error.
      */
-    private String readCeTaskId() {
+    private Properties readReportTaskProperties() {
         File reportTaskFile = new File(fs.workDir(), "report-task.txt");
         if (!reportTaskFile.exists()) {
             LOGGER.debug("report-task.txt not found at {}", reportTaskFile.getAbsolutePath());
-            return null;
+            return new Properties();
         }
         Properties props = new Properties();
         try (FileInputStream in = new FileInputStream(reportTaskFile)) {
             props.load(in);
         } catch (IOException e) {
             LOGGER.warn("Failed to read report-task.txt: {}", e.getMessage());
-            return null;
         }
-        String ceTaskId = props.getProperty("ceTaskId");
+        return props;
+    }
+
+    private String readCeTaskId() {
+        String ceTaskId = readReportTaskProperties().getProperty("ceTaskId");
         if (ceTaskId == null || ceTaskId.isBlank()) {
             LOGGER.debug("ceTaskId not present in report-task.txt");
             return null;
         }
         return ceTaskId;
+    }
+
+    public String readBranchFromReportTask() {
+        String branch = readReportTaskProperties().getProperty("branch");
+        return (branch == null || branch.isBlank()) ? null : branch;
     }
 
     public String getEnvToken() {
@@ -208,13 +219,23 @@ public class PDFPostJob implements PostJob {
                               List<String> sonarLanguage,
                               Set<String> otherMetrics,
                               Set<String> typesOfIssue,
-                              LeakPeriodConfiguration leakPeriodConfiguration) {
-        PDFGenerator generator = new PDFGenerator(projectKey, projectVersion, sonarLanguage, otherMetrics,
-                typesOfIssue, leakPeriodConfiguration, fs, sonarHostUrl, token, reportType);
+                              LeakPeriodConfiguration leakPeriodConfiguration,
+                              String branchName) {
+        PDFGenerator generator = createGenerator(projectKey, projectVersion, sonarLanguage, otherMetrics,
+                typesOfIssue, leakPeriodConfiguration, sonarHostUrl, token, reportType, branchName);
         try {
             generator.execute();
         } catch (Exception ex) {
             LOGGER.error("Error in generating report.");
         }
+    }
+
+    public PDFGenerator createGenerator(String projectKey, String projectVersion,
+                                           List<String> sonarLanguage, Set<String> otherMetrics,
+                                           Set<String> typesOfIssue, LeakPeriodConfiguration leakPeriod,
+                                           String sonarHostUrl, String token, String reportType,
+                                           String branchName) {
+        return new PDFGenerator(projectKey, projectVersion, sonarLanguage, otherMetrics,
+                typesOfIssue, leakPeriod, fs, sonarHostUrl, token, reportType, branchName);
     }
 }

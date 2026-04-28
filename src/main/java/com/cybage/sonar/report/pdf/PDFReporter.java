@@ -2,13 +2,11 @@ package com.cybage.sonar.report.pdf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import com.cybage.sonar.report.pdf.entity.ComplexityDistribution;
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +41,13 @@ public abstract class PDFReporter {
     private static final String CAN_NOT_GENERATE_TENDENCY_IMAGE = "Can not generate tendency image";
 
     private final Credentials credentials;
+    private final String      branchName;
 
     private Project project = null;
 
-    public PDFReporter(final Credentials credentials) {
+    protected PDFReporter(final Credentials credentials, final String branchName) {
         this.credentials = credentials;
+        this.branchName  = branchName;
     }
 
     public ByteArrayOutputStream getReport() throws DocumentException, IOException, ReportException {
@@ -66,8 +66,6 @@ public abstract class PDFReporter {
             Events events = new Events(tocDocument, new Header(this.getLogo(), this.getProject()));
             mainDocumentWriter.setPageEvent(events);
 
-            // tocDocument.setHeader(new Header(this.getLogo(),
-            // this.getProject()));
             mainDocument.open();
             tocDocument.getTocDocument().open();
             frontPageDocument.open();
@@ -76,11 +74,7 @@ public abstract class PDFReporter {
             printFrontPage(frontPageDocument, frontPageDocumentWriter);
             printTocTitle(tocDocument);
             printPdfBody(mainDocument);
-            try {
-                mainDocument.close();
-            } catch (Exception e) {
-                LOGGER.error("Exception in PDFReporter", e);
-            }
+            closeMainDocument(mainDocument);
 
             tocDocument.getTocDocument().close();
             frontPageDocument.close();
@@ -113,9 +107,17 @@ public abstract class PDFReporter {
         return null;
     }
 
+    private void closeMainDocument(Document doc) {
+        try {
+            doc.close();
+        } catch (Exception e) {
+            LOGGER.error("Exception in PDFReporter", e);
+        }
+    }
+
     protected abstract URL getLogo();
 
-    public Project getProject() throws IOException, ReportException {
+    public Project getProject() throws ReportException {
         if (project == null) {
             HttpConnector httpConnector = HttpConnector.newBuilder()
                     .url(credentials.getUrl())
@@ -124,8 +126,7 @@ public abstract class PDFReporter {
             WsClient       wsClient       = WsClientFactories.getDefault().newClient(httpConnector);
             ProjectBuilder projectBuilder = ProjectBuilder.getInstance(wsClient);
             project = projectBuilder.initializeProject(getProjectKey(), getProjectVersion(), getSonarLanguage(),
-                    getOtherMetrics(), getTypesOfIssue());
-            //LOGGER.info("Project Information : " + project.toString());
+                    getOtherMetrics(), getTypesOfIssue(), branchName);
         }
         return project;
     }
@@ -203,11 +204,7 @@ public abstract class PDFReporter {
         Image tendencyImage = null;
         try {
             tendencyImage = Image.getInstance(this.getClass().getResource("/tendency/" + iconName));
-        } catch (BadElementException e) {
-            LOGGER.error(CAN_NOT_GENERATE_TENDENCY_IMAGE, e);
-        } catch (MalformedURLException e) {
-            LOGGER.error(CAN_NOT_GENERATE_TENDENCY_IMAGE, e);
-        } catch (IOException e) {
+        } catch (BadElementException | IOException e) {
             LOGGER.error(CAN_NOT_GENERATE_TENDENCY_IMAGE, e);
         }
         return tendencyImage;

@@ -44,7 +44,8 @@ public class ExecutivePDFReporterTest {
                 typesOfIssue,
                 leakPeriod,
                 configProperties,
-                langProperties);
+                langProperties,
+                null);
     }
 
     // -------------------------------------------------------------------------
@@ -181,7 +182,8 @@ public class ExecutivePDFReporterTest {
                 Collections.emptySet(),
                 new LeakPeriodConfiguration(),
                 new Properties(),
-                new Properties());
+                new Properties(),
+                null);
 
         Assert.assertEquals(empty.getProjectVersion(), "1.0");
         Assert.assertEquals(empty.getReportType(), "pdf");

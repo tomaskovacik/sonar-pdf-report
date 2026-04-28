@@ -19,8 +19,6 @@ public class ProjectStatusBuilder {
      */
     private static final int NEW_CODE_PERIOD_INDEX = 1;
 
-    // private static final Logger LOGGER = LoggerFactory.getLogger(ProjectStatusBuilder.class);
-
     private static ProjectStatusBuilder builder;
 
     private final WsClient wsClient;
@@ -37,12 +35,13 @@ public class ProjectStatusBuilder {
         return builder;
     }
 
-    public ProjectStatus initProjectStatusByProjectKey(final String key) {
-
-        // LOGGER.info("Retrieving project status info for " + key);
+    public ProjectStatus initProjectStatusByProjectKey(final String key, final String branch) {
 
         ProjectStatusRequest projectStatusWsReq = new ProjectStatusRequest();
         projectStatusWsReq.setProjectKey(key);
+        if (branch != null && !branch.isEmpty()) {
+            projectStatusWsReq.setBranch(branch);
+        }
         Qualitygates.ProjectStatusResponse projectStatusWsRes = wsClient.qualitygates().projectStatus(projectStatusWsReq);
 
         List<Condition>    conditions    = initProjectConditions(projectStatusWsRes);

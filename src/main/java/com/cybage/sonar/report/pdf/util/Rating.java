@@ -8,6 +8,10 @@ import com.itextpdf.text.Font;
 
 public class Rating {
 
+    private Rating() {
+        // utility class
+    }
+
     public static final String RATING_1 = "1.0";
     public static final String RATING_2 = "2.0";
     public static final String RATING_3 = "3.0";

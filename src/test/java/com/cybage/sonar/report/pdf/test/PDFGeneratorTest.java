@@ -1,7 +1,11 @@
 package com.cybage.sonar.report.pdf.test;
 
+import com.cybage.sonar.report.pdf.ExecutivePDFReporter;
+import com.cybage.sonar.report.pdf.HTMLReporter;
+import com.cybage.sonar.report.pdf.PDFReporter;
 import com.cybage.sonar.report.pdf.batch.PDFGenerator;
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
+import com.cybage.sonar.report.pdf.util.Credentials;
 import org.sonar.api.batch.fs.FileSystem;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -15,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.mockito.Mockito.mock;
@@ -50,7 +55,8 @@ public class PDFGeneratorTest {
                 mockFs,
                 "http://localhost:9000",
                 "token123",
-                reportType);
+                reportType,
+                null);
     }
 
     // ---- constants ----
@@ -134,6 +140,40 @@ public class PDFGeneratorTest {
                 "path should start with workDir");
     }
 
+    // ---- initializeReporter() via reflection ----
+
+    @Test
+    public void testInitializeReporterWithPdfReturnsExecutivePDFReporter() throws Exception {
+        PDFGenerator gen = createGenerator("pdf");
+        PDFReporter reporter = invokeInitializeReporter(gen, "pdf");
+        Assert.assertTrue(reporter instanceof ExecutivePDFReporter,
+                "reportType=pdf should produce ExecutivePDFReporter");
+    }
+
+    @Test
+    public void testInitializeReporterWithHtmlReturnsHtmlReporter() throws Exception {
+        PDFGenerator gen = createGenerator("html");
+        PDFReporter reporter = invokeInitializeReporter(gen, "html");
+        Assert.assertTrue(reporter instanceof HTMLReporter,
+                "reportType=html should produce HTMLReporter");
+    }
+
+    @Test
+    public void testInitializeReporterWithNullReturnsExecutivePDFReporter() throws Exception {
+        PDFGenerator gen = createGenerator(null);
+        PDFReporter reporter = invokeInitializeReporter(gen, null);
+        Assert.assertTrue(reporter instanceof ExecutivePDFReporter,
+                "reportType=null should default to ExecutivePDFReporter");
+    }
+
+    @Test
+    public void testInitializeReporterWithUnknownTypeReturnsExecutivePDFReporter() throws Exception {
+        PDFGenerator gen = createGenerator("word");
+        PDFReporter reporter = invokeInitializeReporter(gen, "word");
+        Assert.assertTrue(reporter instanceof ExecutivePDFReporter,
+                "unknown reportType should fall back to ExecutivePDFReporter");
+    }
+
     // ---- reflection helpers ----
 
     private boolean invokeIsHtmlReport(PDFGenerator gen) throws Exception {
@@ -152,6 +192,44 @@ public class PDFGeneratorTest {
         m.setAccessible(true);
         try {
             return (String) m.invoke(gen, projectId, sdf);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof Exception) throw (Exception) e.getCause();
+            throw e;
+        }
+    }
+
+    private PDFReporter invokeInitializeReporter(PDFGenerator gen, String reportType) throws Exception {
+        Properties config = new Properties();
+        config.put(PDFGenerator.SONAR_BASE_URL, "http://localhost:9000");
+        config.put(PDFGenerator.FRONT_PAGE_LOGO, "sonar.png");
+
+        Properties configLang = new Properties();
+
+        Credentials credentials = new Credentials("http://localhost:9000", "token123");
+
+        Method m = PDFGenerator.class.getDeclaredMethod(
+                "initializeReporter",
+                Properties.class,
+                Properties.class,
+                Credentials.class,
+                String.class,
+                String.class,
+                List.class,
+                Set.class,
+                Set.class,
+                LeakPeriodConfiguration.class);
+        m.setAccessible(true);
+        try {
+            return (PDFReporter) m.invoke(gen,
+                    config,
+                    configLang,
+                    credentials,
+                    "test:project",
+                    "1.0",
+                    languages,
+                    otherMetrics,
+                    typesOfIssue,
+                    leakPeriod);
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof Exception) throw (Exception) e.getCause();
             throw e;
