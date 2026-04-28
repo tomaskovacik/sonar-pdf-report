@@ -29,14 +29,14 @@ public class EventsTest {
     }
 
     @Test
-    public void testConstructorSetsHeaderOnToc() throws DocumentException {
+    public void testConstructorSetsHeaderOnToc() {
         Assert.assertNull(toc.getTocOutputStream(), "tocOutputStream should be null before Events constructor");
         new Events(toc, header);
         Assert.assertNotNull(toc.getTocOutputStream(), "tocOutputStream should be set after Events constructor calls toc.setHeader()");
     }
 
     @Test
-    public void testOnChapterDelegatesToToc() throws DocumentException {
+    public void testOnChapterDelegatesToToc() {
         Events events = new Events(toc, header);
         PdfWriter writer   = mock(PdfWriter.class);
         Document  document = mock(Document.class);
@@ -45,7 +45,7 @@ public class EventsTest {
     }
 
     @Test
-    public void testOnChapterEndDelegatesToToc() throws DocumentException {
+    public void testOnChapterEndDelegatesToToc() {
         Events events = new Events(toc, header);
         PdfWriter writer   = mock(PdfWriter.class);
         Document  document = mock(Document.class);
@@ -53,7 +53,7 @@ public class EventsTest {
     }
 
     @Test
-    public void testOnSectionDepthTwoDelegatesToToc() throws DocumentException {
+    public void testOnSectionDepthTwoDelegatesToToc() {
         Events events = new Events(toc, header);
         PdfWriter writer   = mock(PdfWriter.class);
         Document  document = mock(Document.class);
@@ -62,7 +62,7 @@ public class EventsTest {
     }
 
     @Test
-    public void testOnSectionDepthOtherDelegatesToToc() throws DocumentException {
+    public void testOnSectionDepthOtherDelegatesToToc() {
         Events events = new Events(toc, header);
         PdfWriter writer   = mock(PdfWriter.class);
         Document  document = mock(Document.class);
@@ -71,7 +71,7 @@ public class EventsTest {
     }
 
     @Test
-    public void testOnCloseDocumentDelegatesToToc() throws DocumentException {
+    public void testOnCloseDocumentDelegatesToToc() {
         Events events = new Events(toc, header);
         // setHeader (called inside Events constructor) attaches a PdfWriter to tocDoc,
         // so we can open it here to avoid the "document not open" error inside Toc.onCloseDocument

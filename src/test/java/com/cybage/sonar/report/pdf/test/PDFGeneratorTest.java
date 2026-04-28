@@ -145,7 +145,7 @@ public class PDFGeneratorTest {
     @Test
     public void testInitializeReporterWithPdfReturnsExecutivePDFReporter() throws Exception {
         PDFGenerator gen = createGenerator("pdf");
-        PDFReporter reporter = invokeInitializeReporter(gen, "pdf");
+        PDFReporter reporter = invokeInitializeReporter(gen);
         Assert.assertTrue(reporter instanceof ExecutivePDFReporter,
                 "reportType=pdf should produce ExecutivePDFReporter");
     }
@@ -153,7 +153,7 @@ public class PDFGeneratorTest {
     @Test
     public void testInitializeReporterWithHtmlReturnsHtmlReporter() throws Exception {
         PDFGenerator gen = createGenerator("html");
-        PDFReporter reporter = invokeInitializeReporter(gen, "html");
+        PDFReporter reporter = invokeInitializeReporter(gen);
         Assert.assertTrue(reporter instanceof HTMLReporter,
                 "reportType=html should produce HTMLReporter");
     }
@@ -161,7 +161,7 @@ public class PDFGeneratorTest {
     @Test
     public void testInitializeReporterWithNullReturnsExecutivePDFReporter() throws Exception {
         PDFGenerator gen = createGenerator(null);
-        PDFReporter reporter = invokeInitializeReporter(gen, null);
+        PDFReporter reporter = invokeInitializeReporter(gen);
         Assert.assertTrue(reporter instanceof ExecutivePDFReporter,
                 "reportType=null should default to ExecutivePDFReporter");
     }
@@ -169,7 +169,7 @@ public class PDFGeneratorTest {
     @Test
     public void testInitializeReporterWithUnknownTypeReturnsExecutivePDFReporter() throws Exception {
         PDFGenerator gen = createGenerator("word");
-        PDFReporter reporter = invokeInitializeReporter(gen, "word");
+        PDFReporter reporter = invokeInitializeReporter(gen);
         Assert.assertTrue(reporter instanceof ExecutivePDFReporter,
                 "unknown reportType should fall back to ExecutivePDFReporter");
     }
@@ -198,7 +198,7 @@ public class PDFGeneratorTest {
         }
     }
 
-    private PDFReporter invokeInitializeReporter(PDFGenerator gen, String reportType) throws Exception {
+    private PDFReporter invokeInitializeReporter(PDFGenerator gen) throws Exception {
         Properties config = new Properties();
         config.put(PDFGenerator.SONAR_BASE_URL, "http://localhost:9000");
         config.put(PDFGenerator.FRONT_PAGE_LOGO, "sonar.png");

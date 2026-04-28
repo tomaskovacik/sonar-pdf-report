@@ -1,13 +1,13 @@
 package com.cybage.sonar.report.pdf.entity;
 
-public class Period_ {
+public class LeakPeriod {
 
 	private Integer index;
 	private String mode;
 	private String date;
 	private String parameter;
 
-	public Period_(Integer index, String mode, String date, String parameter) {
+	public LeakPeriod(Integer index, String mode, String date, String parameter) {
 		super();
 		this.index = index;
 		this.mode = mode;
@@ -49,7 +49,7 @@ public class Period_ {
 
 	@Override
 	public String toString() {
-		return "Period_ [index=" + index + ", mode=" + mode + ", date=" + date + ", parameter=" + parameter + "]";
+		return "LeakPeriod [index=" + index + ", mode=" + mode + ", date=" + date + ", parameter=" + parameter + "]";
 	}
 
 }

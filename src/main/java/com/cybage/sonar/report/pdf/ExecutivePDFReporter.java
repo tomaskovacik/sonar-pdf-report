@@ -478,7 +478,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         LOGGER.info("Leak period {}", currentLeakPeriod);
         LOGGER.info("Periods {}", project.getMeasures().getPeriods());
 
-        Period_ period       = getCurrentPeriod(project);
+        LeakPeriod period       = getCurrentPeriod(project);
         String  textProperty = getTextProperty("general.period." + period.getMode());
         section.add(new Phrase(MessageFormat.format("Leak Period : {0}", textProperty), Style.NORMAL_HIGHLIGHTED_FONT));
         printReliabilityBoard(project, section);
@@ -899,7 +899,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableReliability.addCell(bugsValue);
 
         // New Bugs Value
-        Period_ currentPeriod = getCurrentPeriod(project);
+        LeakPeriod currentPeriod = getCurrentPeriod(project);
         if (project.getMeasures().containsMeasure(NEW_BUGS)) {
             List<Period> periods = project.getMeasure(NEW_BUGS).getPeriods();
             LOGGER.info("Periods found are {} and we are looking for {}", periods, currentPeriod);
@@ -994,10 +994,10 @@ public class ExecutivePDFReporter extends PDFReporter {
 
     }
 
-    private Period_ getCurrentPeriod(Project project) {
+    private LeakPeriod getCurrentPeriod(Project project) {
         LOGGER.info("Leak period name is {}", leakPeriod);
         LOGGER.info("Periods are {}", project.getMeasures().getPeriods());
-        Optional<Period_> period = this.leakPeriod.getPeriod(project.getMeasures());
+        Optional<LeakPeriod> period = this.leakPeriod.getPeriod(project.getMeasures());
         LOGGER.info("Period chosen is {}", period.orElse(null));
         return period.orElseThrow(() -> new IllegalArgumentException("Cannot find the current period"));
     }
@@ -1028,7 +1028,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableSecurity.addCell(vulnerabilitiesValue);
 
         // New Vulnerabilities Value
-        final Period_ period = getCurrentPeriod(project);
+        final LeakPeriod period = getCurrentPeriod(project);
         if (project.getMeasures().containsMeasure(NEW_VULNERABILITIES)) {
             final Optional<Period> optionalPeriod = project.getMeasure(NEW_VULNERABILITIES).getPeriods()
                                                            .stream().filter(p -> p.getIndex().equals(period.getIndex()))
@@ -1259,7 +1259,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableMaintainability.addCell(codeSmellsValue);
 
         // New Code Smells Value
-        final Period_ currentPeriod = getCurrentPeriod(project);
+        final LeakPeriod currentPeriod = getCurrentPeriod(project);
         if (project.getMeasures().containsMeasure(NEW_CODE_SMELLS)) {
             final Optional<Period> optionalPeriod = project.getMeasure(NEW_CODE_SMELLS).getPeriods()
                                                            .stream().filter(p -> p.getIndex().equals(currentPeriod.getIndex()))
@@ -1708,7 +1708,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         violationsValue.setHorizontalAlignment(Element.ALIGN_CENTER);
         tableIssues.addCell(violationsValue);
 
-        final Period_ currentPeriod = getCurrentPeriod(project);
+        final LeakPeriod currentPeriod = getCurrentPeriod(project);
         // New Issues Value
         if (project.getMeasures().containsMeasure(NEW_VIOLATIONS)) {
             final Optional<Period> newViolationsPeriod = project.getMeasure(NEW_VIOLATIONS).getPeriods()
@@ -1827,7 +1827,7 @@ public class ExecutivePDFReporter extends PDFReporter {
                 }
                 tableOtherMetrics.addCell(otherMetricValue);
             } else {
-                final Period_ currentPeriod = getCurrentPeriod(project);
+                final LeakPeriod currentPeriod = getCurrentPeriod(project);
                 final Optional<Period> optionalPeriod = project.getMeasure(metricName).getPeriods().stream()
                                                                .filter(p -> p.getIndex().equals(currentPeriod.getIndex()))
                                                                .findFirst();
@@ -1860,7 +1860,7 @@ public class ExecutivePDFReporter extends PDFReporter {
 
     protected void printOtherMetricsOfDomain(final Project project, final String domainName,
                                              final CustomTable tableOtherMetrics) {
-        final Period_ currentPeriod = getCurrentPeriod(project);
+        final LeakPeriod currentPeriod = getCurrentPeriod(project);
 
         Set<String> domainMetrics = this.otherMetrics.stream()
                 .filter(om -> project.getMeasures().containsMeasure(om)

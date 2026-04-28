@@ -4,7 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.cybage.sonar.report.pdf.entity.Period;
-import com.cybage.sonar.report.pdf.entity.Period_;
+import com.cybage.sonar.report.pdf.entity.LeakPeriod;
 
 @Test(groups = { "metrics" })
 public class PeriodEntityTest {
@@ -41,7 +41,7 @@ public class PeriodEntityTest {
 
     @Test
     public void testPeriod_Constructor() {
-        Period_ p = new Period_(1, "previous_version", "2024-01-01", "1.0");
+        LeakPeriod p = new LeakPeriod(1, "previous_version", "2024-01-01", "1.0");
         Assert.assertEquals(p.getIndex(), Integer.valueOf(1));
         Assert.assertEquals(p.getMode(), "previous_version");
         Assert.assertEquals(p.getDate(), "2024-01-01");
@@ -50,7 +50,7 @@ public class PeriodEntityTest {
 
     @Test
     public void testPeriod_Setters() {
-        Period_ p = new Period_(1, "days", "2024-01-01", "30");
+        LeakPeriod p = new LeakPeriod(1, "days", "2024-01-01", "30");
         p.setIndex(2);
         p.setMode("previous_version");
         p.setDate("2024-06-01");
@@ -63,7 +63,7 @@ public class PeriodEntityTest {
 
     @Test
     public void testPeriod_ToString() {
-        Period_ p = new Period_(1, "days", "2024-01-01", "30");
+        LeakPeriod p = new LeakPeriod(1, "days", "2024-01-01", "30");
         Assert.assertNotNull(p.toString());
         Assert.assertTrue(p.toString().contains("days"));
     }

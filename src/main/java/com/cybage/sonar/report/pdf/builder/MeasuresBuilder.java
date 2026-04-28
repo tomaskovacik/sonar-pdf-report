@@ -1,6 +1,5 @@
 package com.cybage.sonar.report.pdf.builder;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,7 +18,7 @@ import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 
 import com.cybage.sonar.report.pdf.entity.Measure;
-import com.cybage.sonar.report.pdf.entity.Period_;
+import com.cybage.sonar.report.pdf.entity.LeakPeriod;
 import com.cybage.sonar.report.pdf.entity.exception.ReportException;
 import com.cybage.sonar.report.pdf.util.MetricKeys;
 import org.sonarqube.ws.client.measures.ComponentRequest;
@@ -185,15 +184,15 @@ public class MeasuresBuilder {
     }
 
     private void addAllMeasuresFromDocument(final com.cybage.sonar.report.pdf.entity.Measures measures,
-                                            final org.sonarqube.ws.Measures.ComponentWsResponse compWsRes) throws ReportException {
+                                            final org.sonarqube.ws.Measures.ComponentWsResponse compWsRes) {
         List<Measures.Measure> allNodes = compWsRes.getComponent().getMeasuresList();
         Measures.Metrics       metrics  = compWsRes.getMetrics();
 
         // SonarQube 10.x+ uses a single new-code period instead of a list of periods.
-        List<Period_> periods;
+        List<LeakPeriod> periods;
         if (compWsRes.hasPeriod()) {
             Measures.Period p = compWsRes.getPeriod();
-            periods = Collections.singletonList(new Period_(p.getIndex(), p.getMode(), p.getDate(), p.getParameter()));
+            periods = Collections.singletonList(new LeakPeriod(p.getIndex(), p.getMode(), p.getDate(), p.getParameter()));
         } else {
             periods = Collections.emptyList();
         }

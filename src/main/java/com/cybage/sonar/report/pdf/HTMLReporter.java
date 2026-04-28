@@ -24,7 +24,7 @@ import com.cybage.sonar.report.pdf.entity.FileInfo;
 import com.cybage.sonar.report.pdf.entity.Issue;
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
 import com.cybage.sonar.report.pdf.entity.Period;
-import com.cybage.sonar.report.pdf.entity.Period_;
+import com.cybage.sonar.report.pdf.entity.LeakPeriod;
 import com.cybage.sonar.report.pdf.entity.Project;
 import com.cybage.sonar.report.pdf.entity.QualityProfile;
 import com.cybage.sonar.report.pdf.entity.Rule;
@@ -274,7 +274,7 @@ public class HTMLReporter extends PDFReporter {
         html.append(DIV_SECTION_OPEN)
             .append(H2_OPEN).append(escape(getTextProperty("general.metric_dashboard"))).append(H2_CLOSE);
 
-        Period_ period = getCurrentPeriod(project);
+        LeakPeriod period = getCurrentPeriod(project);
         String periodLabel = getTextProperty("general.period." + period.getMode());
         html.append("<p><strong>Leak Period:</strong> ").append(escape(periodLabel)).append("</p>\n");
 
@@ -302,7 +302,7 @@ public class HTMLReporter extends PDFReporter {
         html.append(DIV_CLOSE);
     }
 
-    private void appendReliabilitySection(StringBuilder html, Project project, Period_ period) {
+    private void appendReliabilitySection(StringBuilder html, Project project, LeakPeriod period) {
         html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.RELIABILITY.toLowerCase())))
             .append(H3_CLOSE_METRIC_GRID);
 
@@ -336,7 +336,7 @@ public class HTMLReporter extends PDFReporter {
         html.append(TABLE_CLOSE);
     }
 
-    private void appendSecuritySection(StringBuilder html, Project project, Period_ period) {
+    private void appendSecuritySection(StringBuilder html, Project project, LeakPeriod period) {
         html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.SECURITY.toLowerCase())))
             .append(H3_CLOSE_METRIC_GRID);
 
@@ -370,7 +370,7 @@ public class HTMLReporter extends PDFReporter {
         html.append(TABLE_CLOSE);
     }
 
-    private void appendMaintainabilitySection(StringBuilder html, Project project, Period_ period) {
+    private void appendMaintainabilitySection(StringBuilder html, Project project, LeakPeriod period) {
         html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.MAINTAINABILITY.toLowerCase())))
             .append(H3_CLOSE_METRIC_GRID);
 
@@ -486,7 +486,7 @@ public class HTMLReporter extends PDFReporter {
         html.append(TABLE_CLOSE);
     }
 
-    private void appendIssuesSection(StringBuilder html, Project project, Period_ period) {
+    private void appendIssuesSection(StringBuilder html, Project project, LeakPeriod period) {
         html.append(H3_OPEN).append(escape(getTextProperty(METRICS_PREFIX + MetricDomains.ISSUES.toLowerCase())))
             .append(H3_CLOSE_METRIC_GRID);
         appendMetricCard(html, project.getMeasure(VIOLATIONS).getValue(),
@@ -714,8 +714,8 @@ public class HTMLReporter extends PDFReporter {
                    .replace("\"", "&quot;");
     }
 
-    private Period_ getCurrentPeriod(Project project) {
-        Optional<Period_> period = this.leakPeriod.getPeriod(project.getMeasures());
+    private LeakPeriod getCurrentPeriod(Project project) {
+        Optional<LeakPeriod> period = this.leakPeriod.getPeriod(project.getMeasures());
         return period.orElseThrow(() -> new IllegalArgumentException("Cannot find the current period"));
     }
 
