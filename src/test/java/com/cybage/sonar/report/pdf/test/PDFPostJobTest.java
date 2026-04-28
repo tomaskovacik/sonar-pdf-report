@@ -291,6 +291,31 @@ public class PDFPostJobTest {
         Assert.assertNull(result, "should return null when ceTaskId value is blank");
     }
 
+    // ---- readBranchFromReportTask() ----
+
+    @Test
+    public void testReadBranchReturnsNullWhenFileAbsent() {
+        Assert.assertNull(job.readBranchFromReportTask());
+    }
+
+    @Test
+    public void testReadBranchReturnsBranchFromFile() throws Exception {
+        File reportTaskFile = new File(tempWorkDir.toFile(), "report-task.txt");
+        try (FileWriter fw = new FileWriter(reportTaskFile)) {
+            fw.write("branch=fix/sonar-issues\nceTaskId=abc\n");
+        }
+        Assert.assertEquals(job.readBranchFromReportTask(), "fix/sonar-issues");
+    }
+
+    @Test
+    public void testReadBranchReturnsNullWhenKeyMissing() throws Exception {
+        File reportTaskFile = new File(tempWorkDir.toFile(), "report-task.txt");
+        try (FileWriter fw = new FileWriter(reportTaskFile)) {
+            fw.write("ceTaskId=abc\n");
+        }
+        Assert.assertNull(job.readBranchFromReportTask());
+    }
+
     // ---- helper ----
 
     private String invokeReadCeTaskId() throws Exception {

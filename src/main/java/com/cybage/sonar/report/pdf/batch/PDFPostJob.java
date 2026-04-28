@@ -104,6 +104,10 @@ public class PDFPostJob implements PostJob {
         }
 
         String branchName = configuration.get(SONAR_BRANCH_NAME).orElse(null);
+        if (branchName == null) {
+            branchName = readBranchFromReportTask();
+        }
+        LOGGER.info("Analysing branch: {}", branchName != null ? branchName : "(default/main)");
 
         generatePdfs(projectKey, sonarHostUrl, token, reportType, projectVersion, sonarLanguage, otherMetrics,
                 typesOfIssue, leakPeriodConfiguration, branchName);
@@ -164,27 +168,35 @@ public class PDFPostJob implements PostJob {
     }
 
     /**
-     * Reads ceTaskId from the report-task.txt file the scanner writes to the work directory.
+     * Loads report-task.txt written by the scanner, or returns empty Properties on any error.
      */
-    private String readCeTaskId() {
+    private Properties readReportTaskProperties() {
         File reportTaskFile = new File(fs.workDir(), "report-task.txt");
         if (!reportTaskFile.exists()) {
             LOGGER.debug("report-task.txt not found at {}", reportTaskFile.getAbsolutePath());
-            return null;
+            return new Properties();
         }
         Properties props = new Properties();
         try (FileInputStream in = new FileInputStream(reportTaskFile)) {
             props.load(in);
         } catch (IOException e) {
             LOGGER.warn("Failed to read report-task.txt: {}", e.getMessage());
-            return null;
         }
-        String ceTaskId = props.getProperty("ceTaskId");
+        return props;
+    }
+
+    private String readCeTaskId() {
+        String ceTaskId = readReportTaskProperties().getProperty("ceTaskId");
         if (ceTaskId == null || ceTaskId.isBlank()) {
             LOGGER.debug("ceTaskId not present in report-task.txt");
             return null;
         }
         return ceTaskId;
+    }
+
+    public String readBranchFromReportTask() {
+        String branch = readReportTaskProperties().getProperty("branch");
+        return (branch == null || branch.isBlank()) ? null : branch;
     }
 
     public String getEnvToken() {
