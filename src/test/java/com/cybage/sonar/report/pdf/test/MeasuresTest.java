@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 import com.cybage.sonar.report.pdf.entity.Measure;
 import com.cybage.sonar.report.pdf.entity.Measures;
-import com.cybage.sonar.report.pdf.entity.Period_;
+import com.cybage.sonar.report.pdf.entity.LeakPeriod;
 
 @Test(groups = { "metrics" })
 public class MeasuresTest {
@@ -71,43 +71,43 @@ public class MeasuresTest {
 
     @Test
     public void testGetPeriodByIndex() {
-        Period_ p1 = new Period_(1, "previous_version", "2024-01-01", "1.0");
-        Period_ p2 = new Period_(2, "days", "2024-02-01", "30");
+        LeakPeriod p1 = new LeakPeriod(1, "previous_version", "2024-01-01", "1.0");
+        LeakPeriod p2 = new LeakPeriod(2, "days", "2024-02-01", "30");
         measures.setPeriods(Arrays.asList(p1, p2));
-        Optional<Period_> found = measures.getPeriod(1);
+        Optional<LeakPeriod> found = measures.getPeriod(1);
         Assert.assertTrue(found.isPresent());
         Assert.assertEquals(found.get().getMode(), "previous_version");
     }
 
     @Test
     public void testGetPeriodByIndexNotFound() {
-        Period_ p1 = new Period_(1, "previous_version", "2024-01-01", "1.0");
+        LeakPeriod p1 = new LeakPeriod(1, "previous_version", "2024-01-01", "1.0");
         measures.setPeriods(Arrays.asList(p1));
-        Optional<Period_> found = measures.getPeriod(99);
+        Optional<LeakPeriod> found = measures.getPeriod(99);
         Assert.assertFalse(found.isPresent());
     }
 
     @Test
     public void testGetPeriodByMode() {
-        Period_ p1 = new Period_(1, "previous_version", "2024-01-01", "1.0");
-        Period_ p2 = new Period_(2, "days", "2024-02-01", "30");
+        LeakPeriod p1 = new LeakPeriod(1, "previous_version", "2024-01-01", "1.0");
+        LeakPeriod p2 = new LeakPeriod(2, "days", "2024-02-01", "30");
         measures.setPeriods(Arrays.asList(p1, p2));
-        Optional<Period_> found = measures.getPeriod("days");
+        Optional<LeakPeriod> found = measures.getPeriod("days");
         Assert.assertTrue(found.isPresent());
         Assert.assertEquals(found.get().getIndex(), Integer.valueOf(2));
     }
 
     @Test
     public void testGetPeriodByModeNotFound() {
-        Period_ p1 = new Period_(1, "previous_version", "2024-01-01", "1.0");
+        LeakPeriod p1 = new LeakPeriod(1, "previous_version", "2024-01-01", "1.0");
         measures.setPeriods(Arrays.asList(p1));
-        Optional<Period_> found = measures.getPeriod("unknown_mode");
+        Optional<LeakPeriod> found = measures.getPeriod("unknown_mode");
         Assert.assertFalse(found.isPresent());
     }
 
     @Test
     public void testGetAndSetPeriods() {
-        Period_ p = new Period_(1, "previous_version", "2024-01-01", "1.0");
+        LeakPeriod p = new LeakPeriod(1, "previous_version", "2024-01-01", "1.0");
         measures.setPeriods(Arrays.asList(p));
         Assert.assertEquals(measures.getPeriods().size(), 1);
         Assert.assertEquals(measures.getPeriods().get(0).getIndex(), Integer.valueOf(1));

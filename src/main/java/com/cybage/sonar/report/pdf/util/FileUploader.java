@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -33,7 +34,7 @@ public class FileUploader {
                 LOGGER.info("Uploading {} report to SonarQube server: {}", contentType.toUpperCase(), uploadUrl);
             }
 
-            URL url = new URL(uploadUrl);
+            URL url = URI.create(uploadUrl).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(10000);
             connection.setReadTimeout(30000);

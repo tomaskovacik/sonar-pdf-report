@@ -24,8 +24,12 @@ import java.util.Map;
 
 public class SonarIssuesDumper {
 
-    private static final Logger           LOGGER = LoggerFactory.getLogger(SonarIssuesDumper.class);
-    private static final DateTimeFormatter TS_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    private static final Logger            LOGGER       = LoggerFactory.getLogger(SonarIssuesDumper.class);
+    private static final DateTimeFormatter TS_FMT       = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    private static final String            EMPTY_ARRAY  = "[],\n";
+    private static final String            OBJECT_OPEN  = "    {\n";
+    private static final String            OBJECT_CLOSE = "    }";
+    private static final String            ARRAY_CLOSE  = "  ],\n";
 
     private SonarIssuesDumper() {}
 
@@ -110,11 +114,11 @@ public class SonarIssuesDumper {
 
     private static void issuesArray(StringBuilder sb, List<Issue> issues) {
         sb.append("  \"issues\": ");
-        if (issues.isEmpty()) { sb.append("[],\n"); return; }
+        if (issues.isEmpty()) { sb.append(EMPTY_ARRAY); return; }
         sb.append("[\n");
         for (int i = 0; i < issues.size(); i++) {
             Issue iss = issues.get(i);
-            sb.append("    {\n");
+            sb.append(OBJECT_OPEN);
             field(sb, 3, "severity",  iss.getSeverity());
             field(sb, 3, "type",      iss.getType());
             field(sb, 3, "component", iss.getComponent());
@@ -123,46 +127,46 @@ public class SonarIssuesDumper {
             field(sb, 3, "status",    iss.getStatus());
             field(sb, 3, "message",   iss.getMessage());
             lastField(sb, 3, "effort", iss.getEffort());
-            sb.append("    }").append(i < issues.size() - 1 ? "," : "").append("\n");
+            sb.append(OBJECT_CLOSE).append(i < issues.size() - 1 ? "," : "").append("\n");
         }
-        sb.append("  ],\n");
+        sb.append(ARRAY_CLOSE);
     }
 
     private static void rulesArray(StringBuilder sb, List<Rule> rules) {
         sb.append("  \"rules\": ");
-        if (rules.isEmpty()) { sb.append("[],\n"); return; }
+        if (rules.isEmpty()) { sb.append(EMPTY_ARRAY); return; }
         sb.append("[\n");
         for (int i = 0; i < rules.size(); i++) {
             Rule r = rules.get(i);
-            sb.append("    {\n");
+            sb.append(OBJECT_OPEN);
             field(sb, 3, "key",      r.getKey());
             field(sb, 3, "name",     r.getName());
             field(sb, 3, "language", r.getLanguageName());
             longField(sb, 3, "count", r.getCount());
             lastField(sb, 3, "severity", r.getSeverity());
-            sb.append("    }").append(i < rules.size() - 1 ? "," : "").append("\n");
+            sb.append(OBJECT_CLOSE).append(i < rules.size() - 1 ? "," : "").append("\n");
         }
-        sb.append("  ],\n");
+        sb.append(ARRAY_CLOSE);
     }
 
     private static void fileInfoArray(StringBuilder sb, String key, List<FileInfo> files, boolean trailingComma) {
         sb.append("  \"").append(key).append("\": ");
         if (files == null || files.isEmpty()) {
-            sb.append(trailingComma ? "[],\n" : "[]\n");
+            sb.append(trailingComma ? EMPTY_ARRAY : "[]\n");
             return;
         }
         sb.append("[\n");
         for (int i = 0; i < files.size(); i++) {
             FileInfo fi = files.get(i);
-            sb.append("    {\n");
+            sb.append(OBJECT_OPEN);
             field(sb, 3, "name",           fi.getName());
             field(sb, 3, "path",           fi.getPath());
             field(sb, 3, "violations",     fi.getViolations());
             field(sb, 3, "complexity",     fi.getComplexity());
             lastField(sb, 3, "duplicatedLines", fi.getDuplicatedLines());
-            sb.append("    }").append(i < files.size() - 1 ? "," : "").append("\n");
+            sb.append(OBJECT_CLOSE).append(i < files.size() - 1 ? "," : "").append("\n");
         }
-        sb.append(trailingComma ? "  ],\n" : "  ]\n");
+        sb.append(trailingComma ? ARRAY_CLOSE : "  ]\n");
     }
 
     // -------------------------------------------------------------------------

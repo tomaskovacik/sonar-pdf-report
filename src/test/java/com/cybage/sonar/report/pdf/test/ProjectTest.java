@@ -1,7 +1,6 @@
 package com.cybage.sonar.report.pdf.test;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.testng.Assert;

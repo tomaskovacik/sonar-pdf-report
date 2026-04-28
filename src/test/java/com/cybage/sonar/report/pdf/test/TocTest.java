@@ -39,7 +39,7 @@ public class TocTest {
     }
 
     @Test
-    public void testSetHeaderMakesTocOutputStreamNonNull() throws Exception {
+    public void testSetHeaderMakesTocOutputStreamNonNull() {
         Header header = createRealHeader();
         toc.setHeader(header);
         Assert.assertNotNull(toc.getTocOutputStream(),
@@ -47,7 +47,7 @@ public class TocTest {
     }
 
     @Test
-    public void testSetHeaderOutputStreamIsInstance() throws Exception {
+    public void testSetHeaderOutputStreamIsInstance() {
         Header header = createRealHeader();
         toc.setHeader(header);
         Assert.assertTrue(toc.getTocOutputStream() instanceof ByteArrayOutputStream,
@@ -55,7 +55,7 @@ public class TocTest {
     }
 
     @Test
-    public void testOnSectionDepthTwoDoesNotThrow() throws DocumentException {
+    public void testOnSectionDepthTwoDoesNotThrow() {
         PdfWriter writer = mock(PdfWriter.class);
         Document document = mock(Document.class);
         Paragraph title = new Paragraph("Section Title");
@@ -65,7 +65,7 @@ public class TocTest {
     }
 
     @Test
-    public void testOnSectionDepthThreeDoesNotThrow() throws DocumentException {
+    public void testOnSectionDepthThreeDoesNotThrow() {
         PdfWriter writer = mock(PdfWriter.class);
         Document document = mock(Document.class);
         Paragraph title = new Paragraph("Sub-section Title");
@@ -75,7 +75,7 @@ public class TocTest {
     }
 
     @Test
-    public void testOnChapterDoesNotThrow() throws DocumentException {
+    public void testOnChapterDoesNotThrow() {
         PdfWriter writer = mock(PdfWriter.class);
         Document document = mock(Document.class);
         Paragraph title = new Paragraph("Chapter Title");
@@ -84,7 +84,7 @@ public class TocTest {
     }
 
     @Test
-    public void testOnChapterEndDoesNotThrow() throws DocumentException {
+    public void testOnChapterEndDoesNotThrow() {
         PdfWriter writer = mock(PdfWriter.class);
         Document document = mock(Document.class);
 

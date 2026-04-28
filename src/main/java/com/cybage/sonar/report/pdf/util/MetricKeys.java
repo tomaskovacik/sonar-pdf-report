@@ -88,7 +88,7 @@ public class MetricKeys {
 
     // Get all metric keys as list
     public static Set<String> getAllMetricKeys() {
-        Set<String> allMetricKeys = new HashSet<>(Arrays.asList(BUGS, NEW_BUGS, RELIABILITY_RATING, NEW_RELIABILITY_REMEDIATION_EFFORT,
+        return new HashSet<>(Arrays.asList(BUGS, NEW_BUGS, RELIABILITY_RATING, NEW_RELIABILITY_REMEDIATION_EFFORT,
                 RELIABILITY_REMEDIATION_EFFORT, VULNERABILITIES, NEW_VULNERABILITIES, SECURITY_RATING,
                 SECURITY_REMEDIATION_EFFORT, NEW_SECURITY_REMEDIATION_EFFORT, CODE_SMELLS, NEW_CODE_SMELLS,
                 SQALE_RATING, SQALE_INDEX, NEW_TECHNICAL_DEBT, SQALE_DEBT_RATIO, NEW_SQALE_DEBT_RATIO,
@@ -99,8 +99,6 @@ public class MetricKeys {
                 COVERAGE, LINE_COVERAGE, BRANCH_COVERAGE, UNCOVERED_LINES,
                 UNCOVERED_CONDITIONS, LINES_TO_COVER,
                 WONT_FIX_ISSUES));
-
-        return allMetricKeys;
     }
 
     // Get list of strings as single string separated by comma

@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
 import com.cybage.sonar.report.pdf.entity.Measures;
-import com.cybage.sonar.report.pdf.entity.Period_;
+import com.cybage.sonar.report.pdf.entity.LeakPeriod;
 
 @Test(groups = { "metrics" })
 public class LeakPeriodConfigurationTest {
@@ -19,11 +19,11 @@ public class LeakPeriodConfigurationTest {
         config.update("previous_version");
 
         Measures measures = new Measures();
-        Period_ p1 = new Period_(1, "previous_version", "2024-01-01", "1.0");
-        Period_ p2 = new Period_(2, "days", "2024-02-01", "30");
+        LeakPeriod p1 = new LeakPeriod(1, "previous_version", "2024-01-01", "1.0");
+        LeakPeriod p2 = new LeakPeriod(2, "days", "2024-02-01", "30");
         measures.setPeriods(Arrays.asList(p1, p2));
 
-        Optional<Period_> period = config.getPeriod(measures);
+        Optional<LeakPeriod> period = config.getPeriod(measures);
         Assert.assertTrue(period.isPresent());
         Assert.assertEquals(period.get().getMode(), "previous_version");
     }
@@ -33,10 +33,10 @@ public class LeakPeriodConfigurationTest {
         LeakPeriodConfiguration config = new LeakPeriodConfiguration();
 
         Measures measures = new Measures();
-        Period_ p = new Period_(1, "days", "2024-01-01", "30");
+        LeakPeriod p = new LeakPeriod(1, "days", "2024-01-01", "30");
         measures.setPeriods(Arrays.asList(p));
 
-        Optional<Period_> period = config.getPeriod(measures);
+        Optional<LeakPeriod> period = config.getPeriod(measures);
         Assert.assertTrue(period.isPresent());
         Assert.assertEquals(period.get().getMode(), "days");
     }

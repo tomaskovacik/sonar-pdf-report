@@ -8,7 +8,7 @@ import java.util.*;
 public class Measures {
 
 	private Map<String, Measure> measuresTable = new HashMap<>();
-	private List<Period_>        periods;
+	private List<LeakPeriod>        periods;
 
 	public int getMeasuresCount() {
 		return measuresTable.size();
@@ -30,19 +30,19 @@ public class Measures {
 		return measuresTable.containsKey(measureKey);
 	}
 
-	public Optional<Period_> getPeriod(Integer index) {
+	public Optional<LeakPeriod> getPeriod(Integer index) {
 		return periods.stream().filter(p -> p.getIndex().equals(index)).findFirst();
 	}
 
-	public Optional<Period_> getPeriod(String mode) {
+	public Optional<LeakPeriod> getPeriod(String mode) {
 		return periods.stream().filter(p -> p.getMode().equals(mode)).findFirst();
 	}
 
-	public void setPeriods(List<Period_> periods) {
+	public void setPeriods(List<LeakPeriod> periods) {
 		this.periods = periods;
 	}
 	
-	public List<Period_> getPeriods() {
+	public List<LeakPeriod> getPeriods() {
 		return this.periods;
 	}
 

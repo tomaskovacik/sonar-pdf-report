@@ -503,7 +503,7 @@ public class HTMLReporterTest {
         addMeasure(measures, MetricKeys.PROFILE, "Sonar way");
 
         // Period
-        Period_ period = new Period_(1, "previous_version", "2024-01-01", "1.0");
+        LeakPeriod period = new LeakPeriod(1, "previous_version", "2024-01-01", "1.0");
         measures.setPeriods(Collections.singletonList(period));
 
         // Wire period values into "new_*" measures
@@ -559,7 +559,7 @@ public class HTMLReporterTest {
         measures.addMeasure(key, m);
     }
 
-    private static void wirePeriod(Measures measures, String key, Period_ leakPeriod, String value) {
+    private static void wirePeriod(Measures measures, String key, LeakPeriod leakPeriod, String value) {
         Measure m = measures.getMeasure(key);
         if (m == null) {
             m = new Measure();
