@@ -35,14 +35,14 @@ public class RuleBuilder {
         return builder;
     }
 
-    public List<Rule> initProjectMostViolatedRulesByProjectKey(final String key) {
+    public List<Rule> initProjectMostViolatedRulesByProjectKey(final String key, final String branch) {
 
         String[]   priorities = Priority.getPrioritiesArray();
         List<Rule> rules      = new ArrayList<>();
 
         // Reverse iteration to get violations with upper level first
         for (int i = priorities.length - 1; i >= 0; i--) {
-            SearchWsResponse searchWsRes = searchViolationsPerPriority(key, priorities[i]);
+            SearchWsResponse searchWsRes = searchViolationsPerPriority(key, priorities[i], branch);
 
             final Common.Facet projectResources = searchWsRes.getFacets().getFacets(0);
             if (projectResources != null) {
@@ -66,12 +66,15 @@ public class RuleBuilder {
 
     }
 
-    private SearchWsResponse searchViolationsPerPriority(final String key, final String priority1) {
+    private SearchWsResponse searchViolationsPerPriority(final String key, final String priority1, final String branch) {
         SearchRequest searchWsReq = new SearchRequest();
         searchWsReq.setComponentKeys(singletonList(key));
         searchWsReq.setAdditionalFields(singletonList("rules"));
         searchWsReq.setFacets(singletonList("rules"));
         searchWsReq.setSeverities(singletonList(priority1));
+        if (branch != null && !branch.isEmpty()) {
+            searchWsReq.setBranch(branch);
+        }
         return wsClient.issues().search(searchWsReq);
     }
 

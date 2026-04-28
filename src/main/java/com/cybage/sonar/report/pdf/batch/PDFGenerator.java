@@ -43,6 +43,7 @@ public class PDFGenerator {
     private final        Set<String>             typesOfIssue;
     private final        LeakPeriodConfiguration leakPeriod;
     private final        FileSystem              fs;
+    private final        String                  branchName;
     private              String                  sonarHostUrl;
 
     public PDFGenerator(final String projectKey,
@@ -54,7 +55,8 @@ public class PDFGenerator {
                         final FileSystem fs,
                         final String sonarHostUrl,
                         final String token,
-                        final String reportType) {
+                        final String reportType,
+                        final String branchName) {
         this.projectKey     = projectKey;
         this.projectVersion = projectVersion;
         this.sonarLanguage  = sonarLanguage;
@@ -65,6 +67,7 @@ public class PDFGenerator {
         this.sonarHostUrl   = sonarHostUrl;
         this.token          = token;
         this.reportType     = reportType;
+        this.branchName     = branchName;
     }
 
     public void execute() {
@@ -103,7 +106,7 @@ public class PDFGenerator {
         PDFReporter reporter = initializeReporter(config, configLang, credentials, projectKey, projectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod);
         writeReport(projectKey, sdf, path, reporter);
         try {
-            SonarIssuesDumper.dump(reporter.getProject(), credentials, fs.workDir());
+            SonarIssuesDumper.dump(reporter.getProject(), credentials, branchName, fs.workDir());
         } catch (Exception e) {
             LOGGER.warn("Could not dump sonar-issues.json: {}", e.getMessage());
         }
@@ -145,7 +148,8 @@ public class PDFGenerator {
                     typesOfIssue,
                     leakPeriod,
                     config,
-                    configLang);
+                    configLang,
+                    branchName);
         }
         LOGGER.warn("Unknown report type '{}'. Supported values: pdf, html. Defaulting to PDF.", reportType);
         return createPdfReporter(credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod, config, configLang);
@@ -162,7 +166,8 @@ public class PDFGenerator {
                 typesOfIssue,
                 leakPeriod,
                 config,
-                configLang);
+                configLang,
+                branchName);
     }
 
     private static void writeReport(String sonarProjectId, SimpleDateFormat sdf, String path, PDFReporter reporter) throws IOException, ReportException, DocumentException {

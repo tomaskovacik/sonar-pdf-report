@@ -29,10 +29,10 @@ public class SonarIssuesDumper {
 
     private SonarIssuesDumper() {}
 
-    public static void dump(Project project, Credentials credentials, File outputDir) {
+    public static void dump(Project project, Credentials credentials, String branchName, File outputDir) {
         File out = new File(outputDir, "sonar-issues.json");
         try {
-            List<Issue> issues = resolveIssues(project, credentials);
+            List<Issue> issues = resolveIssues(project, credentials, branchName);
             List<Rule>  rules  = deduplicateRules(project.getMostViolatedRules());
             String json = toJson(project, issues, rules);
             Files.writeString(out.toPath(), json, StandardCharsets.UTF_8);
@@ -47,7 +47,7 @@ public class SonarIssuesDumper {
     // Issue fetching
     // -------------------------------------------------------------------------
 
-    private static List<Issue> resolveIssues(Project project, Credentials credentials) {
+    private static List<Issue> resolveIssues(Project project, Credentials credentials, String branchName) {
         List<Issue> existing = project.getIssues();
         if (existing != null && !existing.isEmpty()) {
             return existing;
@@ -57,7 +57,7 @@ public class SonarIssuesDumper {
         try {
             WsClient wsClient = buildWsClient(credentials);
             IssueBuilder ib = new IssueBuilder(wsClient);
-            return ib.initIssueDetailsByProjectKey(project.getKey(), Collections.emptySet());
+            return ib.initIssueDetailsByProjectKey(project.getKey(), Collections.emptySet(), branchName);
         } catch (Exception e) {
             LOGGER.warn("Could not fetch issues for JSON dump: {}", e.getMessage());
             return Collections.emptyList();

@@ -46,7 +46,7 @@ public class MeasuresBuilder {
         return builder;
     }
 
-    public com.cybage.sonar.report.pdf.entity.Measures initMeasuresByProjectKey(final String projectKey, final Set<String> otherMetrics)
+    public com.cybage.sonar.report.pdf.entity.Measures initMeasuresByProjectKey(final String projectKey, final Set<String> otherMetrics, final String branch)
             throws IOException, ReportException {
 
         com.cybage.sonar.report.pdf.entity.Measures measures = new com.cybage.sonar.report.pdf.entity.Measures();
@@ -59,9 +59,9 @@ public class MeasuresBuilder {
 
         // Avoid "Post too large"
         if (measuresKeys.size() > DEFAULT_SPLIT_LIMIT) {
-            initMeasuresSplittingRequests(measures, projectKey);
+            initMeasuresSplittingRequests(measures, projectKey, branch);
         } else {
-            this.addMeasures(measures, measuresKeys, projectKey);
+            this.addMeasures(measures, measuresKeys, projectKey, branch);
         }
 
         return measures;
@@ -74,7 +74,7 @@ public class MeasuresBuilder {
      *
      * @throws ReportException
      */
-    private void initMeasuresSplittingRequests(final com.cybage.sonar.report.pdf.entity.Measures measures, final String projectKey)
+    private void initMeasuresSplittingRequests(final com.cybage.sonar.report.pdf.entity.Measures measures, final String projectKey, final String branch)
             throws IOException, ReportException {
         Iterator<String> it = new ArrayList<>(measuresKeys).iterator();
         Set<String> twentyMeasures = new HashSet<>(20);
@@ -83,13 +83,13 @@ public class MeasuresBuilder {
             twentyMeasures.add(it.next());
             i++;
             if (i % DEFAULT_SPLIT_LIMIT == 0) {
-                addMeasures(measures, twentyMeasures, projectKey);
+                addMeasures(measures, twentyMeasures, projectKey, branch);
                 i = 0;
                 twentyMeasures.clear();
             }
         }
         if (i != 0) {
-            addMeasures(measures, twentyMeasures, projectKey);
+            addMeasures(measures, twentyMeasures, projectKey, branch);
         }
     }
 
@@ -102,13 +102,17 @@ public class MeasuresBuilder {
      */
     private void addMeasures(final com.cybage.sonar.report.pdf.entity.Measures measures,
                              final Set<String> measuresAsString,
-                             final String projectKey)
+                             final String projectKey,
+                             final String branch)
             throws ReportException {
         LOGGER.info("Adding measures for the metrics {} and project {}", measuresAsString, projectKey);
         ComponentRequest compWsReq = new ComponentRequest();
         compWsReq.setComponent(projectKey);
         compWsReq.setAdditionalFields(Arrays.asList(METRICS, PERIOD));
         compWsReq.setMetricKeys(new ArrayList<>(measuresAsString));
+        if (branch != null && !branch.isEmpty()) {
+            compWsReq.setBranch(branch);
+        }
 
         try {
             org.sonarqube.ws.Measures.ComponentWsResponse compWsRes = wsClient.measures().component(compWsReq);
@@ -119,7 +123,7 @@ public class MeasuresBuilder {
                 LOGGER.debug("Empty response when looking for measures: {}", measuresAsString);
             }
         } catch (HttpException e) {
-            retryAfterRemovingUnsupportedKeys(measures, measuresAsString, projectKey, e);
+            retryAfterRemovingUnsupportedKeys(measures, measuresAsString, projectKey, branch, e);
         }
     }
 
@@ -131,6 +135,7 @@ public class MeasuresBuilder {
     private void retryAfterRemovingUnsupportedKeys(final com.cybage.sonar.report.pdf.entity.Measures measures,
                                                    final Set<String> measuresAsString,
                                                    final String projectKey,
+                                                   final String branch,
                                                    final HttpException e) throws ReportException {
         if (e.code() != 404) {
             throw e;
@@ -146,7 +151,7 @@ public class MeasuresBuilder {
             measuresKeys.removeAll(unsupportedKeys);
         }
         if (!measuresAsString.isEmpty()) {
-            addMeasures(measures, measuresAsString, projectKey);
+            addMeasures(measures, measuresAsString, projectKey, branch);
         }
     }
 

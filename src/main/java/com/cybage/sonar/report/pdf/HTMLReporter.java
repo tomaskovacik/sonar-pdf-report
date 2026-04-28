@@ -93,8 +93,9 @@ public class HTMLReporter extends PDFReporter {
                         final Set<String> typesOfIssue,
                         final LeakPeriodConfiguration leakPeriod,
                         final Properties configProperties,
-                        final Properties langProperties) {
-        super(credentials);
+                        final Properties langProperties,
+                        final String branchName) {
+        super(credentials, branchName);
         this.logo             = logo;
         this.projectKey       = projectKey;
         this.projectVersion   = projectVersion;

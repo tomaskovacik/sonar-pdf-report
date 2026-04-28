@@ -33,6 +33,10 @@ public class IssueBuilder {
     }
 
     public List<Issue> initIssueDetailsByProjectKey(final String key, final Set<String> typesOfIssue) {
+        return initIssueDetailsByProjectKey(key, typesOfIssue, null);
+    }
+
+    public List<Issue> initIssueDetailsByProjectKey(final String key, final Set<String> typesOfIssue, final String branch) {
 
         List<Issue> issues     = new ArrayList<>();
         Integer     pageNumber = 1;
@@ -42,7 +46,7 @@ public class IssueBuilder {
 
         boolean hasMore = true;
         while (hasMore) {
-            SearchWsResponse searchWsRes = searchForPaginatedIssues(key, pageNumber, pageSize, typeOfIssuesConvertedParam);
+            SearchWsResponse searchWsRes = searchForPaginatedIssues(key, pageNumber, pageSize, typeOfIssuesConvertedParam, branch);
             int total = searchWsRes.getPaging().getTotal();
             if (total > 0) {
                 for (int i = 0; i < searchWsRes.getIssuesCount(); i++) {
@@ -67,13 +71,15 @@ public class IssueBuilder {
                            .toList();
     }
 
-    private SearchWsResponse searchForPaginatedIssues(final String key, final Integer pageNumber, final Integer pageSize, final List<String> typeOfIssuesConvertedParam) {
+    private SearchWsResponse searchForPaginatedIssues(final String key, final Integer pageNumber, final Integer pageSize, final List<String> typeOfIssuesConvertedParam, final String branch) {
         SearchRequest searchWsReq = new SearchRequest();
         searchWsReq.setComponentKeys(of(key));
         searchWsReq.setP(String.valueOf(pageNumber));
         searchWsReq.setPs(String.valueOf(pageSize));
         searchWsReq.setStatuses(of("OPEN"));
-
+        if (branch != null && !branch.isEmpty()) {
+            searchWsReq.setBranch(branch);
+        }
         searchWsReq.setTypes(typeOfIssuesConvertedParam);
         return wsClient.issues().search(searchWsReq);
     }

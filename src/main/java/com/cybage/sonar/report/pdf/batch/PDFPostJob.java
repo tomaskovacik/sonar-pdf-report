@@ -36,6 +36,7 @@ public class PDFPostJob implements PostJob {
     public static final String  SONAR_LANGUAGE                      = "sonar.language";
     public static final String  OTHER_METRICS                       = "sonar.pdf.other.metrics";
     public static final String  TYPES_OF_ISSUE                      = "sonar.pdf.issue.details";
+    public static final String  SONAR_BRANCH_NAME                   = "sonar.branch.name";
     public static final String  LEAK_PERIOD                         = "sonar.leak.period";
     public static final String  LOGO                                = "report.logo";
 
@@ -102,8 +103,10 @@ public class PDFPostJob implements PostJob {
             LOGGER.info("Plugin will try to guess the default LEAK Period");
         }
 
+        String branchName = configuration.get(SONAR_BRANCH_NAME).orElse(null);
+
         generatePdfs(projectKey, sonarHostUrl, token, reportType, projectVersion, sonarLanguage, otherMetrics,
-                typesOfIssue, leakPeriodConfiguration);
+                typesOfIssue, leakPeriodConfiguration, branchName);
     }
 
     /**
@@ -204,9 +207,10 @@ public class PDFPostJob implements PostJob {
                               List<String> sonarLanguage,
                               Set<String> otherMetrics,
                               Set<String> typesOfIssue,
-                              LeakPeriodConfiguration leakPeriodConfiguration) {
+                              LeakPeriodConfiguration leakPeriodConfiguration,
+                              String branchName) {
         PDFGenerator generator = createGenerator(projectKey, projectVersion, sonarLanguage, otherMetrics,
-                typesOfIssue, leakPeriodConfiguration, sonarHostUrl, token, reportType);
+                typesOfIssue, leakPeriodConfiguration, sonarHostUrl, token, reportType, branchName);
         try {
             generator.execute();
         } catch (Exception ex) {
@@ -217,8 +221,9 @@ public class PDFPostJob implements PostJob {
     public PDFGenerator createGenerator(String projectKey, String projectVersion,
                                            List<String> sonarLanguage, Set<String> otherMetrics,
                                            Set<String> typesOfIssue, LeakPeriodConfiguration leakPeriod,
-                                           String sonarHostUrl, String token, String reportType) {
+                                           String sonarHostUrl, String token, String reportType,
+                                           String branchName) {
         return new PDFGenerator(projectKey, projectVersion, sonarLanguage, otherMetrics,
-                typesOfIssue, leakPeriod, fs, sonarHostUrl, token, reportType);
+                typesOfIssue, leakPeriod, fs, sonarHostUrl, token, reportType, branchName);
     }
 }

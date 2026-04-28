@@ -41,11 +41,13 @@ public abstract class PDFReporter {
     private static final String CAN_NOT_GENERATE_TENDENCY_IMAGE = "Can not generate tendency image";
 
     private final Credentials credentials;
+    private final String      branchName;
 
     private Project project = null;
 
-    protected PDFReporter(final Credentials credentials) {
+    protected PDFReporter(final Credentials credentials, final String branchName) {
         this.credentials = credentials;
+        this.branchName  = branchName;
     }
 
     public ByteArrayOutputStream getReport() throws DocumentException, IOException, ReportException {
@@ -124,7 +126,7 @@ public abstract class PDFReporter {
             WsClient       wsClient       = WsClientFactories.getDefault().newClient(httpConnector);
             ProjectBuilder projectBuilder = ProjectBuilder.getInstance(wsClient);
             project = projectBuilder.initializeProject(getProjectKey(), getProjectVersion(), getSonarLanguage(),
-                    getOtherMetrics(), getTypesOfIssue());
+                    getOtherMetrics(), getTypesOfIssue(), branchName);
         }
         return project;
     }

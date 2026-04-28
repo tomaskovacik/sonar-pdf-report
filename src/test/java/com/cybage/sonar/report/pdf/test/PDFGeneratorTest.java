@@ -55,7 +55,8 @@ public class PDFGeneratorTest {
                 mockFs,
                 "http://localhost:9000",
                 "token123",
-                reportType);
+                reportType,
+                null);
     }
 
     // ---- constants ----

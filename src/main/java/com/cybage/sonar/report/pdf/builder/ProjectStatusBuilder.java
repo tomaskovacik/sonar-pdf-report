@@ -35,10 +35,13 @@ public class ProjectStatusBuilder {
         return builder;
     }
 
-    public ProjectStatus initProjectStatusByProjectKey(final String key) {
+    public ProjectStatus initProjectStatusByProjectKey(final String key, final String branch) {
 
         ProjectStatusRequest projectStatusWsReq = new ProjectStatusRequest();
         projectStatusWsReq.setProjectKey(key);
+        if (branch != null && !branch.isEmpty()) {
+            projectStatusWsReq.setBranch(branch);
+        }
         Qualitygates.ProjectStatusResponse projectStatusWsRes = wsClient.qualitygates().projectStatus(projectStatusWsReq);
 
         List<Condition>    conditions    = initProjectConditions(projectStatusWsRes);

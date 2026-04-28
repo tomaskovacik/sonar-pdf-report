@@ -66,7 +66,7 @@ public class RuleBuilderTest {
         when(mockIssuesService.search(any())).thenReturn(emptyResponse);
 
         RuleBuilder rb    = new RuleBuilder(mockWsClient);
-        List<Rule>  rules = rb.initProjectMostViolatedRulesByProjectKey("test:project");
+        List<Rule>  rules = rb.initProjectMostViolatedRulesByProjectKey("test:project", null);
 
         Assert.assertNotNull(rules);
         Assert.assertTrue(rules.isEmpty(), "should return empty list when facet has no values");
@@ -101,7 +101,7 @@ public class RuleBuilderTest {
         when(mockIssuesService.search(any())).thenReturn(response);
 
         RuleBuilder rb    = new RuleBuilder(mockWsClient);
-        List<Rule>  rules = rb.initProjectMostViolatedRulesByProjectKey("test:project");
+        List<Rule>  rules = rb.initProjectMostViolatedRulesByProjectKey("test:project", null);
 
         Assert.assertFalse(rules.isEmpty(), "should find at least one rule");
         Rule rule = rules.get(0);
@@ -135,7 +135,7 @@ public class RuleBuilderTest {
         when(mockIssuesService.search(any())).thenReturn(response);
 
         RuleBuilder rb    = new RuleBuilder(mockWsClient);
-        List<Rule>  rules = rb.initProjectMostViolatedRulesByProjectKey("test:project");
+        List<Rule>  rules = rb.initProjectMostViolatedRulesByProjectKey("test:project", null);
 
         Assert.assertTrue(rules.isEmpty(), "unmatched facet entry should be skipped");
     }

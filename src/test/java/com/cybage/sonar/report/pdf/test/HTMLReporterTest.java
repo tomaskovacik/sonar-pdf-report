@@ -415,7 +415,8 @@ public class HTMLReporterTest {
                 typesOfIssue,
                 leakPeriod,
                 configProperties,
-                langProperties);
+                langProperties,
+                null);
         injectProject(reporter, project);
         return reporter;
     }
