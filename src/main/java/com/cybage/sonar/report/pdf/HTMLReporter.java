@@ -124,7 +124,7 @@ public class HTMLReporter extends PDFReporter {
         appendFooter(html);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        baos.write(html.toString().getBytes("UTF-8"));
+        baos.write(html.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
         return baos;
     }
 

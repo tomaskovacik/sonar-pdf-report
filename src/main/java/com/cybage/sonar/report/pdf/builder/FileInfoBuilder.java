@@ -133,7 +133,6 @@ public class FileInfoBuilder {
         compTreeWsReq.setMetricKeys(singletonList(complexity));
         compTreeWsReq.setMetricSort(complexity);
         compTreeWsReq.setS(strings);
-        //compTreeWsReq.setAsc(S_METRIC);
         compTreeWsReq.setMetricSortFilter(S_METRIC_SORT_WITH_MEASURES_ONLY);
         compTreeWsReq.setQualifiers(singletonList(S_QUALIFIER_FIL));
         return wsClient.measures().componentTree(compTreeWsReq);

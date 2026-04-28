@@ -1,5 +1,6 @@
 package com.cybage.sonar.report.pdf.test;
 
+import com.cybage.sonar.report.pdf.batch.PDFGenerator;
 import com.cybage.sonar.report.pdf.batch.PDFPostJob;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.postjob.PostJobContext;
@@ -25,7 +26,6 @@ public class PDFPostJobTest {
 
     private Path tempWorkDir;
     private FileSystem mockFs;
-    private Configuration mockConfig;
     private PDFPostJob job;
 
     @BeforeMethod
@@ -33,8 +33,7 @@ public class PDFPostJobTest {
         tempWorkDir = Files.createTempDirectory("sonar-postjob-test");
         mockFs = mock(FileSystem.class);
         when(mockFs.workDir()).thenReturn(tempWorkDir.toFile());
-        mockConfig = mock(Configuration.class);
-        job = spy(new PDFPostJob(mockConfig, mockFs));
+        job = spy(new PDFPostJob(mockFs));
         // Stub env-variable lookup so tests are independent of the CI/local environment
         doReturn(null).when(job).getEnvToken();
     }
@@ -162,6 +161,89 @@ public class PDFPostJobTest {
         job.execute(ctx);
 
         verify(cfg, atLeastOnce()).get("sonar.projectKey");
+    }
+
+    // ---- execute() when getBoolean(SKIP_PDF_KEY) returns Optional.empty() ----
+
+    @Test
+    public void testExecuteDoesNotSkipWhenGetBooleanReturnsEmpty() {
+        PostJobContext ctx = mock(PostJobContext.class);
+        Configuration cfg = mock(Configuration.class);
+        when(ctx.config()).thenReturn(cfg);
+        when(cfg.hasKey(PDFPostJob.SKIP_PDF_KEY)).thenReturn(true);
+        // getBoolean returns Optional.empty() → orElse(false) → not skipped
+        when(cfg.getBoolean(PDFPostJob.SKIP_PDF_KEY)).thenReturn(Optional.empty());
+        when(cfg.hasKey(PDFPostJob.SONAR_HOST_URL)).thenReturn(false);
+        when(cfg.get("sonar.projectKey")).thenReturn(Optional.of("test:project"));
+
+        // SONAR_USER_TOKEN stubbed to null → returns early after env check.
+        // Important: we must have reached the projectKey lookup (not returned early on skip).
+        job.execute(ctx);
+
+        verify(cfg, atLeastOnce()).get("sonar.projectKey");
+    }
+
+    // ---- execute() when sonar.projectKey is absent → orElseThrow ----
+
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void testExecuteThrowsWhenProjectKeyAbsent() {
+        PostJobContext ctx = mock(PostJobContext.class);
+        Configuration cfg = mock(Configuration.class);
+        when(ctx.config()).thenReturn(cfg);
+        when(cfg.hasKey(PDFPostJob.SKIP_PDF_KEY)).thenReturn(false);
+        // Return Optional.empty() so orElseThrow fires
+        when(cfg.get("sonar.projectKey")).thenReturn(Optional.empty());
+
+        job.execute(ctx);
+    }
+
+    // ---- execute() SONAR_HOST_URL absent → uses default value ----
+
+    @Test
+    public void testExecuteUsesDefaultSonarHostUrlWhenKeyAbsent() {
+        PostJobContext ctx = mock(PostJobContext.class);
+        Configuration cfg = mock(Configuration.class);
+        when(ctx.config()).thenReturn(cfg);
+        when(cfg.hasKey(PDFPostJob.SKIP_PDF_KEY)).thenReturn(false);
+        when(cfg.get("sonar.projectKey")).thenReturn(Optional.of("test:project"));
+        // SONAR_HOST_URL key absent → get() returns empty → orElse(default)
+        when(cfg.get(PDFPostJob.SONAR_HOST_URL)).thenReturn(Optional.empty());
+
+        // SONAR_USER_TOKEN is null → returns early before any network call
+        job.execute(ctx);
+
+        // Verify that get(SONAR_HOST_URL) was actually called (proving the orElse path executed)
+        verify(cfg, atLeastOnce()).get(PDFPostJob.SONAR_HOST_URL);
+    }
+
+    // ---- execute() LEAK_PERIOD key is set → configuration.get(LEAK_PERIOD) is called ----
+
+    @Test(timeOut = 15000)
+    public void testExecuteCallsGetLeakPeriodWhenKeyIsSet() {
+        PostJobContext ctx = mock(PostJobContext.class);
+        Configuration cfg = mock(Configuration.class);
+        when(ctx.config()).thenReturn(cfg);
+        when(cfg.hasKey(PDFPostJob.SKIP_PDF_KEY)).thenReturn(false);
+        when(cfg.get("sonar.projectKey")).thenReturn(Optional.of("test:project"));
+        when(cfg.get(PDFPostJob.SONAR_HOST_URL)).thenReturn(Optional.of("http://localhost:9000"));
+        when(cfg.get(PDFPostJob.REPORT_TYPE)).thenReturn(Optional.of("pdf"));
+        when(cfg.get(PDFPostJob.SONAR_PROJECT_VERSION)).thenReturn(Optional.of("1.0"));
+        when(cfg.hasKey(PDFPostJob.SONAR_LANGUAGE)).thenReturn(false);
+        when(cfg.hasKey(PDFPostJob.OTHER_METRICS)).thenReturn(false);
+        when(cfg.hasKey(PDFPostJob.TYPES_OF_ISSUE)).thenReturn(false);
+        // LEAK_PERIOD is set
+        when(cfg.hasKey(PDFPostJob.LEAK_PERIOD)).thenReturn(true);
+        when(cfg.get(PDFPostJob.LEAK_PERIOD)).thenReturn(Optional.of("previous_version"));
+
+        doReturn("test-token").when(job).getEnvToken();
+        // Stub createGenerator so no real HTTP connection is attempted
+        PDFGenerator mockGenerator = mock(PDFGenerator.class);
+        doReturn(mockGenerator).when(job).createGenerator(any(), any(), any(), any(), any(), any(), any(), any(), any());
+
+        job.execute(ctx);
+
+        // Verify that LEAK_PERIOD was read from the configuration
+        verify(cfg, atLeastOnce()).get(PDFPostJob.LEAK_PERIOD);
     }
 
     // ---- readCeTaskId() via reflection ----

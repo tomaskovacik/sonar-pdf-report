@@ -3,13 +3,11 @@ package com.cybage.sonar.report.pdf.builder;
 import com.cybage.sonar.report.pdf.entity.Measure;
 import com.cybage.sonar.report.pdf.entity.Period;
 import com.cybage.sonar.report.pdf.entity.Period_;
-import org.apache.commons.lang3.Validate;
 import org.sonarqube.ws.Common.Metric;
 import org.sonarqube.ws.Measures;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class MeasureBuilder {
 

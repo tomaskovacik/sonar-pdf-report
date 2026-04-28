@@ -53,7 +53,7 @@ public class RuleBuilder {
                     if (!optionalRule.isPresent()) {
                         continue;
                     }
-                    final Common.Rule     rule         = optionalRule.get();
+                    final Common.Rule     rule         = optionalRule.orElseThrow();
                     final String          priority     = Priority.getPriority(priorities[i]);
                     rules.add(newRule(facetValue, rule, priority));
                 }

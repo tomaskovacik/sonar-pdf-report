@@ -13,14 +13,12 @@ public class SonarUtil {
 		Integer hours = null;
 		Integer days = null;
 
-		// 1140
 		if (minutes >= MINUTES_PER_HOUR && minutes < EIGHT_HOURS) {
 			hours = minutes / MINUTES_PER_HOUR;
 			minutes = minutes % MINUTES_PER_HOUR;
 			return hours + "h " + minutes + "min";
 		} else if (minutes >= EIGHT_HOURS) {
 			days = (minutes / MINUTES_PER_HOUR) / 8;
-			// minutes = minutes - (minutes * days);
 			minutes = minutes % EIGHT_HOURS;
 			hours = minutes / MINUTES_PER_HOUR;
 			minutes = minutes % MINUTES_PER_HOUR;

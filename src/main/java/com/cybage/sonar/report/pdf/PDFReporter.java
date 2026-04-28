@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import com.cybage.sonar.report.pdf.entity.ComplexityDistribution;
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,7 @@ public abstract class PDFReporter {
 
     private Project project = null;
 
-    public PDFReporter(final Credentials credentials) {
+    protected PDFReporter(final Credentials credentials) {
         this.credentials = credentials;
     }
 
@@ -73,11 +72,7 @@ public abstract class PDFReporter {
             printFrontPage(frontPageDocument, frontPageDocumentWriter);
             printTocTitle(tocDocument);
             printPdfBody(mainDocument);
-            try {
-                mainDocument.close();
-            } catch (Exception e) {
-                LOGGER.error("Exception in PDFReporter", e);
-            }
+            closeMainDocument(mainDocument);
 
             tocDocument.getTocDocument().close();
             frontPageDocument.close();
@@ -108,6 +103,14 @@ public abstract class PDFReporter {
             LOGGER.error("Exception in PDFReport", e);
         }
         return null;
+    }
+
+    private void closeMainDocument(Document doc) {
+        try {
+            doc.close();
+        } catch (Exception e) {
+            LOGGER.error("Exception in PDFReporter", e);
+        }
     }
 
     protected abstract URL getLogo();

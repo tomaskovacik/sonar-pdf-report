@@ -22,17 +22,16 @@ public class Toc extends PdfPageEventHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Toc.class);
 
-	private Document toc;
+	private Document tocDoc;
 	private ByteArrayOutputStream tocOutputStream;
 	private PdfPTable content;
-	private PdfWriter writer;
 
 	public Toc() throws DocumentException {
-		toc = new Document(PageSize.A4, 50, 50, 110, 50);
+		tocDoc = new Document(PageSize.A4, 50, 50, 110, 50);
 		content = new PdfPTable(2);
-		Rectangle page = toc.getPageSize();
+		Rectangle page = tocDoc.getPageSize();
 		content.setWidths(new int[] { 5, 2 });
-		content.setTotalWidth(page.getWidth() - toc.leftMargin() - toc.rightMargin());
+		content.setTotalWidth(page.getWidth() - tocDoc.leftMargin() - tocDoc.rightMargin());
 		content.getDefaultCell().setUseVariableBorders(true);
 		content.getDefaultCell().setBorderColorBottom(BaseColor.WHITE);
 		content.getDefaultCell().setBorderColorRight(BaseColor.WHITE);
@@ -68,34 +67,30 @@ public class Toc extends PdfPageEventHelper {
 	public void onSection(final PdfWriter writer, final Document document, final float position, final int depth,
 			final Paragraph title) {
 		content.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
-		switch (depth) {
-		case 2:
+		if (depth == 2) {
 			content.getDefaultCell().setIndent(12);
 			content.addCell(new Phrase(title.getContent(), new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL,
 					Style.COLOR_BODY_TEXT)));
-			content.getDefaultCell().setIndent(0);
-			content.addCell("");
-			break;
-		default:
+		} else {
 			content.getDefaultCell().setIndent(22);
 			content.addCell(new Phrase(title.getContent(), new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL,
 					Style.COLOR_LABEL_GRAY)));
-			content.getDefaultCell().setIndent(0);
-			content.addCell("");
 		}
+		content.getDefaultCell().setIndent(0);
+		content.addCell("");
 	}
 
 	@Override
 	public void onCloseDocument(final PdfWriter writer, final Document document) {
 		try {
-			toc.add(content);
+			tocDoc.add(content);
 		} catch (DocumentException e) {
 			LOGGER.error("Can not add TOC", e);
 		}
 	}
 
 	public Document getTocDocument() {
-		return toc;
+		return tocDoc;
 	}
 
 	public ByteArrayOutputStream getTocOutputStream() {
@@ -104,9 +99,8 @@ public class Toc extends PdfPageEventHelper {
 
 	public void setHeader(final Header header) {
 		tocOutputStream = new ByteArrayOutputStream();
-		writer = null;
 		try {
-			writer = PdfWriter.getInstance(toc, tocOutputStream);
+			PdfWriter writer = PdfWriter.getInstance(tocDoc, tocOutputStream);
 			writer.setPageEvent(header);
 		} catch (DocumentException e) {
 			LOGGER.error("Can not add TOC", e);

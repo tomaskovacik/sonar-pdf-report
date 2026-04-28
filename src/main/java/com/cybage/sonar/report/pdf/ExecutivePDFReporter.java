@@ -52,6 +52,7 @@ import static com.cybage.sonar.report.pdf.util.MetricKeys.WONT_FIX_ISSUES;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -61,7 +62,6 @@ import java.util.stream.Collectors;
 
 import com.cybage.sonar.report.pdf.entity.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -294,7 +294,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     private URL loadLargeLogo() throws MalformedURLException {
         URL largeLogo;
         if (super.getConfigProperty(LOGO_PROPS).startsWith("http://")) {
-            largeLogo = new URL(super.getConfigProperty(LOGO_PROPS));
+            largeLogo = URI.create(super.getConfigProperty(LOGO_PROPS)).toURL();
         } else {
             largeLogo = this.getClass().getClassLoader().getResource(super.getConfigProperty(LOGO_PROPS));
         }
@@ -343,18 +343,21 @@ public class ExecutivePDFReporter extends PDFReporter {
         // Quality Profiles List
         if (project.getLanguages() != null) {
             for (String language : project.getLanguages()) {
-                CustomCellTitle profileName = new CustomCellTitle(new Phrase(
-                        project.getQualityProfileByLanguage(language).get().getName(), Style.DASHBOARD_DATA_FONT_2));
+                Optional<QualityProfile> qpOpt = project.getQualityProfileByLanguage(language);
+                if (!qpOpt.isPresent()) {
+                    continue;
+                }
+                QualityProfile qp = qpOpt.get();
+                CustomCellTitle profileName = new CustomCellTitle(
+                        new Phrase(qp.getName(), Style.DASHBOARD_DATA_FONT_2));
                 tableQualityProfiles.addCell(profileName);
 
                 CustomCellTitle languageName = new CustomCellTitle(
-                        new Phrase(project.getQualityProfileByLanguage(language).get().getLanguageName(),
-                                Style.DASHBOARD_DATA_FONT_2));
+                        new Phrase(qp.getLanguageName(), Style.DASHBOARD_DATA_FONT_2));
                 tableQualityProfiles.addCell(languageName);
 
                 CustomCellValue rulesCount = new CustomCellValue(
-                        new Phrase(project.getQualityProfileByLanguage(language).get().getActiveRuleCount().toString(),
-                                Style.DASHBOARD_DATA_FONT_2));
+                        new Phrase(qp.getActiveRuleCount().toString(), Style.DASHBOARD_DATA_FONT_2));
                 tableQualityProfiles.addCell(rulesCount);
             }
         } else {
@@ -470,8 +473,8 @@ public class ExecutivePDFReporter extends PDFReporter {
 
     protected void printDashboard(final Project project, final Section section) throws DocumentException {
         section.add(new Phrase("", new Font(FontFamily.COURIER, 6)));
-        final LeakPeriodConfiguration leakPeriod = this.getLeakPeriod();
-        LOGGER.info("Leak period {}", leakPeriod);
+        final LeakPeriodConfiguration currentLeakPeriod = this.getLeakPeriod();
+        LOGGER.info("Leak period {}", currentLeakPeriod);
         LOGGER.info("Periods {}", project.getMeasures().getPeriods());
 
         Period_ period       = getCurrentPeriod(project);
@@ -899,14 +902,14 @@ public class ExecutivePDFReporter extends PDFReporter {
         if (project.getMeasures().containsMeasure(NEW_BUGS)) {
             List<Period> periods = project.getMeasure(NEW_BUGS).getPeriods();
             LOGGER.info("Periods found are {} and we are looking for {}", periods, currentPeriod);
-            Optional<Period> period = periods
+            Period period = periods
                     .stream()
                     .filter(p -> p.getIndex().equals(currentPeriod.getIndex()))
-                    .findFirst();
-            Validate.isTrue(period.isPresent());
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("No period matching index " + currentPeriod.getIndex()));
 
             CustomCellValue newBugsValue = new CustomCellValue(
-                    new Phrase(period.get().getValue(),
+                    new Phrase(period.getValue(),
                             Style.DASHBOARD_DATA_FONT));
             newBugsValue.setHorizontalAlignment(Element.ALIGN_CENTER);
             newBugsValue.setBackgroundColor(Style.DASHBOARD_NEW_METRIC_BACKGROUND_COLOR);
@@ -1139,9 +1142,6 @@ public class ExecutivePDFReporter extends PDFReporter {
             tableCoverage.setWidths(new int[]{1, 1});
         }
 
-        // Coverage Metric Table
-        //CustomTable tableCoverage = new CustomTable(1);
-
         // Coverage Density Value
         CustomCellValue coverageDensityValue = new CustomCellValue(new Phrase(project.getMeasure(MetricKeys.COVERAGE).getValue() + "%",
                 Style.DASHBOARD_DATA_FONT));
@@ -1258,10 +1258,10 @@ public class ExecutivePDFReporter extends PDFReporter {
         tableMaintainability.addCell(codeSmellsValue);
 
         // New Code Smells Value
-        final Period_ period_ = getCurrentPeriod(project);
+        final Period_ currentPeriod = getCurrentPeriod(project);
         if (project.getMeasures().containsMeasure(NEW_CODE_SMELLS)) {
             final Optional<Period> optionalPeriod = project.getMeasure(NEW_CODE_SMELLS).getPeriods()
-                                                           .stream().filter(p -> p.getIndex().equals(period_.getIndex()))
+                                                           .stream().filter(p -> p.getIndex().equals(currentPeriod.getIndex()))
                                                            .findFirst();
             if (optionalPeriod.isPresent()) {
                 CustomCellValue newCodeSmellsValue = new CustomCellValue(
@@ -1320,7 +1320,7 @@ public class ExecutivePDFReporter extends PDFReporter {
         // Added Technical Debt
         if (project.getMeasures().containsMeasure(NEW_TECHNICAL_DEBT)) {
             final Optional<Period> optionalPeriod = project.getMeasure(NEW_TECHNICAL_DEBT)
-                    .getPeriods().stream().filter(p -> p.getIndex().equals(period_.getIndex())).findFirst();
+                    .getPeriods().stream().filter(p -> p.getIndex().equals(currentPeriod.getIndex())).findFirst();
             if (optionalPeriod.isPresent()) {
                 // Added Technical Debt Title
                 CustomCellTitle technicalDebtNew = new CustomCellTitle(

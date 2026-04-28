@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
 import com.cybage.sonar.report.pdf.util.FileUploader;
+import com.cybage.sonar.report.pdf.util.SonarIssuesDumper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
@@ -100,12 +101,12 @@ public class PDFGenerator {
         final String path = computeReportPath(projectKey, sdf);
 
         PDFReporter reporter = initializeReporter(config, configLang, credentials, projectKey, projectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod);
-
-        if (reporter == null) {
-            LOGGER.warn("Could not initialize the reporting plugin");
-            return;
-        }
         writeReport(projectKey, sdf, path, reporter);
+        try {
+            SonarIssuesDumper.dump(reporter.getProject(), credentials, fs.workDir());
+        } catch (Exception e) {
+            LOGGER.warn("Could not dump sonar-issues.json: {}", e.getMessage());
+        }
         uploadReport(path, credentials, projectKey, reporter.getReportType());
     }
 
@@ -171,8 +172,10 @@ public class PDFGenerator {
             fos.flush();
             String sonarProjectIdConverted = sonarProjectId.replace(':', '-');
             String ext = reporter.getReportType().equalsIgnoreCase("html") ? "html" : "pdf";
-            LOGGER.info("{} report generated (see {}-{}.{} on build output directory)",
-                    ext.toUpperCase(), sonarProjectIdConverted, sdf.format(new Timestamp(System.currentTimeMillis())), ext);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("{} report generated (see {}-{}.{} on build output directory)",
+                        ext.toUpperCase(), sonarProjectIdConverted, sdf.format(new Timestamp(System.currentTimeMillis())), ext);
+            }
         }
     }
 

@@ -40,26 +40,22 @@ public class IssueBuilder {
 
         final List<String> typeOfIssuesConvertedParam = convertTypes(typesOfIssue);
 
-        while (true) {
+        boolean hasMore = true;
+        while (hasMore) {
             SearchWsResponse searchWsRes = searchForPaginatedIssues(key, pageNumber, pageSize, typeOfIssuesConvertedParam);
-
-            if (searchWsRes.getTotal() > 0) {
+            int total = searchWsRes.getPaging().getTotal();
+            if (total > 0) {
                 for (int i = 0; i < searchWsRes.getIssuesCount(); i++) {
                     org.sonarqube.ws.Issues.Issue issue = searchWsRes.getIssues(i);
-
                     String component     = findComponent(searchWsRes, issue).orElseThrow(() -> new IllegalArgumentException("Component not found"));
                     String componentPath = findComponentPath(searchWsRes, issue).orElseThrow(() -> new IllegalArgumentException("Component path not found"));
-
                     issues.add(newIssue(issue, component, componentPath));
                 }
-                if (searchWsRes.getTotal() > (pageNumber * pageSize)) {
-                    pageNumber++;
-                } else {
-                    break;
-                }
+                hasMore = total > (pageNumber * pageSize);
+                pageNumber++;
             } else {
                 LOGGER.debug("There are no issues in project: {}", key);
-                break;
+                hasMore = false;
             }
         }
         return issues;

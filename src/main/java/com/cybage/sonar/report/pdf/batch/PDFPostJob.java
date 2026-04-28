@@ -44,34 +44,30 @@ public class PDFPostJob implements PostJob {
     // Interval between CE task status polls
     private static final long CE_POLL_INTERVAL_MS = 5_000L;
 
-    private static final Logger       LOGGER = LoggerFactory.getLogger(PDFPostJob.class);
-    private final        FileSystem    fs;
-    private final        Configuration configuration;
+    private static final Logger    LOGGER = LoggerFactory.getLogger(PDFPostJob.class);
+    private final        FileSystem fs;
 
-    public PDFPostJob(Configuration configuration, FileSystem fs) {
-        this.fs            = fs;
-        this.configuration = configuration;
+    public PDFPostJob(FileSystem fs) {
+        this.fs = fs;
     }
 
     @Override
-    public void describe(PostJobDescriptor descriptor) {
-        // No descriptor configuration required for this post-job.
-        descriptor.name("PDF Report Generator");
+    public void describe(PostJobDescriptor descriptor) { //NOSONAR - intentionally empty, no descriptor config needed
     }
 
     @Override
     public void execute(PostJobContext postJobContext) {
         Configuration configuration = postJobContext.config();
-        if (configuration.hasKey(SKIP_PDF_KEY) && Boolean.TRUE.equals(configuration.getBoolean(SKIP_PDF_KEY).get())) {
+        if (Boolean.TRUE.equals(configuration.getBoolean(SKIP_PDF_KEY).orElse(false))) {
             LOGGER.info("Skipping generation of report (sonar.pdf.skip=true)..");
             return;
         }
 
-        String projectKey = configuration.get("sonar.projectKey").get();
+        String projectKey = configuration.get("sonar.projectKey")
+                .orElseThrow(() -> new IllegalStateException("sonar.projectKey is not set"));
         LOGGER.info("Executing decorator: PDF Report");
 
-        String sonarHostUrl = configuration.hasKey(SONAR_HOST_URL)
-                ? configuration.get(SONAR_HOST_URL).get() : SONAR_HOST_URL_DEFAULT_VALUE;
+        String sonarHostUrl = configuration.get(SONAR_HOST_URL).orElse(SONAR_HOST_URL_DEFAULT_VALUE);
 
         // Prefer the SONAR_USER_TOKEN environment variable (User Token required; Analysis Tokens are not supported).
         // Fall back to the sonar.token configuration property for backwards compatibility.
@@ -86,10 +82,8 @@ public class PDFPostJob implements PostJob {
 
         waitForCeTask(sonarHostUrl, token);
 
-        String reportType = configuration.hasKey(REPORT_TYPE)
-                ? configuration.get(REPORT_TYPE).get() : REPORT_TYPE_DEFAULT_VALUE;
-        String projectVersion = configuration.hasKey(SONAR_PROJECT_VERSION)
-                ? configuration.get(SONAR_PROJECT_VERSION).get() : SONAR_PROJECT_VERSION_DEFAULT_VALUE;
+        String reportType = configuration.get(REPORT_TYPE).orElse(REPORT_TYPE_DEFAULT_VALUE);
+        String projectVersion = configuration.get(SONAR_PROJECT_VERSION).orElse(SONAR_PROJECT_VERSION_DEFAULT_VALUE);
         List<String> sonarLanguage = configuration.hasKey(SONAR_LANGUAGE)
                 ? Arrays.asList(configuration.getStringArray(SONAR_LANGUAGE)) : null;
         Set<String> otherMetrics = configuration.hasKey(OTHER_METRICS)
@@ -100,7 +94,8 @@ public class PDFPostJob implements PostJob {
 
         LeakPeriodConfiguration leakPeriodConfiguration = new LeakPeriodConfiguration();
         if (configuration.hasKey(LEAK_PERIOD)) {
-            String configurationValue = configuration.get(LEAK_PERIOD).get();
+            String configurationValue = configuration.get(LEAK_PERIOD)
+                    .orElseThrow(() -> new IllegalStateException(LEAK_PERIOD + " key is set but has no value"));
             LOGGER.info("Plugin will use the following leak period MODE={}", configurationValue);
             leakPeriodConfiguration.update(configurationValue);
         } else {
@@ -210,12 +205,20 @@ public class PDFPostJob implements PostJob {
                               Set<String> otherMetrics,
                               Set<String> typesOfIssue,
                               LeakPeriodConfiguration leakPeriodConfiguration) {
-        PDFGenerator generator = new PDFGenerator(projectKey, projectVersion, sonarLanguage, otherMetrics,
-                typesOfIssue, leakPeriodConfiguration, fs, sonarHostUrl, token, reportType);
+        PDFGenerator generator = createGenerator(projectKey, projectVersion, sonarLanguage, otherMetrics,
+                typesOfIssue, leakPeriodConfiguration, sonarHostUrl, token, reportType);
         try {
             generator.execute();
         } catch (Exception ex) {
             LOGGER.error("Error in generating report.");
         }
+    }
+
+    public PDFGenerator createGenerator(String projectKey, String projectVersion,
+                                           List<String> sonarLanguage, Set<String> otherMetrics,
+                                           Set<String> typesOfIssue, LeakPeriodConfiguration leakPeriod,
+                                           String sonarHostUrl, String token, String reportType) {
+        return new PDFGenerator(projectKey, projectVersion, sonarLanguage, otherMetrics,
+                typesOfIssue, leakPeriod, fs, sonarHostUrl, token, reportType);
     }
 }
