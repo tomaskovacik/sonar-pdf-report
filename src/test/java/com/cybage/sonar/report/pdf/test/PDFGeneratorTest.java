@@ -142,36 +142,22 @@ public class PDFGeneratorTest {
 
     // ---- initializeReporter() via reflection ----
 
-    @Test
-    public void testInitializeReporterWithPdfReturnsExecutivePDFReporter() throws Exception {
-        PDFGenerator gen = createGenerator("pdf");
-        PDFReporter reporter = invokeInitializeReporter(gen);
-        Assert.assertTrue(reporter instanceof ExecutivePDFReporter,
-                "reportType=pdf should produce ExecutivePDFReporter");
+    @DataProvider(name = "reporterTypes")
+    public Object[][] reporterTypeData() {
+        return new Object[][] {
+            { "pdf",  ExecutivePDFReporter.class },
+            { "html", HTMLReporter.class         },
+            { null,   ExecutivePDFReporter.class },
+            { "word", ExecutivePDFReporter.class },
+        };
     }
 
-    @Test
-    public void testInitializeReporterWithHtmlReturnsHtmlReporter() throws Exception {
-        PDFGenerator gen = createGenerator("html");
+    @Test(dataProvider = "reporterTypes")
+    public void testInitializeReporterType(String reportType, Class<?> expectedClass) throws Exception {
+        PDFGenerator gen = createGenerator(reportType);
         PDFReporter reporter = invokeInitializeReporter(gen);
-        Assert.assertTrue(reporter instanceof HTMLReporter,
-                "reportType=html should produce HTMLReporter");
-    }
-
-    @Test
-    public void testInitializeReporterWithNullReturnsExecutivePDFReporter() throws Exception {
-        PDFGenerator gen = createGenerator(null);
-        PDFReporter reporter = invokeInitializeReporter(gen);
-        Assert.assertTrue(reporter instanceof ExecutivePDFReporter,
-                "reportType=null should default to ExecutivePDFReporter");
-    }
-
-    @Test
-    public void testInitializeReporterWithUnknownTypeReturnsExecutivePDFReporter() throws Exception {
-        PDFGenerator gen = createGenerator("word");
-        PDFReporter reporter = invokeInitializeReporter(gen);
-        Assert.assertTrue(reporter instanceof ExecutivePDFReporter,
-                "unknown reportType should fall back to ExecutivePDFReporter");
+        Assert.assertTrue(expectedClass.isInstance(reporter),
+                "reportType=" + reportType + " should produce " + expectedClass.getSimpleName());
     }
 
     // ---- reflection helpers ----
