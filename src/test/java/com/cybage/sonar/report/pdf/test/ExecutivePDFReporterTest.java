@@ -1,8 +1,15 @@
 package com.cybage.sonar.report.pdf.test;
 
 import com.cybage.sonar.report.pdf.ExecutivePDFReporter;
-import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
+import com.cybage.sonar.report.pdf.builder.ConditionBuilder;
+import com.cybage.sonar.report.pdf.builder.QualityProfileEntityBuilder;
+import com.cybage.sonar.report.pdf.builder.StatusPeriodBuilder;
+import com.cybage.sonar.report.pdf.entity.*;
 import com.cybage.sonar.report.pdf.util.Credentials;
+import com.itextpdf.text.ChapterAutoNumber;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Section;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -187,6 +194,121 @@ public class ExecutivePDFReporterTest {
 
         Assert.assertEquals(empty.getProjectVersion(), "1.0");
         Assert.assertEquals(empty.getReportType(), "pdf");
+    }
+
+    // -------------------------------------------------------------------------
+    // Protected print methods — smoke tests using real iText objects
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void testPrintQualityProfileInfoWithNoLanguages() throws Exception {
+        Project project = minimalProject();
+        project.setLanguages(null);
+        project.setQualityProfiles(Collections.emptyList());
+
+        invokePrint("printQualityProfileInfo", project, createSection());
+        // passes if no exception
+    }
+
+    @Test
+    public void testPrintQualityProfileInfoWithLanguagesAndProfiles() throws Exception {
+        QualityProfile qp = new QualityProfileEntityBuilder()
+                .setKey("k1").setName("Sonar way").setLanguage("java").setLanguageName("Java")
+                .setIsInherited(false).setIsDefault(true).setActiveRuleCount(100L)
+                .setRulesUpdatedAt("2024-01-01").setProjectCount(5L).createQualityProfile();
+
+        Project project = minimalProject();
+        project.setLanguages(Collections.singletonList("java"));
+        project.setQualityProfiles(Collections.singletonList(qp));
+
+        invokePrint("printQualityProfileInfo", project, createSection());
+    }
+
+    @Test
+    public void testPrintQualityGateInfoStatusOk() throws Exception {
+        Project project = minimalProject();
+        project.setProjectStatus(new ProjectStatus("OK", Collections.emptyList(), Collections.emptyList()));
+
+        invokePrint("printQualityGateInfo", project, createSection());
+    }
+
+    @Test
+    public void testPrintQualityGateInfoStatusError() throws Exception {
+        Condition c = new ConditionBuilder()
+                .setStatus("ERROR").setMetricKey("coverage").setComparator("LT")
+                .setErrorThreshold("80").setActualValue("70").createCondition();
+        StatusPeriod sp = new StatusPeriodBuilder()
+                .setIndex(1).setMode("previous_version").setDate("2024-01-01")
+                .setParameter("1.0").createStatusPeriod();
+
+        Project project = minimalProject();
+        project.setProjectStatus(new ProjectStatus("ERROR",
+                Collections.singletonList(c),
+                Collections.singletonList(sp)));
+
+        invokePrint("printQualityGateInfo", project, createSection());
+    }
+
+    @Test
+    public void testPrintMostViolatedRulesEmptyList() throws Exception {
+        Project project = minimalProject();
+        project.setMostViolatedRules(Collections.emptyList());
+
+        invokePrint("printMostViolatedRules", project, createSection());
+    }
+
+    @Test
+    public void testPrintMostViolatedFilesEmptyList() throws Exception {
+        Project project = minimalProject();
+        project.setMostViolatedFiles(Collections.emptyList());
+
+        invokePrint("printMostViolatedFiles", project, createSection());
+    }
+
+    @Test
+    public void testPrintMostComplexFilesEmptyList() throws Exception {
+        Project project = minimalProject();
+        project.setMostComplexFiles(Collections.emptyList());
+
+        invokePrint("printMostComplexFiles", project, createSection());
+    }
+
+    @Test
+    public void testPrintMostDuplicatedFilesEmptyList() throws Exception {
+        Project project = minimalProject();
+        project.setMostDuplicatedFiles(Collections.emptyList());
+
+        invokePrint("printMostDuplicatedFiles", project, createSection());
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    private Section createSection() {
+        ChapterAutoNumber chapter = new ChapterAutoNumber(new Paragraph("Chapter"));
+        return chapter.addSection(new Paragraph("Section"));
+    }
+
+    private Project minimalProject() {
+        Project p = new Project("my:key", "1.0", Collections.singletonList("java"));
+        p.setName("Test Project");
+        p.setProjectStatus(new ProjectStatus("OK", Collections.emptyList(), Collections.emptyList()));
+        p.setQualityProfiles(Collections.emptyList());
+        p.setMostViolatedRules(Collections.emptyList());
+        p.setMostComplexFiles(Collections.emptyList());
+        p.setMostDuplicatedFiles(Collections.emptyList());
+        p.setMostViolatedFiles(Collections.emptyList());
+        Measures measures = new Measures();
+        measures.setPeriods(Collections.emptyList());
+        p.setMeasures(measures);
+        return p;
+    }
+
+    private void invokePrint(String methodName, Project project, Section section) throws Exception {
+        Method m = ExecutivePDFReporter.class.getDeclaredMethod(methodName, Project.class, Section.class);
+        m.setAccessible(true);
+        m.invoke(reporter, project, section);
     }
 
     // -------------------------------------------------------------------------
