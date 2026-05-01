@@ -98,4 +98,14 @@ https://github.com/tomaskovacik/sonar-pdf-report/issues
 
 ## License
 
-This project is licensed under the [GNU Lesser General Public License v3.0](LICENSE.md).
+> **⚠️ License Change Notice**
+> The license was changed from LGPLv3 to **AGPLv3** to comply with the requirements of the
+> [iText 5.x](https://itextpdf.com/) PDF library (version 5.5.12+), which is distributed under
+> AGPLv3. Because iText is linked into and distributed as part of this plugin's binary JAR,
+> the plugin as a whole must be licensed under a compatible open-source license. LGPLv3 does
+> not satisfy the "same license" requirement imposed by AGPLv3 on combined works distributed
+> in binary form, so AGPLv3 is required.
+> Last LGPLv3 code is at https://github.com/SonarQubeCommunity/sonar-pdf-report
+> itext 5.5.12 introduced in commit [a37ca8349bc5a328abff92d18c0fd357b280d718](https://github.com/dh46tw/sonar-pdf-report/commit/a37ca8349bc5a328abff92d18c0fd357b280d718)
+
+This project is licensed under the [GNU Affero General Public License v3.0](LICENSE.md).
