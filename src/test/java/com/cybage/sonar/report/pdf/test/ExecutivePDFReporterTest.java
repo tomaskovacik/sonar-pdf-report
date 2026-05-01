@@ -7,7 +7,6 @@ import com.cybage.sonar.report.pdf.builder.StatusPeriodBuilder;
 import com.cybage.sonar.report.pdf.entity.*;
 import com.cybage.sonar.report.pdf.util.Credentials;
 import com.itextpdf.text.ChapterAutoNumber;
-import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
 import org.testng.Assert;
