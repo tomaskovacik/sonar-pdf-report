@@ -96,7 +96,7 @@ public class ProjectBuilderTest {
                 .build();
     }
 
-    private void setUpHappyPathMocks() throws Exception {
+    private void setUpHappyPathMocks() {
         when(mockComponentsService.show(any())).thenReturn(showResponse("My Project"));
         when(mockQualitygatesService.projectStatus(any())).thenReturn(okStatusResponse());
         when(mockQualityprofilesService.search(any())).thenReturn(
