@@ -2,6 +2,9 @@ require 'base64'
 require 'fileutils'
 
 class PdfReportController < ApplicationController
+  protect_from_forgery with: :exception
+  # store is called server-to-server with a Bearer token, not cookie-based, so CSRF doesn't apply
+  skip_before_action :verify_authenticity_token, only: [:store]
 
   def get
     project = Project.by_key(params[:resource])
