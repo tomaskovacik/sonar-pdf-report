@@ -110,7 +110,7 @@
         <sonar.pluginName>PDF Report</sonar.pluginName>
         <sonar.pluginClass>com.cybage.sonar.report.pdf.plugin.PDFReportPlugin</sonar.pluginClass>
         <!-- sonar-ws version must match the target SonarQube Community Build version -->
-        <sonar.version>26.5.0.122743</sonar.version>
+        <sonar.version>26.6.0.123539</sonar.version>
         <!-- standalone sonar-plugin-api version compatible with SonarQube 26.x -->
         <sonar.plugin.api.version>13.7.0.4381</sonar.plugin.api.version>
         <mockito.version>5.23.0</mockito.version>
