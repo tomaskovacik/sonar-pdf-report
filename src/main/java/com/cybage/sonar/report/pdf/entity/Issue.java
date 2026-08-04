@@ -26,17 +26,8 @@ public class Issue {
 	// Efforts needed to resolve issue
 	private String effort;
 
-	public Issue(String component, String componentPath, String severity, Integer line, String status, String message, String type,
-			String effort) {
+	public Issue() {
 		super();
-		this.component = component;
-		this.componentPath = componentPath;
-		this.severity = severity;
-		this.line = line;
-		this.status = status;
-		this.message = message;
-		this.type = type;
-		this.effort = effort;
 	}
 
 	public String getComponent() {

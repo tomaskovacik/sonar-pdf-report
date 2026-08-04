@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -102,7 +103,7 @@ public class SonarIssuesDumper {
         field(sb, 1, "project",     project.getKey());
         field(sb, 1, "name",        project.getName());
         field(sb, 1, "version",     project.getVersion());
-        field(sb, 1, "generatedAt", LocalDateTime.now().format(TS_FMT));
+        field(sb, 1, "generatedAt", LocalDateTime.now(ZoneOffset.UTC).format(TS_FMT));
         issuesArray(sb, issues);
         rulesArray(sb, rules);
         fileInfoArray(sb, "mostViolatedFiles",   project.getMostViolatedFiles(),   true);

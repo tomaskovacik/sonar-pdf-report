@@ -59,6 +59,16 @@ public class QualityProfileEntityBuilder {
     }
 
     public QualityProfile createQualityProfile() {
-        return new QualityProfile(key, name, language, languageName, isInherited, isDefault, activeRuleCount, rulesUpdatedAt, projectCount);
+        final QualityProfile result = new QualityProfile();
+        result.setKey(key);
+        result.setName(name);
+        result.setLanguage(language);
+        result.setLanguageName(languageName);
+        result.setIsInherited(isInherited);
+        result.setIsDefault(isDefault);
+        result.setActiveRuleCount(activeRuleCount);
+        result.setRulesUpdatedAt(rulesUpdatedAt);
+        result.setProjectCount(projectCount);
+        return result;
     }
 }

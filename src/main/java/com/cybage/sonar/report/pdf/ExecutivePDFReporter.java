@@ -103,34 +103,20 @@ public class ExecutivePDFReporter extends PDFReporter {
     private static final String LANG_FILE_PATH = "general.file_path";
 
     private final        URL                     logo;
-    private final        String                  projectKey;
-    private final        String                  projectVersion;
-    private final        List<String>            sonarLanguage;
-    private final        Set<String>             typesOfIssue;
-    private final        LeakPeriodConfiguration leakPeriod;
+    private final        ReportRequest           request;
     private final        Properties              configProperties;
     private final        Properties              langProperties;
     private              Set<String>             otherMetrics;
 
     public ExecutivePDFReporter(final Credentials credentials,
                                 final URL logo,
-                                final String projectKey,
-                                final String projectVersion,
-                                final List<String> sonarLanguage,
-                                final Set<String> otherMetrics,
-                                final Set<String> typesOfIssue,
-                                final LeakPeriodConfiguration leakPeriod,
+                                final ReportRequest request,
                                 final Properties configProperties,
-                                final Properties langProperties,
-                                final String branchName) {
-        super(credentials, branchName);
+                                final Properties langProperties) {
+        super(credentials, request.getBranchName());
         this.logo = logo;
-        this.projectKey = projectKey;
-        this.projectVersion = projectVersion;
-        this.sonarLanguage = sonarLanguage;
-        this.otherMetrics = otherMetrics;
-        this.typesOfIssue = typesOfIssue;
-        this.leakPeriod = leakPeriod;
+        this.request = request;
+        this.otherMetrics = request.getOtherMetrics();
         this.configProperties = configProperties;
         this.langProperties = langProperties;
     }
@@ -166,7 +152,7 @@ public class ExecutivePDFReporter extends PDFReporter {
             printMostComplexFiles(project, section14);
             printMostDuplicatedFiles(project, section14);
 
-            if (!this.typesOfIssue.isEmpty()) {
+            if (!this.request.getTypesOfIssue().isEmpty()) {
                 chapter1.add(new Paragraph(" ", new Font(FontFamily.COURIER, 8)));
                 Section section15 = chapter1
                         .addSection(new Paragraph(getTextProperty("general.violations_details"), Style.TITLE_FONT));
@@ -195,17 +181,17 @@ public class ExecutivePDFReporter extends PDFReporter {
 
     @Override
     protected String getProjectKey() {
-        return this.projectKey;
+        return this.request.getProjectKey();
     }
 
     @Override
     public String getProjectVersion() {
-        return this.projectVersion;
+        return this.request.getProjectVersion();
     }
 
     @Override
     protected List<String> getSonarLanguage() {
-        return this.sonarLanguage;
+        return this.request.getSonarLanguage();
     }
 
     @Override
@@ -215,12 +201,12 @@ public class ExecutivePDFReporter extends PDFReporter {
 
     @Override
     protected Set<String> getTypesOfIssue() {
-        return this.typesOfIssue;
+        return this.request.getTypesOfIssue();
     }
 
     @Override
     protected LeakPeriodConfiguration getLeakPeriod() {
-        return this.leakPeriod;
+        return this.request.getLeakPeriod();
     }
 
     @Override
@@ -778,7 +764,7 @@ public class ExecutivePDFReporter extends PDFReporter {
     protected void printIssuesDetails(final Project project, final Section section) throws DocumentException {
 
 
-        for (String typeOfIssue : this.typesOfIssue) {
+        for (String typeOfIssue : this.request.getTypesOfIssue()) {
             printTableperIssueType(project, section, typeOfIssue);
         }
     }
@@ -995,9 +981,9 @@ public class ExecutivePDFReporter extends PDFReporter {
     }
 
     private LeakPeriod getCurrentPeriod(Project project) {
-        LOGGER.info("Leak period name is {}", leakPeriod);
+        LOGGER.info("Leak period name is {}", this.request.getLeakPeriod());
         LOGGER.info("Periods are {}", project.getMeasures().getPeriods());
-        Optional<LeakPeriod> period = this.leakPeriod.getPeriod(project.getMeasures());
+        Optional<LeakPeriod> period = this.request.getLeakPeriod().getPeriod(project.getMeasures());
         LOGGER.info("Period chosen is {}", period.orElse(null));
         return period.orElseThrow(() -> new IllegalArgumentException("Cannot find the current period"));
     }

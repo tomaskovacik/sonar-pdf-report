@@ -26,6 +26,7 @@ import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
 import com.cybage.sonar.report.pdf.entity.Period;
 import com.cybage.sonar.report.pdf.entity.LeakPeriod;
 import com.cybage.sonar.report.pdf.entity.Project;
+import com.cybage.sonar.report.pdf.entity.ReportRequest;
 import com.cybage.sonar.report.pdf.entity.QualityProfile;
 import com.cybage.sonar.report.pdf.entity.Rule;
 import com.cybage.sonar.report.pdf.entity.StatusPeriod;
@@ -74,35 +75,19 @@ public class HTMLReporter extends PDFReporter {
     private static final String LANG_FILE_PATH         = "general.file_path";
 
 
-    private final URL                     logo;
-    private final String                  projectKey;
-    private final String                  projectVersion;
-    private final List<String>            sonarLanguage;
-    private final Set<String>             typesOfIssue;
-    private final LeakPeriodConfiguration leakPeriod;
-    private final Properties              configProperties;
-    private final Properties              langProperties;
-    private       Set<String>             otherMetrics;
+    private final URL             logo;
+    private final ReportRequest   request;
+    private final Properties      configProperties;
+    private final Properties      langProperties;
 
     public HTMLReporter(final Credentials credentials,
                         final URL logo,
-                        final String projectKey,
-                        final String projectVersion,
-                        final List<String> sonarLanguage,
-                        final Set<String> otherMetrics,
-                        final Set<String> typesOfIssue,
-                        final LeakPeriodConfiguration leakPeriod,
+                        final ReportRequest request,
                         final Properties configProperties,
-                        final Properties langProperties,
-                        final String branchName) {
-        super(credentials, branchName);
+                        final Properties langProperties) {
+        super(credentials, request.getBranchName());
         this.logo             = logo;
-        this.projectKey       = projectKey;
-        this.projectVersion   = projectVersion;
-        this.sonarLanguage    = sonarLanguage;
-        this.otherMetrics     = otherMetrics;
-        this.typesOfIssue     = typesOfIssue;
-        this.leakPeriod       = leakPeriod;
+        this.request          = request;
         this.configProperties = configProperties;
         this.langProperties   = langProperties;
     }
@@ -119,7 +104,7 @@ public class HTMLReporter extends PDFReporter {
         appendQualityGate(html, project);
         appendMetricDashboard(html, project);
         appendViolationsAnalysis(html, project);
-        if (!this.typesOfIssue.isEmpty()) {
+        if (!this.request.getTypesOfIssue().isEmpty()) {
             appendIssueDetails(html, project);
         }
         appendFooter(html);
@@ -288,8 +273,8 @@ public class HTMLReporter extends PDFReporter {
         appendDocumentationSection(html, project);
         appendIssuesSection(html, project, period);
 
-        if (otherMetrics != null) {
-            Set<String> extras = otherMetrics.stream()
+        if (request.getOtherMetrics() != null) {
+            Set<String> extras = request.getOtherMetrics().stream()
                                              .filter(om -> !MetricKeys.getAllMetricKeys().contains(om)
                                                      && project.getMeasures().containsMeasure(om)
                                                      && !MetricDomains.getDomains().contains(project.getMeasure(om).getDomain()))
@@ -644,7 +629,7 @@ public class HTMLReporter extends PDFReporter {
     private void appendIssueDetails(StringBuilder html, Project project) {
         html.append(DIV_SECTION_OPEN)
             .append(H2_OPEN).append(escape(getTextProperty("general.violations_details"))).append(H2_CLOSE);
-        for (String type : typesOfIssue) {
+        for (String type : request.getTypesOfIssue()) {
             html.append(H3_OPEN).append(escape(StringUtils.capitalize(type))).append(H3_CLOSE);
             List<Issue> issues = project.getIssues().stream()
                                         .filter(i -> i.getType().toUpperCase().replace("_", "").replace(" ", "")
@@ -715,7 +700,7 @@ public class HTMLReporter extends PDFReporter {
     }
 
     private LeakPeriod getCurrentPeriod(Project project) {
-        Optional<LeakPeriod> period = this.leakPeriod.getPeriod(project.getMeasures());
+        Optional<LeakPeriod> period = this.request.getLeakPeriod().getPeriod(project.getMeasures());
         return period.orElseThrow(() -> new IllegalArgumentException("Cannot find the current period"));
     }
 
@@ -745,32 +730,32 @@ public class HTMLReporter extends PDFReporter {
 
     @Override
     protected String getProjectKey() {
-        return this.projectKey;
+        return this.request.getProjectKey();
     }
 
     @Override
     public String getProjectVersion() {
-        return this.projectVersion;
+        return this.request.getProjectVersion();
     }
 
     @Override
     protected List<String> getSonarLanguage() {
-        return this.sonarLanguage;
+        return this.request.getSonarLanguage();
     }
 
     @Override
     protected Set<String> getOtherMetrics() {
-        return this.otherMetrics;
+        return this.request.getOtherMetrics();
     }
 
     @Override
     protected Set<String> getTypesOfIssue() {
-        return this.typesOfIssue;
+        return this.request.getTypesOfIssue();
     }
 
     @Override
     protected LeakPeriodConfiguration getLeakPeriod() {
-        return this.leakPeriod;
+        return this.request.getLeakPeriod();
     }
 
     @Override

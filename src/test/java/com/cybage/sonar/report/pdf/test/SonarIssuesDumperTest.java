@@ -1,7 +1,6 @@
 package com.cybage.sonar.report.pdf.test;
 
 import com.cybage.sonar.report.pdf.entity.FileInfo;
-import com.cybage.sonar.report.pdf.entity.Issue;
 import com.cybage.sonar.report.pdf.entity.Project;
 import com.cybage.sonar.report.pdf.entity.Rule;
 import com.cybage.sonar.report.pdf.util.Credentials;
@@ -66,7 +65,7 @@ public class SonarIssuesDumperTest {
     public void testDumpWithIssuesContainsIssueData() throws IOException {
         Project project = minimalProject();
         project.setIssues(List.of(
-                new Issue("Foo.java", "src/Foo.java", "MAJOR", 42, "OPEN", "Some problem", "BUG", "5min")));
+                TestEntities.issue("Foo.java", "src/Foo.java", "MAJOR", 42, "OPEN", "Some problem", "BUG", "5min")));
         SonarIssuesDumper.dump(project, credentials, null, outputDir);
         String json = readJson();
         Assert.assertTrue(json.contains("\"severity\": \"MAJOR\""));
@@ -86,8 +85,8 @@ public class SonarIssuesDumperTest {
     public void testDumpWithMultipleIssuesAllPresent() throws IOException {
         Project project = minimalProject();
         project.setIssues(Arrays.asList(
-                new Issue("A.java", "src/A.java", "CRITICAL", 1, "OPEN", "msg1", "BUG", "10min"),
-                new Issue("B.java", "src/B.java", "MINOR",    2, "OPEN", "msg2", "CODE_SMELL", "2min")));
+                TestEntities.issue("A.java", "src/A.java", "CRITICAL", 1, "OPEN", "msg1", "BUG", "10min"),
+                TestEntities.issue("B.java", "src/B.java", "MINOR",    2, "OPEN", "msg2", "CODE_SMELL", "2min")));
         SonarIssuesDumper.dump(project, credentials, null, outputDir);
         String json = readJson();
         Assert.assertTrue(json.contains("\"component\": \"A.java\""));
@@ -157,7 +156,7 @@ public class SonarIssuesDumperTest {
     public void testDumpEscapesSpecialCharsInMessage() throws IOException {
         Project project = minimalProject();
         project.setIssues(List.of(
-                new Issue("Foo.java", "src/Foo.java", "MAJOR", 1, "OPEN", "Say \"hello\"", "BUG", "1min")));
+                TestEntities.issue("Foo.java", "src/Foo.java", "MAJOR", 1, "OPEN", "Say \"hello\"", "BUG", "1min")));
         SonarIssuesDumper.dump(project, credentials, null, outputDir);
         Assert.assertTrue(readJson().contains("\\\"hello\\\""), "quotes should be escaped");
     }
@@ -166,7 +165,7 @@ public class SonarIssuesDumperTest {
     public void testDumpHandlesNullLineGracefully() throws IOException {
         Project project = minimalProject();
         project.setIssues(List.of(
-                new Issue("Foo.java", "src/Foo.java", "MAJOR", null, "OPEN", "msg", "BUG", "1min")));
+                TestEntities.issue("Foo.java", "src/Foo.java", "MAJOR", null, "OPEN", "msg", "BUG", "1min")));
         SonarIssuesDumper.dump(project, credentials, null, outputDir);
         Assert.assertTrue(readJson().contains("\"line\": null"));
     }

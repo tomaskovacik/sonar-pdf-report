@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -25,3 +27,13 @@ jobs:
 
       - name: Build and test with Maven
         run: mvn -B verify
+
+      - name: SonarCloud analysis
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -Dsonar.projectKey=tomaskovacik_sonar-pdf-report
+          -Dsonar.organization=tomaskovacik
+          -Dsonar.host.url=https://sonarcloud.io

@@ -10,7 +10,7 @@ public class QualityProfileTest {
 
     @Test
     public void testConstructorAndGetters() {
-        QualityProfile qp = new QualityProfile("key1", "Sonar way", "java", "Java", false, true, 100L, "2024-01-01", 5L);
+        QualityProfile qp = TestEntities.qualityProfile("key1", "Sonar way", "java", "Java", false, true, 100L, "2024-01-01", 5L);
         Assert.assertEquals(qp.getKey(), "key1");
         Assert.assertEquals(qp.getName(), "Sonar way");
         Assert.assertEquals(qp.getLanguage(), "java");
@@ -24,7 +24,7 @@ public class QualityProfileTest {
 
     @Test
     public void testSetters() {
-        QualityProfile qp = new QualityProfile("k", "n", "l", "ln", false, false, 0L, "", 0L);
+        QualityProfile qp = TestEntities.qualityProfile("k", "n", "l", "ln", false, false, 0L, "", 0L);
         qp.setKey("key2");
         qp.setName("Updated Name");
         qp.setLanguage("python");
@@ -48,7 +48,7 @@ public class QualityProfileTest {
 
     @Test
     public void testToString() {
-        QualityProfile qp = new QualityProfile("key1", "Sonar way", "java", "Java", false, true, 100L, "2024-01-01", 5L);
+        QualityProfile qp = TestEntities.qualityProfile("key1", "Sonar way", "java", "Java", false, true, 100L, "2024-01-01", 5L);
         Assert.assertNotNull(qp.toString());
         Assert.assertTrue(qp.toString().contains("Sonar way"));
     }

@@ -85,7 +85,7 @@ public class ProjectTest {
 
     @Test
     public void testGetQualityProfileByLanguage() {
-        QualityProfile qp = new QualityProfile("key1", "Sonar way", "java", "Java", false, true, 100L, "2024-01-01", 5L);
+        QualityProfile qp = TestEntities.qualityProfile("key1", "Sonar way", "java", "Java", false, true, 100L, "2024-01-01", 5L);
         project.setQualityProfiles(Arrays.asList(qp));
 
         Optional<QualityProfile> found = project.getQualityProfileByLanguage("java");
@@ -95,7 +95,7 @@ public class ProjectTest {
 
     @Test
     public void testGetQualityProfileByLanguageNotFound() {
-        QualityProfile qp = new QualityProfile("key1", "Sonar way", "java", "Java", false, true, 100L, "2024-01-01", 5L);
+        QualityProfile qp = TestEntities.qualityProfile("key1", "Sonar way", "java", "Java", false, true, 100L, "2024-01-01", 5L);
         project.setQualityProfiles(Arrays.asList(qp));
 
         Optional<QualityProfile> found = project.getQualityProfileByLanguage("python");

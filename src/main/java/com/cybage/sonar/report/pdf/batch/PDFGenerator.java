@@ -6,11 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
-import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
+import com.cybage.sonar.report.pdf.entity.ReportRequest;
 import com.cybage.sonar.report.pdf.util.FileUploader;
 import com.cybage.sonar.report.pdf.util.SonarIssuesDumper;
 import org.slf4j.Logger;
@@ -33,41 +31,23 @@ public class PDFGenerator {
     public static final String FRONT_PAGE_LOGO = "front.page.logo";
     public static final String DATE_PATTERN    = "yyyy.MM.dd.HH.mm.ss";
 
-    private static final Logger                  LOGGER = LoggerFactory.getLogger(PDFGenerator.class);
-    private final        String                  token;
-    private final        String                  reportType;
-    private final        String                  projectKey;
-    private final        String                  projectVersion;
-    private final        List<String>            sonarLanguage;
-    private final        Set<String>             otherMetrics;
-    private final        Set<String>             typesOfIssue;
-    private final        LeakPeriodConfiguration leakPeriod;
-    private final        FileSystem              fs;
-    private final        String                  branchName;
-    private              String                  sonarHostUrl;
+    private static final Logger        LOGGER = LoggerFactory.getLogger(PDFGenerator.class);
+    private final        String        token;
+    private final        String        reportType;
+    private final        ReportRequest request;
+    private final        FileSystem    fs;
+    private              String        sonarHostUrl;
 
-    public PDFGenerator(final String projectKey,
-                        final String projectVersion,
-                        final List<String> sonarLanguage,
-                        final Set<String> otherMetrics,
-                        final Set<String> typesOfIssue,
-                        final LeakPeriodConfiguration leakPeriod,
+    public PDFGenerator(final ReportRequest request,
                         final FileSystem fs,
                         final String sonarHostUrl,
                         final String token,
-                        final String reportType,
-                        final String branchName) {
-        this.projectKey     = projectKey;
-        this.projectVersion = projectVersion;
-        this.sonarLanguage  = sonarLanguage;
-        this.otherMetrics   = otherMetrics;
-        this.typesOfIssue   = typesOfIssue;
-        this.leakPeriod     = leakPeriod;
+                        final String reportType) {
+        this.request        = request;
         this.fs             = fs;
         this.sonarHostUrl   = sonarHostUrl;
         this.token          = token;
         this.reportType     = reportType != null ? reportType : "pdf";
-        this.branchName     = branchName;
     }
 
     public void execute() {
@@ -100,13 +80,14 @@ public class PDFGenerator {
         Credentials credentials = new Credentials(config.getProperty(SONAR_BASE_URL), token);
 
         final SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
+        final String projectKey = request.getProjectKey();
 
         final String path = computeReportPath(projectKey, sdf);
 
-        PDFReporter reporter = initializeReporter(config, configLang, credentials, projectKey, projectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod);
+        PDFReporter reporter = initializeReporter(config, configLang, credentials);
         writeReport(projectKey, sdf, path, reporter);
         try {
-            SonarIssuesDumper.dump(reporter.getProject(), credentials, branchName, fs.workDir());
+            SonarIssuesDumper.dump(reporter.getProject(), credentials, request.getBranchName(), fs.workDir());
         } catch (Exception e) {
             LOGGER.warn("Could not dump sonar-issues.json: {}", e.getMessage());
         }
@@ -129,41 +110,29 @@ public class PDFGenerator {
         return reportType != null && reportType.equalsIgnoreCase("html");
     }
 
-    private PDFReporter initializeReporter(Properties config, Properties configLang, Credentials credentials, String sonarProjectId, String sonarProjectVersion, List<String> sonarLanguage, Set<String> otherMetrics, Set<String> typesOfIssue, LeakPeriodConfiguration leakPeriod) {
+    private PDFReporter initializeReporter(Properties config, Properties configLang, Credentials credentials) {
         if (reportType.equalsIgnoreCase("pdf")) {
-            return createPdfReporter(credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod, config, configLang);
+            return createPdfReporter(credentials, config, configLang);
         }
         if (reportType.equalsIgnoreCase("html")) {
             return new HTMLReporter(
                     credentials,
                     this.getClass().getResource("/sonar.png"),
-                    sonarProjectId,
-                    sonarProjectVersion,
-                    sonarLanguage,
-                    otherMetrics,
-                    typesOfIssue,
-                    leakPeriod,
+                    request,
                     config,
-                    configLang,
-                    branchName);
+                    configLang);
         }
         LOGGER.warn("Unknown report type '{}'. Supported values: pdf, html. Defaulting to PDF.", reportType);
-        return createPdfReporter(credentials, sonarProjectId, sonarProjectVersion, sonarLanguage, otherMetrics, typesOfIssue, leakPeriod, config, configLang);
+        return createPdfReporter(credentials, config, configLang);
     }
 
-    private ExecutivePDFReporter createPdfReporter(Credentials credentials, String sonarProjectId, String sonarProjectVersion, List<String> sonarLanguage, Set<String> otherMetrics, Set<String> typesOfIssue, LeakPeriodConfiguration leakPeriod, Properties config, Properties configLang) {
+    private ExecutivePDFReporter createPdfReporter(Credentials credentials, Properties config, Properties configLang) {
         return new ExecutivePDFReporter(
                 credentials,
                 this.getClass().getResource("/sonar.png"),
-                sonarProjectId,
-                sonarProjectVersion,
-                sonarLanguage,
-                otherMetrics,
-                typesOfIssue,
-                leakPeriod,
+                request,
                 config,
-                configLang,
-                branchName);
+                configLang);
     }
 
     private static void writeReport(String sonarProjectId, SimpleDateFormat sdf, String path, PDFReporter reporter) throws IOException, ReportException, DocumentException {

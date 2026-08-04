@@ -5,6 +5,7 @@ import com.cybage.sonar.report.pdf.HTMLReporter;
 import com.cybage.sonar.report.pdf.PDFReporter;
 import com.cybage.sonar.report.pdf.batch.PDFGenerator;
 import com.cybage.sonar.report.pdf.entity.LeakPeriodConfiguration;
+import com.cybage.sonar.report.pdf.entity.ReportRequest;
 import com.cybage.sonar.report.pdf.util.Credentials;
 import org.sonar.api.batch.fs.FileSystem;
 import org.testng.Assert;
@@ -46,17 +47,11 @@ public class PDFGeneratorTest {
 
     private PDFGenerator createGenerator(String reportType) {
         return new PDFGenerator(
-                "test:project",
-                "1.0",
-                languages,
-                otherMetrics,
-                typesOfIssue,
-                leakPeriod,
+                new ReportRequest("test:project", "1.0", languages, otherMetrics, typesOfIssue, leakPeriod, null),
                 mockFs,
                 "http://localhost:9000",
                 "token123",
-                reportType,
-                null);
+                reportType);
     }
 
     // ---- constants ----
@@ -197,25 +192,13 @@ public class PDFGeneratorTest {
                 "initializeReporter",
                 Properties.class,
                 Properties.class,
-                Credentials.class,
-                String.class,
-                String.class,
-                List.class,
-                Set.class,
-                Set.class,
-                LeakPeriodConfiguration.class);
+                Credentials.class);
         m.setAccessible(true);
         try {
             return (PDFReporter) m.invoke(gen,
                     config,
                     configLang,
-                    credentials,
-                    "test:project",
-                    "1.0",
-                    languages,
-                    otherMetrics,
-                    typesOfIssue,
-                    leakPeriod);
+                    credentials);
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof Exception) throw (Exception) e.getCause();
             throw e;

@@ -104,7 +104,7 @@ public class HTMLReporterTest {
     public void testGetReportWithTypesOfIssueIncludesIssueSection() throws Exception {
         Project project = buildOkProject();
         // Add a BUG issue to the project
-        Issue bug = new Issue("MyFile.java", "src/MyFile.java", "MAJOR", 42, "OPEN", "Null pointer", "BUG", "5min");
+        Issue bug = TestEntities.issue("MyFile.java", "src/MyFile.java", "MAJOR", 42, "OPEN", "Null pointer", "BUG", "5min");
         project.setIssues(Collections.singletonList(bug));
 
         HTMLReporter reporter = createReporter(Collections.singleton("bug"), project);
@@ -120,7 +120,7 @@ public class HTMLReporterTest {
     @Test
     public void testGetReportIssueWithNullLineShowsNA() throws Exception {
         Project project = buildOkProject();
-        Issue issue = new Issue("File.java", "src/File.java", "MINOR", null, "OPEN", "Some message", "CODE_SMELL", "1min");
+        Issue issue = TestEntities.issue("File.java", "src/File.java", "MINOR", null, "OPEN", "Some message", "CODE_SMELL", "1min");
         project.setIssues(Collections.singletonList(issue));
 
         HTMLReporter reporter = createReporter(Collections.singleton("code_smell"), project);
@@ -136,7 +136,7 @@ public class HTMLReporterTest {
     @Test
     public void testGetReportIssueWithZeroLineShowsNA() throws Exception {
         Project project = buildOkProject();
-        Issue issue = new Issue("File.java", "src/File.java", "MINOR", 0, "OPEN", "Zero line message", "BUG", "2min");
+        Issue issue = TestEntities.issue("File.java", "src/File.java", "MINOR", 0, "OPEN", "Zero line message", "BUG", "2min");
         project.setIssues(Collections.singletonList(issue));
 
         HTMLReporter reporter = createReporter(Collections.singleton("bug"), project);
@@ -408,15 +408,10 @@ public class HTMLReporterTest {
         HTMLReporter reporter = new HTMLReporter(
                 creds,
                 null,                  // logo URL
-                "com.example:test",
-                "1.0",
-                Collections.singletonList("java"),
-                Collections.emptySet(), // otherMetrics
-                typesOfIssue,
-                leakPeriod,
+                new ReportRequest("com.example:test", "1.0", Collections.singletonList("java"),
+                        Collections.emptySet(), typesOfIssue, leakPeriod, null),
                 configProperties,
-                langProperties,
-                null);
+                langProperties);
         injectProject(reporter, project);
         return reporter;
     }
@@ -521,7 +516,7 @@ public class HTMLReporterTest {
         project.setProjectStatus(new ProjectStatus(ProjectStatusKeys.STATUS_OK, Collections.emptyList(), Collections.emptyList()));
 
         // Quality profiles
-        QualityProfile qp = new QualityProfile("sonar-way", "Sonar way", "java", "Java", false, true, 200L, "2024-01-01", 1L);
+        QualityProfile qp = TestEntities.qualityProfile("sonar-way", "Sonar way", "java", "Java", false, true, 200L, "2024-01-01", 1L);
         project.setQualityProfiles(Collections.singletonList(qp));
 
         // Violations analysis lists (empty – tests empty-list branches)

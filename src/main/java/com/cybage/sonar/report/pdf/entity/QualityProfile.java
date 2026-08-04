@@ -12,18 +12,8 @@ public class QualityProfile {
     private String  rulesUpdatedAt;
     private Long    projectCount;
 
-    public QualityProfile(String key, String name, String language, String languageName, Boolean isInherited,
-                          Boolean isDefault, Long activeRuleCount, String rulesUpdatedAt, Long projectCount) {
+    public QualityProfile() {
         super();
-        this.key = key;
-        this.name = name;
-        this.language = language;
-        this.languageName = languageName;
-        this.isInherited = isInherited;
-        this.isDefault = isDefault;
-        this.activeRuleCount = activeRuleCount;
-        this.rulesUpdatedAt = rulesUpdatedAt;
-        this.projectCount = projectCount;
     }
 
     public String getKey() {

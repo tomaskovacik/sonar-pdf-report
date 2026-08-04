@@ -239,7 +239,7 @@ public class PDFPostJobTest {
         doReturn("test-token").when(job).getEnvToken();
         // Stub createGenerator so no real HTTP connection is attempted
         PDFGenerator mockGenerator = mock(PDFGenerator.class);
-        doReturn(mockGenerator).when(job).createGenerator(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        doReturn(mockGenerator).when(job).createGenerator(any(), any(), any(), any());
 
         job.execute(ctx);
 

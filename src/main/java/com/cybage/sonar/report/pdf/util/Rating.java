@@ -33,15 +33,15 @@ public class Rating {
     }
 
     public static Font getRatingStyle(String rating) {
-        if (rating.equals(RATING_1)) {
+        if (RATING_1.equals(rating)) {
             return Style.DASHBOARD_RATING_FONT_A;
-        } else if (rating.equals(RATING_2)) {
+        } else if (RATING_2.equals(rating)) {
             return Style.DASHBOARD_RATING_FONT_B;
-        } else if (rating.equals(RATING_3)) {
+        } else if (RATING_3.equals(rating)) {
             return Style.DASHBOARD_RATING_FONT_C;
-        } else if (rating.equals(RATING_4)) {
+        } else if (RATING_4.equals(rating)) {
             return Style.DASHBOARD_RATING_FONT_D;
-        } else if (rating.equals(RATING_5)) {
+        } else if (RATING_5.equals(rating)) {
             return Style.DASHBOARD_RATING_FONT_E;
         }
         return null;

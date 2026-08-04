@@ -43,15 +43,9 @@ public class ExecutivePDFReporterTest {
         reporter = new ExecutivePDFReporter(
                 new Credentials("http://localhost:9000", "token"),
                 null,
-                "com.example:test",
-                "2.0",
-                sonarLanguage,
-                otherMetrics,
-                typesOfIssue,
-                leakPeriod,
+                new ReportRequest("com.example:test", "2.0", sonarLanguage, otherMetrics, typesOfIssue, leakPeriod, null),
                 configProperties,
-                langProperties,
-                null);
+                langProperties);
     }
 
     // -------------------------------------------------------------------------
@@ -181,15 +175,10 @@ public class ExecutivePDFReporterTest {
         ExecutivePDFReporter empty = new ExecutivePDFReporter(
                 new Credentials("http://localhost:9000", "token"),
                 null,
-                "my:project",
-                "1.0",
-                Collections.emptyList(),
-                Collections.emptySet(),
-                Collections.emptySet(),
-                new LeakPeriodConfiguration(),
+                new ReportRequest("my:project", "1.0", Collections.emptyList(), Collections.emptySet(),
+                        Collections.emptySet(), new LeakPeriodConfiguration(), null),
                 new Properties(),
-                new Properties(),
-                null);
+                new Properties());
 
         Assert.assertEquals(empty.getProjectVersion(), "1.0");
         Assert.assertEquals(empty.getReportType(), "pdf");

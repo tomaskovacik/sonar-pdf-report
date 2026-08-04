@@ -10,7 +10,7 @@ public class IssueTest {
 
     @Test
     public void testConstructorAndGetters() {
-        Issue issue = new Issue("MyProject:MyFile.java", "src/MyFile.java", "MAJOR", 42, "OPEN", "Null pointer dereference", "BUG", "30min");
+        Issue issue = TestEntities.issue("MyProject:MyFile.java", "src/MyFile.java", "MAJOR", 42, "OPEN", "Null pointer dereference", "BUG", "30min");
         Assert.assertEquals(issue.getComponent(), "MyProject:MyFile.java");
         Assert.assertEquals(issue.getComponentPath(), "src/MyFile.java");
         Assert.assertEquals(issue.getSeverity(), "MAJOR");
@@ -23,7 +23,7 @@ public class IssueTest {
 
     @Test
     public void testSetters() {
-        Issue issue = new Issue("A", "path/A.java", "INFO", 1, "CLOSED", "msg", "CODE_SMELL", "5min");
+        Issue issue = TestEntities.issue("A", "path/A.java", "INFO", 1, "CLOSED", "msg", "CODE_SMELL", "5min");
         issue.setComponent("B");
         issue.setComponentPath("path/B.java");
         issue.setSeverity("CRITICAL");
@@ -45,7 +45,7 @@ public class IssueTest {
 
     @Test
     public void testToString() {
-        Issue issue = new Issue("A", "path/A.java", "INFO", 1, "OPEN", "msg", "BUG", "5min");
+        Issue issue = TestEntities.issue("A", "path/A.java", "INFO", 1, "OPEN", "msg", "BUG", "5min");
         Assert.assertNotNull(issue.toString());
         Assert.assertTrue(issue.toString().contains("BUG"));
     }

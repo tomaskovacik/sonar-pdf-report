@@ -99,14 +99,15 @@ public class IssueBuilder {
     }
 
     private Issue newIssue(final Issues.Issue issue, final String component, final String componentPath) {
-        final String severityName = issue.getSeverity().name();
-        final String typeName     = issue.getType().name();
-        return new Issue(component,
-                componentPath, severityName,
-                issue.getLine(),
-                issue.getStatus(),
-                issue.getMessage().replace("\\\"", "\""),
-                typeName,
-                issue.getEffort());
+        final Issue result = new Issue();
+        result.setComponent(component);
+        result.setComponentPath(componentPath);
+        result.setSeverity(issue.getSeverity().name());
+        result.setLine(issue.getLine());
+        result.setStatus(issue.getStatus());
+        result.setMessage(issue.getMessage().replace("\\\"", "\""));
+        result.setType(issue.getType().name());
+        result.setEffort(issue.getEffort());
+        return result;
     }
 }
