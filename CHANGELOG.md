@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.4](https://github.com/tomaskovacik/sonar-pdf-report/compare/v1.7.3...v1.7.4) - 2026-08-04
+
+### Added
+- SonarCloud analysis step in the `verify.yml` GitHub Actions workflow
+
+### Changed
+- Introduced `ReportRequest` to bundle report-content parameters threaded through `PDFPostJob` -> `PDFGenerator` -> `HTMLReporter`/`ExecutivePDFReporter`, reducing constructor/method parameter counts
+- Switched `Issue`/`QualityProfile` to a no-arg constructor with setters instead of a long all-args constructor
+- Replaced `var` with `let`/`const` and `removeChild` with `.remove()` in `report_page.js`
+- Extracted `PDF_FILES_DIR` constant in the Ruby report controller
+
+### Fixed
+- Potential `NullPointerException` in `Rating.getRatingStyle` when a rating value is null
+- `sonar-issues.json` generation timestamp now uses UTC instead of the implicit system time zone
+
 ## [1.7.1](https://github.com/tomaskovacik/sonar-pdf-report/compare/v1.6.7...v1.7.1) - 2026-04-20
 
 ### Added
@@ -72,7 +87,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial fork from upstream with SonarQube Community Build v26.4.0.121862 compatibility
 - Update for SonarQube API compatibility (period index constant, pom comment)
 
-[Unreleased]: https://github.com/tomaskovacik/sonar-pdf-report/compare/v1.6.7...HEAD
+[Unreleased]: https://github.com/tomaskovacik/sonar-pdf-report/compare/v1.7.4...HEAD
+[1.7.4]: https://github.com/tomaskovacik/sonar-pdf-report/compare/v1.7.3...v1.7.4
 [1.6.7]: https://github.com/tomaskovacik/sonar-pdf-report/compare/v1.6.6...v1.6.7
 [1.6.6]: https://github.com/tomaskovacik/sonar-pdf-report/compare/v1.6.5...v1.6.6
 [1.6.5]: https://github.com/tomaskovacik/sonar-pdf-report/compare/v1.6.4...v1.6.5
