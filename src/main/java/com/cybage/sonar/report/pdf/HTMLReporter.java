@@ -5,8 +5,7 @@ import static com.cybage.sonar.report.pdf.util.MetricKeys.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -155,7 +154,7 @@ public class HTMLReporter extends PDFReporter {
     }
 
     private void appendFrontPage(StringBuilder html, Project project) {
-        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String date = LocalDate.now().toString();
         html.append("<div class=\"front-page\">\n")
             .append("<div class=\"project-name\">").append(escape(project.getName())).append(DIV_CLOSE)
             .append("<div class=\"meta\">Version: ").append(escape(project.getVersion())).append(DIV_CLOSE);

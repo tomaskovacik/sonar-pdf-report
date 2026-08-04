@@ -55,7 +55,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -251,8 +251,7 @@ public class ExecutivePDFReporter extends PDFReporter {
             String versionRow    = "Version " + super.getProject().getVersion();
             String descriptionRow = super.getProject().getDescription();
             String profileRow    = super.getProject().getMeasure(PROFILE).getValue();
-            SimpleDateFormat df  = new SimpleDateFormat("yyyy-MM-dd");
-            String dateRow       = df.format(new Date());
+            String dateRow       = LocalDate.now().toString();
 
             PdfPTable title = new PdfPTable(1);
             title.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
