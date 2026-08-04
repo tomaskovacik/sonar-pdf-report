@@ -56,6 +56,7 @@ import java.net.URI;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -251,7 +252,7 @@ public class ExecutivePDFReporter extends PDFReporter {
             String versionRow    = "Version " + super.getProject().getVersion();
             String descriptionRow = super.getProject().getDescription();
             String profileRow    = super.getProject().getMeasure(PROFILE).getValue();
-            String dateRow       = LocalDate.now().toString();
+            String dateRow       = LocalDate.now(ZoneId.systemDefault()).toString();
 
             PdfPTable title = new PdfPTable(1);
             title.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);

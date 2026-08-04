@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -154,7 +155,7 @@ public class HTMLReporter extends PDFReporter {
     }
 
     private void appendFrontPage(StringBuilder html, Project project) {
-        String date = LocalDate.now().toString();
+        String date = LocalDate.now(ZoneId.systemDefault()).toString();
         html.append("<div class=\"front-page\">\n")
             .append("<div class=\"project-name\">").append(escape(project.getName())).append(DIV_CLOSE)
             .append("<div class=\"meta\">Version: ").append(escape(project.getVersion())).append(DIV_CLOSE);
