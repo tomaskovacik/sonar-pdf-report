@@ -18,7 +18,11 @@ class PdfReportController < ApplicationController
     filename = params[:pdfname] || uploaded.original_filename
     # Rails.root is WEB-INF dir
     FileUtils::mkdir_p Rails.root.join(PDF_FILES_DIR) unless File.exists?(Rails.root.join(PDF_FILES_DIR))
-    File.open(Rails.root.join(PDF_FILES_DIR, filename), 'wb') do |file|
+    joined = File.expand_path(File.join(Rails.root.join(PDF_FILES_DIR), filename))
+    if !joined.start_with?(File.expand_path(Rails.root.join(PDF_FILES_DIR)) + File::SEPARATOR)
+      raise "Invalid path: path traversal detected in #{filename}"
+    end
+    File.open(joined, 'wb') do |file|
       file.write(uploaded.read)
     end
     render :nothing => true, :status => 200
