@@ -112,7 +112,7 @@
         <!-- sonar-ws version must match the target SonarQube Community Build version -->
         <sonar.version>26.8.0.126808</sonar.version>
         <!-- standalone sonar-plugin-api version compatible with SonarQube 26.x -->
-        <sonar.plugin.api.version>13.10.0.4437</sonar.plugin.api.version>
+        <sonar.plugin.api.version>13.11.0.4459</sonar.plugin.api.version>
         <mockito.version>5.23.0</mockito.version>
     </properties>
 
