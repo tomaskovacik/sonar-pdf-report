@@ -172,13 +172,21 @@
             <artifactId>maven-project</artifactId>
             <version>2.2.1</version>
             <scope>test</scope>
+            <exclusions>
+                <!-- Drags in junit 3.8.1, which makes surefire activate the
+                     junit-vintage engine; that engine requires JUnit 4.12+ and
+                     fails test discovery. The tests here are TestNG only. -->
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>5.11</version>
+            <version>7.11.0</version>
             <scope>test</scope>
-            <classifier>jdk15</classifier>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -205,11 +213,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.6</version>
+                <version>3.6.0</version>
                 <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
+                    <!-- suiteXmlFiles is not supported after surefire 3.6.0, so the
+                         group selection of the former src/test/config/testng.xml
+                         suite is declared here instead. -->
+                    <groups>metrics,report</groups>
                     <!-- Load Mockito as a javaagent to suppress the self-attach warning
                          on modern JDKs. @{argLine} is resolved at runtime so the JaCoCo
                          agent (prepended by jacoco:prepare-agent) is included as well.
