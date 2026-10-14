@@ -101,7 +101,7 @@
 
     <properties>
 
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -110,7 +110,7 @@
         <sonar.pluginName>PDF Report</sonar.pluginName>
         <sonar.pluginClass>com.cybage.sonar.report.pdf.plugin.PDFReportPlugin</sonar.pluginClass>
         <!-- sonar-ws version must match the target SonarQube Community Build version -->
-        <sonar.version>26.9.0.129388</sonar.version>
+        <sonar.version>26.10.0.132816</sonar.version>
         <!-- standalone sonar-plugin-api version compatible with SonarQube 26.x -->
         <sonar.plugin.api.version>14.1.0.5543</sonar.plugin.api.version>
         <mockito.version>5.24.0</mockito.version>
